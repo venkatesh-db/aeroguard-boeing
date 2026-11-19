@@ -1,0 +1,5 @@
+LLM_PROVIDER=ollama
+CHAT_MODEL=llama3
+EMBED_MODEL=llama3
+API_URL=http://localhost:8000
+MCP_ACCESS_TOKEN=change-me-training-token
