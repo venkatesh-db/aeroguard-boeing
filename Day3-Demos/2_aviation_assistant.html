@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MRO Copilot Build</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--teal:#0f8a7a;--pur:#7a3fc4;--or:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f;--low:#1a8a4a;--med:#e08a00;--high:#c62828}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#134074);color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:32px}header p{margin:2px 0 0;opacity:.85}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 26px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:10px 16px;font-size:17px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:20px}
+.tab{display:none}.tab.on{display:block}
+h2{font-size:30px;margin:0 0 4px}.sub{color:var(--mut);font-size:19px;margin-bottom:14px}
+.split{display:grid;grid-template-columns:480px 1fr;gap:18px}
+@media(max-width:1100px){.split{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+/* tablet mock */
+.tablet{background:#1b2333;border-radius:28px;padding:14px}
+.screen{background:#f7f9fc;border-radius:16px;min-height:560px;overflow:hidden;display:flex;flex-direction:column}
+.appbar{background:var(--navy);color:#fff;padding:10px 14px;font-weight:700;display:flex;justify-content:space-between;font-size:17px}
+.appbody{padding:12px;flex:1;display:flex;flex-direction:column;gap:8px}
+.appbody textarea,.appbody input{width:100%;font:17px system-ui;border:2px solid var(--line);border-radius:10px;padding:8px}
+.appbody .bad{border-color:var(--bad);background:#fff4f2}
+.hint{font-size:14px;color:var(--bad)}
+.btn{background:var(--navy);color:#fff;border:0;padding:11px 16px;border-radius:10px;cursor:pointer;font-size:17px;font-weight:700;margin:4px 6px 0 0}
+.btn.go{background:var(--ok)}.btn.ghost{background:#e3e9f3;color:var(--navy)}.btn.red{background:var(--bad)}
+.btn:disabled{opacity:.45}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.chip{background:#e8eef9;color:var(--navy);border:2px solid transparent;border-radius:20px;padding:7px 12px;font-size:15px;cursor:pointer}
+.chip.on{background:var(--navy);color:#fff}
+.mono{font:15px/1.55 ui-monospace,Menlo,monospace;white-space:pre-wrap;background:#0f1729;color:#e5ecff;border-radius:12px;padding:12px 14px;min-height:50px;overflow:auto}
+.mono.ok{box-shadow:inset 6px 0 var(--ok)}.mono.bad{box-shadow:inset 6px 0 #ff6b4a}
+.k{color:#7fc8ff}.s{color:#a5e88b}.n{color:#ffcb6b}.c{color:#6b7a99}.e{color:#ff8a80}.g{color:#9ff0b5}
+.lbl{display:inline-block;color:#fff;font-weight:700;border-radius:6px;padding:2px 10px;font-size:14px;margin:10px 0 6px}
+.hood{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:1300px){.hood{grid-template-columns:1fr}}
+.tip{background:#eef4ff;border-left:6px solid var(--blue);border-radius:10px;padding:12px 16px;margin-top:14px;font-size:18px}
+.disc{font-size:14px;color:var(--mut);margin-top:14px}
+@keyframes pop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+.dcard{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px;animation:pop .35s}
+.dcard .top{display:flex;justify-content:space-between;align-items:center}
+.sev{color:#fff;font-weight:800;border-radius:8px;padding:3px 10px;font-size:15px}
+.dcard ul{margin:6px 0 0;padding-left:20px;font-size:16px}
+.badge{display:inline-block;background:#fff4dc;color:var(--gold);border:1px solid var(--gold);border-radius:8px;padding:2px 8px;font-size:14px;font-weight:700;margin-top:6px}
+.log{font-size:16px;max-height:240px;overflow:auto}
+.log div{padding:5px 8px;border-bottom:1px solid var(--line);animation:pop .3s}
+.chat{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px;max-height:380px}
+.msg{max-width:85%;padding:8px 12px;border-radius:12px;font-size:16px;animation:pop .3s;white-space:pre-line}
+.msg.u{align-self:flex-end;background:var(--navy);color:#fff}.msg.a{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+.msg.sum{align-self:center;background:#fff4dc;border:1px dashed var(--gold);font-size:14px;max-width:95%}
+.cursor{display:inline-block;width:8px;height:18px;background:var(--or);vertical-align:middle;animation:blink .8s infinite}
+@keyframes blink{50%{opacity:0}}
+.hn h4{margin:8px 0 2px;font-size:17px}
+.hn div{font-size:16px}
+.toast{border-radius:10px;padding:10px 12px;font-size:16px;animation:pop .3s}
+.toast.ok{background:#e7f6ec;border:1px solid var(--ok)}.toast.bad{background:#fdecea;border:1px solid var(--bad)}.toast.warn{background:#fff4dc;border:1px solid var(--gold)}
+.toggles label{display:flex;gap:8px;align-items:center;border:2px solid var(--line);border-radius:10px;padding:6px 10px;margin:5px 0;cursor:pointer;font-size:16px;background:#fff}
+.toggles input{transform:scale(1.3)}
+.map td{padding:4px 8px;border-bottom:1px solid var(--line);font-size:15px}
+.map tr.hot td{background:#fff6cc}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:4px 10px;font-size:16px}
+.kv b{font-family:ui-monospace,Menlo,monospace;color:var(--pur)}
+</style>
+</head>
+<body>
+<header><h1>🛠️ Building "MRO Copilot": An Aviation Maintenance Assistant</h1><p>Day 3 · Page 2 of 2 · The same 5 concepts, inside one real-world app: 📱 the technician's tablet on the left, ⚙️ what happens under the hood on the right</p></header>
+<nav id="nav">
+  <button data-t="t1" class="on">① Structured defect report</button>
+  <button data-t="t2">② API contract</button>
+  <button data-t="t3">③ Troubleshooting session</button>
+  <button data-t="t4">④ Streaming handover note</button>
+  <button data-t="t5">⑤ Errors & validation</button>
+</nav>
+<main>
+
+<!-- 1 STRUCTURED -->
+<section class="tab on" id="t1">
+  <h2>Turn a messy technician note into a structured defect report</h2>
+  <div class="sub">The app needs fields (tail, ATA chapter, severity…) to file the defect, not a paragraph. So we force JSON, validate it and retry if needed.</div>
+  <div class="split">
+    <div class="tablet"><div class="screen"><div class="appbar"><span>📱 MRO Copilot · New defect</span><span>👷 Tech #4127</span></div><div class="appbody">
+      <b>Technician note</b>
+      <textarea id="n1" rows="4">Eng 2 hi vib after start ~4.8 ips on VT-SKA, EGT ok. Mounts chkd ok. 3rd time this wk. Pls advise.</textarea>
+      <label style="font-size:15px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="jsonMode"> Use the provider's built-in JSON/structured mode</label>
+      <button class="btn go" id="r1">🤖 Create defect report</button>
+      <div id="card1"></div>
+    </div></div></div>
+    <div>
+      <div class="hood">
+        <div><span class="lbl" style="background:var(--pur)">🐍 Schema (Pydantic)</span><div class="mono"><span class="k">class</span> DefectReport(BaseModel):
+    tail_number: str = Field(pattern=<span class="s">r"^VT-[A-Z]{3}$"</span>)
+    ata_chapter: int = Field(ge=<span class="n">5</span>, le=<span class="n">99</span>)
+    severity: Literal[<span class="s">"low"</span>,<span class="s">"medium"</span>,<span class="s">"high"</span>]
+    summary: str = Field(max_length=<span class="n">200</span>)
+    recommended_actions: list[str]
+    repeat_defect: bool
+    requires_engineer_review: bool</div></div>
+        <div><span class="lbl" style="background:var(--blue)">🤖 Raw LLM output · attempt <span id="att1">0</span>/3</span><div class="mono" id="raw1" style="min-height:220px">…</div></div>
+      </div>
+      <span class="lbl" style="background:var(--gold)">🔍 Validation & retry log</span><div class="card log" id="log1"></div>
+    </div>
+  </div>
+  <div class="tip">💡 Pattern: <code>prompt + schema → LLM → json.loads() → DefectReport.model_validate() → ✅ or 🔁 retry with the error message (max 3) → ❌ ask the technician to fill the form manually</code>.</div>
+</section>
+
+<!-- 2 CONTRACT -->
+<section class="tab" id="t2">
+  <h2>One clear contract between the tablet app and the backend</h2>
+  <div class="sub">Click any field on the tablet to see which part of the contract it comes from.</div>
+  <div class="split">
+    <div class="tablet"><div class="screen"><div class="appbar"><span>📱 Defect #D-2041</span><span id="sevPill"></span></div><div class="appbody" id="ui2"></div></div></div>
+    <div>
+      <div class="hood">
+        <div><span class="lbl" style="background:var(--teal)">📤 Request · POST /api/v1/defects/analyze</span><div class="mono" id="req2"></div></div>
+        <div><span class="lbl" style="background:var(--navy)">📥 Response 200</span><div class="mono" id="res2"></div></div>
+      </div>
+      <span class="lbl" style="background:var(--bad)">❗ Error response (always this shape)</span>
+      <div class="mono">{ <span class="k">"error"</span>: { <span class="k">"code"</span>: <span class="s">"VALIDATION_FAILED"</span>, <span class="k">"message"</span>: <span class="s">"Tail number must look like VT-ABC"</span>, <span class="k">"field"</span>: <span class="s">"tail_number"</span>, <span class="k">"request_id"</span>: <span class="s">"req-8f2c"</span> } }</div>
+      <div class="card" style="margin-top:10px"><b>🧪 What if the backend changes severity to uppercase?</b>
+        <div class="chips" id="brk"><button class="chip on" data-v="ok">✅ Contract: "low" | "medium" | "high"</button><button class="chip" data-v="up">✏️ Backend now sends "HIGH"</button><button class="chip" data-v="enum">🛡️ Enum enforced by response_model</button></div>
+        <div id="brkMsg" style="font-size:17px"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 SESSION -->
+<section class="tab" id="t3">
+  <h2>A troubleshooting conversation that remembers</h2>
+  <div class="sub">Each message only carries a <code>session_id</code>. The backend looks up the aircraft, defect and history, and sends them to the LLM every turn.</div>
+  <div class="split">
+    <div class="tablet"><div class="screen"><div class="appbar"><span>📱 Troubleshoot · VT-SKA</span><span>session s-77a1</span></div><div class="appbody">
+      <label style="font-size:15px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="mem3" checked> Backend uses session memory</label>
+      <div class="chat" id="chat3"></div>
+      <div class="chips" id="q3"></div>
+    </div></div></div>
+    <div>
+      <div class="hood">
+        <div><span class="lbl" style="background:var(--pur)">🗄️ Session store (Redis / DB)</span><div class="card kv" id="store3"></div>
+          <button class="btn ghost" id="sum3">🗜️ Summarise older turns</button></div>
+        <div><span class="lbl" style="background:var(--navy)">📦 Sent to the LLM this turn</span><div class="mono" id="pay3" style="max-height:330px"></div><div style="font-size:16px;margin-top:4px">≈ <b id="tok3">0</b> tokens</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 STREAMING -->
+<section class="tab" id="t4">
+  <h2>Stream the shift-handover note as it's written</h2>
+  <div class="sub">A full handover takes about 8 seconds to generate. With streaming, the shift lead starts reading the 🔴 urgent items in under a second.</div>
+  <div class="split">
+    <div class="tablet"><div class="screen"><div class="appbar"><span>📱 Shift handover · Night → Day</span><span id="ttft"></span></div><div class="appbody">
+      <div><button class="btn go" id="g4">⚡ Generate handover</button><button class="btn red" id="x4">⏹ Stop</button></div>
+      <div class="hn" id="hn"></div>
+    </div></div></div>
+    <div>
+      <div class="hood">
+        <div><span class="lbl" style="background:var(--navy)">🐍 FastAPI endpoint</span><div class="mono"><span class="n">@app.post</span>(<span class="s">"/api/v1/handover/stream"</span>)
+<span class="k">async def</span> handover(req: HandoverRequest):
+    <span class="k">async def</span> events():
+        <span class="k">yield</span> sse(<span class="s">"meta"</span>, {<span class="s">"shift"</span>: req.shift})
+        <span class="k">async for</span> tok <span class="k">in</span> llm.stream(prompt(req)):
+            <span class="k">yield</span> sse(<span class="s">"token"</span>, {<span class="s">"t"</span>: tok})
+        <span class="k">yield</span> sse(<span class="s">"done"</span>, {<span class="s">"tokens"</span>: n})
+    <span class="k">return</span> StreamingResponse(events(),
+        media_type=<span class="s">"text/event-stream"</span>)</div>
+        <span class="lbl" style="background:var(--teal)">🌐 UI side (JavaScript)</span><div class="mono">read the stream chunk by chunk
+<span class="c">// for each "token" event:</span>
+noteEl.textContent += data.t
+<span class="c">// on "done": enable Save button</span></div></div>
+        <div><span class="lbl" style="background:var(--pur)">📡 Event stream (live)</span><div class="mono" id="wire4" style="height:400px"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ERRORS -->
+<section class="tab" id="t5">
+  <h2>Validate inputs and handle every failure safely</h2>
+  <div class="sub">Try bad inputs and switch on failures. The technician always gets a clear next step; developers get detailed logs.</div>
+  <div class="split">
+    <div class="tablet"><div class="screen"><div class="appbar"><span>📱 Ask MRO Copilot</span><span></span></div><div class="appbody">
+      <b>Tail number</b><input id="t5tail" value="VT-SKA"><div class="hint" id="h5tail"></div>
+      <b>Question</b><textarea id="t5q" rows="3">Engine 2 vibration 4.8 ips. Can the aircraft fly today?</textarea><div class="hint" id="h5q"></div>
+      <button class="btn go" id="go5">📤 Send</button>
+      <div class="chips"><button class="chip" id="b5a">Tail "SKA"</button><button class="chip" id="b5b">Empty question</button><button class="chip" id="b5c">Valid normal question</button></div>
+      <div id="user5"></div>
+    </div></div></div>
+    <div class="card">
+      <b>Simulate failures</b>
+      <div class="toggles" style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <label><input type="checkbox" id="f429"> 🚦 LLM rate limit (429)</label>
+        <label><input type="checkbox" id="fTO"> ⏱️ LLM timeout</label>
+        <label><input type="checkbox" id="fJSON"> 🧩 LLM keeps returning bad JSON</label>
+        <label><input type="checkbox" id="fSafe" checked> 🛡️ Safety guard on output</label>
+      </div>
+      <span class="lbl" style="background:var(--navy)">🖥️ Server log</span><div class="mono log" id="log5" style="min-height:240px;font-size:14px"></div>
+      <div class="tip">💡 Layers: <b>UI checks</b> (instant feedback) → <b>Pydantic</b> (422 with the field name) → <b>LLM call</b> with timeout, retry and backoff → <b>output validation</b> (schema and safety: never "airworthy" or "safe to fly") → <b>friendly message</b> plus a <code>request_id</code> for support.</div>
+    </div>
+  </div>
+  <div class="disc">Teaching simulation; no real LLM or server is called. MRO Copilot is advisory only. Airworthiness decisions always rest with authorised, licensed personnel under your organisation's approved procedures.</div>
+</section>
+<a href="3_lab_milestone2.html" style="display:block;text-align:center;margin-top:18px;font-size:20px;font-weight:700;color:#1f5fbf">➡️ Page 3: build it yourself, Day 3 Lab & Milestone 2</a>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));const ts=()=>new Date().toTimeString().slice(0,8);
+const SC={low:'var(--low)',medium:'var(--med)',high:'var(--high)'};
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===b.dataset.t))});
+function chipGroup(id,cb){[...$(id).children].forEach(b=>b.onclick=()=>{[...$(id).children].forEach(x=>x.classList.toggle('on',x===b));cb(b)})}
+function jhl(o){return esc(JSON.stringify(o,null,2)).replace(/"([\w_]+)":/g,'<span class="k">"$1"</span>:').replace(/: "([^"]*)"/g,': <span class="s">"$1"</span>').replace(/: (\d+|true|false)/g,': <span class="n">$1</span>')}
+
+/* ===== 1 STRUCTURED ===== */
+const GOOD={tail_number:'VT-SKA',ata_chapter:72,severity:'high',summary:'Engine 2 high vibration (~4.8 ips) after start; EGT normal; mounts checked OK.',recommended_actions:['Perform engine 2 borescope inspection per AMM','Review vibration trend data','Refer repeat defect to engineering'],repeat_defect:true,requires_engineer_review:true};
+function dcard(d){return `<div class="dcard"><div class="top"><b style="font-size:19px">✈️ ${esc(d.tail_number)} · ATA ${d.ata_chapter}</b><span class="sev" style="background:${SC[d.severity]}">${d.severity.toUpperCase()}</span></div>
+ <div style="font-size:16px;margin-top:4px">${esc(d.summary)}</div><ul>${d.recommended_actions.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>
+ ${d.repeat_defect?'<span class="badge">🔁 Repeat defect</span> ':''}${d.requires_engineer_review?'<span class="badge">👷 Engineer review required</span>':''}
+ <div style="font-size:13px;color:var(--mut);margin-top:6px">Advisory only. Not an airworthiness determination.</div></div>`}
+function l1(t,c){$('log1').insertAdjacentHTML('beforeend',`<div style="color:${c||'inherit'}">${t}</div>`);$('log1').scrollTop=1e6}
+$('r1').onclick=async()=>{$('r1').disabled=true;$('log1').innerHTML='';$('card1').innerHTML='';
+ const tries=$('jsonMode').checked?[[JSON.stringify(GOOD,null,2),[]]]:[
+  ['Here is the defect report:\n```json\n{\n  "tail_number": "VT-SKA",\n  "ata_chapter": "seventy-two",\n  "severity": "URGENT",\n  "summary": "Engine 2 high vibration…",\n  "recommended_actions": "borescope"\n}\n```',['ata_chapter: Input should be a valid integer (got "seventy-two")','severity: Input should be \'low\', \'medium\' or \'high\' (got "URGENT")','recommended_actions: Input should be a valid list','repeat_defect: Field required','requires_engineer_review: Field required']],
+  [JSON.stringify(GOOD,null,2),[]]];
+ for(let i=0;i<tries.length;i++){$('att1').textContent=i+1;$('raw1').className='mono';$('raw1').textContent='⏳ generating…';await sleep(700);$('raw1').textContent=tries[i][0];await sleep(500);
+  if(tries[i][0].startsWith('Here'))l1('🧹 Stripped the extra sentence and the ``` fences, then parsed the JSON','#5d6778');
+  const e=tries[i][1];if(e.length){$('raw1').className='mono bad';l1(`❌ ${e.length} validation errors:`,'#c2410c');e.forEach(x=>l1('&nbsp;&nbsp;• '+esc(x),'#c2410c'));await sleep(500);l1('🔁 Retry 2/3: sent the errors back: "Your JSON failed validation: … Return only JSON matching the schema."','#b7791f');await sleep(900)}
+  else{$('raw1').className='mono ok';l1('✅ DefectReport.model_validate() passed. All 7 fields are valid.','#1a8a4a');l1('💾 Saved as defect D-2041 → shown on the tablet as a card');$('card1').innerHTML=dcard(GOOD)}}
+ if($('jsonMode').checked)l1('ℹ️ Structured mode got it right first time, but we still validate (belt and braces).','#1f5fbf');$('r1').disabled=false};
+
+/* ===== 2 CONTRACT ===== */
+const REQ={tail_number:'VT-SKA',note:'Eng 2 hi vib after start…',technician_id:'T-4127'};
+let RES={defect_id:'D-2041',report:{tail_number:'VT-SKA',ata_chapter:72,severity:'high',summary:'Engine 2 high vibration after start',recommended_actions:['Borescope inspection','Review trend data']},advisory_notice:'Advisory only. Final decision rests with authorised personnel.',request_id:'req-8f2c'};
+let brk='ok';
+function ui2(hot){const r=RES.report,sev=brk==='up'?'HIGH':r.severity,col=SC[sev];
+ $('sevPill').innerHTML=`<span class="sev" style="background:${col||'#999'}">${col?sev.toUpperCase():'??? '+esc(sev)}</span>`;
+ const F=[['defect_id','Defect ID',RES.defect_id],['report.tail_number','Aircraft',r.tail_number],['report.ata_chapter','ATA chapter',r.ata_chapter],['report.severity','Severity',col?sev:`<span style="color:var(--bad)">⚠️ unknown value "${esc(sev)}": badge colour missing, sorting broken</span>`],['report.summary','Summary',r.summary],['report.recommended_actions','Next steps',r.recommended_actions.join(' · ')],['advisory_notice','Notice',RES.advisory_notice]];
+ $('ui2').innerHTML='<table class="map" style="width:100%">'+F.map(([k,l,v])=>`<tr class="${k===hot?'hot':''}" data-k="${k}" style="cursor:pointer"><td style="color:var(--mut);width:110px">${l}</td><td><b>${typeof v==='string'&&v.startsWith('<')?v:esc(v)}</b></td></tr>`).join('')+'</table><div style="font-size:14px;color:var(--mut)">👆 Tap a row</div>';
+ $('ui2').querySelectorAll('tr').forEach(t=>t.onclick=()=>ui2(t.dataset.k));
+ const o=JSON.parse(JSON.stringify(RES));if(brk==='up')o.report.severity='HIGH';let txt=jhl(o);
+ if(hot){const key=hot.split('.').pop();txt=txt.replace(new RegExp(`(<span class="k">"${key}"</span>: [^\\n]*)`),'<span style="background:#f1c40f55;border-radius:4px">$1</span>')}
+ $('res2').innerHTML=txt;$('req2').innerHTML=jhl(REQ)}
+chipGroup('brk',b=>{brk=b.dataset.v;ui2();$('brkMsg').innerHTML={ok:'✅ The tablet maps "low/medium/high" to green/orange/red.',up:'💥 The tablet only knows lowercase values, so the severity badge is broken and HIGH defects may not sort to the top. <b>A safety-relevant bug</b> caused by a "small" backend change.',enum:'🛡️ <code>severity: Literal["low","medium","high"]</code> in the <b>response_model</b> makes FastAPI refuse to send "HIGH". The bug is caught in testing on the backend, before any tablet sees it.'}[brk];if(brk==='enum'){brk='ok';ui2()}});
+ui2();$('brkMsg').innerHTML='✅ The tablet maps "low/medium/high" to green/orange/red.';
+
+/* ===== 3 SESSION ===== */
+const Q3=[['Eng 2 high vibration after start on VT-SKA, 4.8 ips.','Noted for VT-SKA, engine 2. Vibration of 4.8 ips after start is above typical levels. Was EGT normal, and is this a repeat?'],
+ ['EGT normal. Third time this week.','A repeat defect with normal EGT points more towards mechanical causes (fan imbalance, bearing) than combustion. I recommend a borescope inspection per the AMM, and flagging it to engineering.'],
+ ['Borescope found a small nick on a fan blade.','For a fan blade nick on VT-SKA engine 2, measure it against the AMM blend-repair limits. If it\'s outside limits, blade replacement is needed. This needs a certifying engineer\'s decision.'],
+ ['Remind me: which aircraft and engine, and what have we found so far?',null]];
+let h3=[],i3=0,summary=null;
+$('q3').innerHTML=Q3.map((q,i)=>`<button class="chip" ${i?'disabled':''}>${i+1}. ${esc(q[0].slice(0,34))}…</button>`).join('');
+function render3(){const mem=$('mem3').checked;
+ $('chat3').innerHTML=(summary?`<div class="msg sum">🗜️ Summary of earlier turns: ${esc(summary)}</div>`:'')+h3.map(([r,t])=>`<div class="msg ${r==='user'?'u':'a'}">${esc(t)}</div>`).join('');$('chat3').scrollTop=1e6;
+ $('store3').innerHTML=`<b>session_id</b><span>s-77a1</span><b>aircraft</b><span>${i3?'VT-SKA':'—'}</span><b>engine</b><span>${i3?'#2':'—'}</span><b>findings</b><span>${i3>2?'fan blade nick':i3>1?'repeat · EGT normal':i3?'vib 4.8 ips':'—'}</span><b>turns stored</b><span>${h3.length/2|0}${summary?' + summary':''}</span>`;
+ const sys={role:'system',content:'You are MRO Copilot, an advisory assistant. Never certify airworthiness.'};
+ const last=h3.filter(x=>x[0]==='user').slice(-1).map(([r,t])=>({role:r,content:t}));
+ const msgs=mem?[sys,...(summary?[{role:'system',content:'Earlier: '+summary}]:[]),...h3.map(([r,t])=>({role:r,content:t}))]:[sys,...last];
+ $('pay3').innerHTML=jhl({session_id:'s-77a1',messages:msgs});$('tok3').textContent=msgs.reduce((a,m)=>a+Math.ceil(m.content.length/4)+4,0)}
+[...$('q3').children].forEach((b,i)=>b.onclick=async()=>{if(i!==i3)return;b.disabled=true;h3.push(['user',Q3[i][0]]);i3++;render3();await sleep(700);
+ let a=Q3[i][1];if(!a)a=$('mem3').checked?'You\'re working on VT-SKA, engine #2.\nSo far: high vibration (4.8 ips) after start, EGT normal, a repeat defect (3rd this week), and the borescope found a small fan-blade nick.\nNext: check the nick against AMM limits with a certifying engineer.':'Sorry, I don\'t have any details about which aircraft or engine you mean. Could you tell me?';
+ h3.push(['assistant',a]);render3();if($('q3').children[i3])$('q3').children[i3].disabled=false});
+$('sum3').onclick=()=>{if(h3.length<4)return;summary='VT-SKA eng #2, vib 4.8 ips after start, EGT normal, repeat ×3, borescope advised.';h3=h3.slice(4);render3()};
+$('mem3').onchange=render3;render3();
+
+/* ===== 4 STREAMING ===== */
+const HN=[['🔴 OPEN / SAFETY','VT-SKA engine 2 borescope 60% complete. TOOLS STILL ON THE AIRCRAFT: do not tow or start the engine.'],['🟡 IN PROGRESS','VT-SKC hydraulic seepage line B-14 within limits, continue monitoring. VT-SKE awaiting part 4412, ETA 14:00.'],['🟢 COMPLETED','VT-SKB main-wheel tyre change complete; paperwork signed.'],['📌 NOTE','Items above still require completion and sign-off by authorised personnel. Advisory summary only.']];
+let stop4=false;$('x4').onclick=()=>stop4=true;
+function w4(t){$('wire4').insertAdjacentHTML('beforeend',t+'\n');$('wire4').scrollTop=1e6}
+$('g4').onclick=async()=>{stop4=false;$('g4').disabled=true;$('hn').innerHTML='';$('wire4').innerHTML='';$('ttft').textContent='';const t0=performance.now();let n=0,first=true;
+ w4('<span class="g">event: meta</span>\n<span class="g">data:</span> {"shift": "night→day", "aircraft": 4}\n');
+ outer:for(const [h,body] of HN){const sec=document.createElement('div');sec.innerHTML=`<h4>${h}</h4><div></div>`;$('hn').appendChild(sec);const d=sec.lastChild;
+  for(const w of body.split(' ')){if(stop4){w4('<span class="e">✋ client aborted, so the server stops the LLM call (saves tokens)</span>');d.insertAdjacentHTML('beforeend',' <i style="color:var(--bad)">[stopped]</i>');break outer}
+   await sleep(70);if(first){first=false;$('ttft').textContent='⚡ first words in '+((performance.now()-t0)/1000).toFixed(1)+'s'}
+   d.innerHTML=esc(d.textContent+(d.textContent?' ':'')+w)+'<span class="cursor"></span>';n++;w4(`<span class="g">event: token</span>  <span class="g">data:</span> {"t": "${esc(w)} "}`)}
+  d.innerHTML=esc(d.textContent)}
+ if(!stop4)w4(`\n<span class="g">event: done</span>\n<span class="g">data:</span> {"tokens": ${n}, "ms": ${Math.round(performance.now()-t0)}}`);$('g4').disabled=false};
+
+/* ===== 5 ERRORS ===== */
+function l5(t,c){$('log5').insertAdjacentHTML('beforeend',`<div style="color:${c||'#e5ecff'}">${ts()} ${t}</div>`);$('log5').scrollTop=1e6}
+function u5(c,t){$('user5').innerHTML=`<div class="toast ${c}">${t}</div>`}
+$('go5').onclick=async()=>{$('log5').innerHTML='';$('user5').innerHTML='';['t5tail','t5q'].forEach(i=>$(i).classList.remove('bad'));$('h5tail').textContent='';$('h5q').textContent='';
+ const tail=$('t5tail').value.trim(),q=$('t5q').value.trim();let bad=false;
+ if(!/^VT-[A-Z]{3}$/.test(tail)){$('t5tail').classList.add('bad');$('h5tail').textContent='⚠ Use the format VT-ABC';bad=true}
+ if(q.length<10){$('t5q').classList.add('bad');$('h5q').textContent='⚠ Please describe the issue (at least 10 characters)';bad=true}
+ if(bad){l5('UI validation blocked the request (no network call made)','#ffcb6b');return}
+ l5('POST /api/v1/ask  request_id=req-91ab');l5('✓ Pydantic AskRequest valid','#9ff0b5');
+ if($('f429').checked){l5('LLM → 429 Too Many Requests','#ffcb6b');u5('warn','⏳ Busy right now, retrying automatically…');await sleep(700);l5('backoff 1s → retry 1 → 429','#ffcb6b');await sleep(700);l5('backoff 2s → retry 2 → 200 OK','#9ff0b5')}
+ if($('fTO').checked){l5('LLM call exceeded 20s timeout','#ff8a80');l5('→ 504 {"error":{"code":"AI_TIMEOUT","request_id":"req-91ab"}}');u5('bad','⌛ MRO Copilot is taking too long. Please try again. If it keeps happening, quote reference <b>req-91ab</b> to IT support.');return}
+ if($('fJSON').checked){l5('attempt 1: invalid JSON','#ff8a80');await sleep(400);l5('attempt 2: invalid JSON','#ff8a80');await sleep(400);l5('attempt 3: invalid JSON → giving up','#ff8a80');l5('→ 502 {"error":{"code":"AI_BAD_OUTPUT"}}');u5('bad','🧩 We couldn\'t generate a reliable answer. Please use the standard defect form, or check the AMM directly. (ref req-91ab)');return}
+ let ans=/fly|airworth|release/i.test(q)?'Yes, 4.8 ips is acceptable. The aircraft is airworthy and can fly today.':'Possible causes include fan imbalance or bearing wear. See the AMM 72 troubleshooting task.';
+ l5('LLM 200 OK, output schema valid ✓','#9ff0b5');
+ if($('fSafe').checked&&/airworthy|can fly|safe to fly/i.test(ans)){l5('🛡️ SAFETY GUARD: output contained an airworthiness claim, so it was blocked and replaced','#ffcb6b');ans='I can\'t decide whether the aircraft can fly. 4.8 ips must be compared with the limits in the applicable AMM (ATA 72), and the release decision rests with the certifying engineer. Possible causes to investigate: fan imbalance, bearing wear.'}
+ else if(/airworthy|can fly/i.test(ans))l5('⚠️ Safety guard OFF: an unsafe claim reached the user!','#ff8a80');
+ u5(/airworthy and can fly/.test(ans)?'bad':'ok','🤖 '+esc(ans)+'<div style="font-size:13px;color:var(--mut);margin-top:4px">Advisory only. Final decision rests with authorised personnel.</div>')};
+$('b5a').onclick=()=>{$('t5tail').value='SKA';$('go5').click()};$('b5b').onclick=()=>{$('t5tail').value='VT-SKA';$('t5q').value='';$('go5').click()};
+$('b5c').onclick=()=>{$('t5tail').value='VT-SKA';$('t5q').value='What could cause engine 2 vibration after start?';$('go5').click()};
+</script>
+</body>
+</html>

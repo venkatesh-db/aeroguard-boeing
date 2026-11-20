@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inside an LLM</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--ml:#0f8a7a;--dl:#7a3fc4;--gen:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#3b1f6b);color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:32px}header p{margin:2px 0 0;opacity:.85}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 26px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:10px 18px;font-size:18px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:20px}
+.tab{display:none}.tab.on{display:block}
+h2{font-size:32px;margin:0 0 4px}.sub{color:var(--mut);font-size:20px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:1000px){.two{grid-template-columns:1fr}}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.chip{background:#e8eef9;color:var(--navy);border:2px solid transparent;border-radius:24px;padding:9px 16px;font-size:18px;cursor:pointer}
+.chip.on{background:var(--navy);color:#fff}
+.btn{background:var(--navy);color:#fff;border:0;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:18px;font-weight:700}
+.btn.ghost{background:#e3e9f3;color:var(--navy)}
+input[type=text],textarea{width:100%;padding:12px;font-size:20px;border:2px solid var(--line);border-radius:10px;font-family:inherit}
+svg{width:100%;height:auto;display:block}
+.tip{background:#eef4ff;border-left:6px solid var(--blue);border-radius:10px;padding:12px 16px;margin-top:14px;font-size:19px}
+/* ML vs LLM */
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
+.node{border-radius:12px;padding:12px 14px;color:#fff;font-weight:700;text-align:center;min-width:120px;animation:pop .4s}
+.arr{font-size:28px;color:var(--mut)}
+.models{display:flex;gap:8px;flex-wrap:wrap}
+.mbox{border:3px solid var(--ml);border-radius:12px;padding:8px 12px;font-size:16px;background:#e6f5f2;animation:pop .4s}
+.mbox.need{border-color:var(--bad);background:#fdecea}
+.out{background:#f6f8fc;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:18px;min-height:70px;white-space:pre-line}
+.vs{display:grid;grid-template-columns:240px 1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:16px;font-size:18px}
+.vs div{padding:10px 14px;border-top:1px solid var(--line);background:#fff}
+.vs .h{background:var(--navy);color:#fff;font-weight:700;border:0}
+.vs .k{font-weight:700;background:#f6f8fc}
+@keyframes pop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+/* tokens */
+.toks{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0;min-height:60px}
+.tk{border-radius:8px;padding:8px 10px;font:600 22px ui-monospace,Menlo,monospace;text-align:center;animation:pop .3s;white-space:pre}
+.tk small{display:block;font-size:12px;opacity:.75}
+.stat{display:inline-block;background:#f6f8fc;border-radius:12px;padding:10px 18px;margin:6px 10px 0 0;text-align:center}
+.stat b{display:block;font-size:34px}
+/* attention */
+.sent{display:flex;flex-wrap:wrap;gap:10px;margin:30px 0 10px;position:relative;z-index:1}
+.w{font-size:30px;font-weight:700;padding:8px 14px;border-radius:10px;cursor:pointer;border:3px solid transparent;transition:all .2s;background:#f6f8fc}
+.w.src{border-color:var(--gen);background:#fff1e8}
+/* next token */
+.prompt{font-size:28px;font-weight:600;background:#f6f8fc;border-radius:12px;padding:16px;min-height:70px}
+.prompt .new{color:var(--gen);background:#fff1e8;border-radius:6px;padding:0 4px;animation:pop .4s}
+.bars{margin-top:12px}
+.bar{display:grid;grid-template-columns:170px 1fr 70px;gap:10px;align-items:center;margin:6px 0;cursor:pointer}
+.bar .t{font:700 20px ui-monospace,Menlo,monospace;text-align:right}
+.bar .g{height:30px;border-radius:6px;background:var(--dl);transition:width .4s}
+.bar:hover .g{background:var(--gen)}
+/* bert gpt */
+.mask{display:inline-block;background:var(--dl);color:#fff;border-radius:8px;padding:2px 12px}
+.timeline{display:flex;gap:0;margin:18px 0;overflow-x:auto}
+.tl{flex:1;min-width:150px;border-top:6px solid var(--line);padding:12px 10px 0;position:relative;cursor:pointer}
+.tl:before{content:"";position:absolute;top:-13px;left:12px;width:20px;height:20px;border-radius:50%;background:#fff;border:5px solid var(--line)}
+.tl.on{border-color:var(--gen)}.tl.on:before{border-color:var(--gen);background:var(--gen)}
+.tl b{display:block;font-size:22px}.tl span{font-size:16px;color:var(--mut)}
+.disc{font-size:14px;color:var(--mut);margin-top:16px}
+</style>
+</head>
+<body>
+<header><h1>🧠 Inside a Large Language Model</h1><p>Day 2 · How LLMs differ from ML · Tokens · Embeddings · Attention · BERT → GPT</p></header>
+<nav id="nav">
+  <button data-t="t1" class="on">① ML vs LLM</button>
+  <button data-t="t2">② Tokens</button>
+  <button data-t="t3">③ Embeddings</button>
+  <button data-t="t4">④ Attention</button>
+  <button data-t="t5">⑤ Next-word engine</button>
+  <button data-t="t6">⑥ BERT → GPT</button>
+</nav>
+<main>
+
+<!-- 1 ML vs LLM -->
+<section class="tab on" id="t1">
+  <h2>One model per task vs one model for many tasks</h2>
+  <div class="sub">Pick tasks one by one. Watch how many models traditional ML needs, compared with an LLM.</div>
+  <div class="chips" id="tasks"></div>
+  <div class="two">
+    <div class="card"><b style="color:var(--ml);font-size:22px">📊 Traditional ML</b>
+      <div class="flow"><div class="node" style="background:#5d6778">Labelled table data</div><div class="arr">→</div><div class="node" style="background:var(--ml)">Train a model<br>for THIS task</div><div class="arr">→</div><div class="node" style="background:#1f5fbf">A number or a category</div></div>
+      <div style="margin:10px 0 6px;font-weight:700">Models you have had to build: <span id="mlN">0</span></div>
+      <div class="models" id="mlModels"></div>
+      <div class="out" id="mlOut" style="margin-top:10px">Pick a task above.</div></div>
+    <div class="card"><b style="color:var(--gen);font-size:22px">✨ Large Language Model</b>
+      <div class="flow"><div class="node" style="background:#5d6778">Trillions of words from books & the web</div><div class="arr">→</div><div class="node" style="background:var(--gen)">ONE general model</div><div class="arr">→</div><div class="node" style="background:var(--dl)">+ your prompt → any text task</div></div>
+      <div style="margin:10px 0 6px;font-weight:700">Models you have had to build: <b>1</b> (already trained for you)</div>
+      <div class="models"><div class="mbox" style="border-color:var(--gen);background:#fff1e8">🧠 One LLM</div></div>
+      <div class="out" id="llmOut" style="margin-top:10px">Pick a task above.</div></div>
+  </div>
+  <div class="vs">
+    <div class="h"></div><div class="h">📊 Traditional ML</div><div class="h">✨ LLM</div>
+    <div class="k">Input</div><div>Numbers in columns (hours, temperature…)</div><div>Plain language: text, and now images too</div>
+    <div class="k">Output</div><div>A number or a category</div><div>New text: answers, summaries, code</div>
+    <div class="k">Training</div><div>Your labelled data, for one task</div><div>Pre-trained on huge text; you just write a prompt</div>
+    <div class="k">Best at</div><div>Precise predictions on structured data</div><div>Understanding and generating language</div>
+    <div class="k">Watch out</div><div>Needs good labelled data</div><div>Can sound confident and still be wrong ("hallucinate")</div>
+  </div>
+</section>
+
+<!-- 2 Tokens -->
+<section class="tab" id="t2">
+  <h2>Tokens: how an LLM "reads"</h2>
+  <div class="sub">An LLM doesn't see letters or whole words. It chops text into <b>tokens</b> (word pieces) and turns each into a number ID.</div>
+  <div class="card">
+    <input type="text" id="tin" value="The aircraft's hydraulic pump failed during pre-flight checks.">
+    <div class="chips" id="tex"></div>
+    <div class="toks" id="toks"></div>
+    <div><div class="stat"><b id="sC">0</b>characters</div><div class="stat"><b id="sW">0</b>words</div><div class="stat"><b id="sT">0</b>tokens</div></div>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:17px"><input type="checkbox" id="showId"> Show token IDs (what the model really sees)</label>
+  </div>
+  <div class="tip">💡 Rough rule: <b>1 token ≈ ¾ of an English word</b>. Common words are one token; rare or long words are split into pieces. Hindi and other scripts often need <b>more</b> tokens. That matters because LLMs charge per token and have a token limit (the "context window").</div>
+  <div class="disc">Simplified tokenizer for teaching. Real tokenizers (BPE) learn their pieces from data, so exact splits differ by model.</div>
+</section>
+
+<!-- 3 Embeddings -->
+<section class="tab" id="t3">
+  <h2>Embeddings: meaning as a location</h2>
+  <div class="sub">Each token becomes a list of numbers: a point on a "meaning map". Words with similar meaning land <b>close together</b>. Click any word.</div>
+  <div class="two">
+    <div class="card"><svg id="emb" viewBox="0 0 700 520"></svg></div>
+    <div class="card">
+      <div id="embInfo" style="font-size:20px">Click a word on the map.</div>
+      <div style="margin-top:16px;font-weight:700;font-size:21px">🧮 Meaning maths</div>
+      <div class="chips" id="arith"></div>
+      <div class="out" id="arOut">Real embeddings can capture relationships. Try one above.</div>
+      <div class="tip">💡 Real models use <b>hundreds to thousands of numbers</b> per token, not 2. We squash them onto a flat map so humans can see them. This is also how "semantic search" finds documents that <b>mean</b> the same thing even when the words differ.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 Attention -->
+<section class="tab" id="t4">
+  <h2>Attention: which words matter to each other?</h2>
+  <div class="sub">To understand a word, the model looks back at the other words and decides how much to "pay attention" to each. <b>Click a word</b> to see where it looks.</div>
+  <div class="chips" id="sents"></div>
+  <div class="card" style="position:relative">
+    <svg id="attSvg" viewBox="0 0 1000 170" style="position:absolute;left:18px;right:18px;top:0;width:calc(100% - 36px);pointer-events:none"></svg>
+    <div class="sent" id="sent" style="margin-top:150px"></div>
+    <div class="out" id="attOut" style="margin-top:12px">Click the word <b>"it"</b>.</div>
+  </div>
+  <div class="tip">💡 Same word "it", different sentence, different meaning. Attention lets the model work that out from context. A <b>Transformer</b> (the "T" in GPT) runs many attention "heads" in parallel, stacked in dozens of layers.</div>
+</section>
+
+<!-- 5 Next token -->
+<section class="tab" id="t5">
+  <h2>The next-word engine</h2>
+  <div class="sub">At its core, GPT does one thing again and again: <b>predict the next token</b>, add it, repeat. Click a word to choose it, or let the model pick.</div>
+  <div class="card">
+    <div class="chips" id="starts"></div>
+    <div class="prompt" id="pr"></div>
+    <div class="bars" id="bars"></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px">
+      <button class="btn" id="auto">✨ Let the model pick</button><button class="btn ghost" id="reset">↺ Start over</button>
+      <label style="font-weight:700;margin-left:10px">🌡 Temperature <span id="tV"></span></label><input type="range" id="temp" min="0" max="1.5" step="0.1" value="0.7" style="width:220px">
+    </div>
+  </div>
+  <div class="tip">💡 <b>Temperature</b> controls creativity. At 0 the model always picks the top word, so it's predictable. Higher temperatures give more surprising, varied text. This is also why an LLM can confidently write something <b>plausible but wrong</b>: it picks likely words, not checked facts.</div>
+  <div class="disc">Probabilities here are illustrative, not from a real model.</div>
+</section>
+
+<!-- 6 BERT GPT -->
+<section class="tab" id="t6">
+  <h2>BERT → GPT: two ways to use a Transformer</h2>
+  <div class="sub">Both came from the 2017 Transformer. BERT reads the whole sentence to <b>understand</b> it; GPT reads left to right to <b>generate</b>.</div>
+  <div class="two">
+    <div class="card"><b style="font-size:24px;color:var(--dl)">📖 BERT (Google, 2018): the reader</b>
+      <div style="margin:8px 0">Trained to <b>fill in the blank</b>, looking at words on <b>both sides</b>.</div>
+      <svg id="bertSvg" viewBox="0 0 600 150"></svg>
+      <div class="prompt" id="bertQ" style="font-size:24px"></div>
+      <div class="bars" id="bertBars"></div>
+      <div style="margin-top:8px"><b>Good at:</b> search, classifying text, spotting names in documents (understanding)</div></div>
+    <div class="card"><b style="font-size:24px;color:var(--gen)">✍️ GPT (OpenAI, 2018 →): the writer</b>
+      <div style="margin:8px 0">Trained to <b>predict the next word</b>, looking only at words <b>before</b> it.</div>
+      <svg id="gptSvg" viewBox="0 0 600 150"></svg>
+      <div class="prompt" id="gptQ" style="font-size:24px"></div>
+      <div class="bars" id="gptBars"></div>
+      <div style="margin-top:8px"><b>Good at:</b> writing, chatting, summarising, coding (generating)</div></div>
+  </div>
+  <div class="chips" id="bgPick"></div>
+  <h2 style="font-size:26px;margin-top:18px">The road to today's chat assistants</h2>
+  <div class="timeline" id="tl"></div>
+  <div class="out" id="tlOut"></div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);const NS='http://www.w3.org/2000/svg';
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+function el(t,a,p,txt){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p.appendChild(e);return e}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===b.dataset.t))});
+
+/* 1 ML vs LLM */
+const TASKS=[
+ ['Predict flight delay (minutes)','✅ Delay model: trained on 3 years of flight data → "47 min"','"Estimate the delay…" → "Probably 30–60 min, because of fog at DEL." (a rough guess; ML is better at precise numbers)',true],
+ ['Classify email: spam or not','✅ Spam model: trained on 100k labelled emails → "SPAM"','"Is this email spam?" → "Yes, it looks like phishing: urgent tone and a fake link."'],
+ ['Summarise a 40-page maintenance report','❌ Needs a new text model, plus thousands of example summaries to train it.','"Summarise this report in 5 bullets." → done in seconds ✅'],
+ ['Translate a safety notice to Hindi','❌ Needs a separate translation model and paired training data.','"Translate to Hindi." → "ड्रिल का उपयोग करने से पहले…" ✅'],
+ ['Answer a technician\'s question','❌ Very hard with classic ML. Needs a custom question-answering system.','"What torque for this bolt per the manual?" → answers from the manual you provide ✅'],
+ ['Write Python code','❌ Not possible with a classic ML model.','"Write a function that flags high vibration." → working code ✅']];
+const picked=new Set();
+$('tasks').innerHTML=TASKS.map((t,i)=>`<button class="chip" data-i="${i}">${t[0]}</button>`).join('');
+[...$('tasks').children].forEach(b=>b.onclick=()=>{const i=+b.dataset.i;picked.add(i);[...$('tasks').children].forEach(x=>x.classList.toggle('on',x===b));
+ $('mlN').textContent=picked.size;$('mlModels').innerHTML=[...picked].map(k=>`<div class="mbox ${TASKS[k][1].startsWith('❌')?'need':''}">🔧 ${TASKS[k][0].split(' ').slice(0,2).join(' ')} model</div>`).join('');
+ $('mlOut').textContent=TASKS[i][1];$('llmOut').textContent=TASKS[i][2]});
+
+/* 2 Tokens */
+const PIECES=['pre','flight','hydraul','ic','air','craft','main','ten','ance','vib','ration','turb','ine','bore','scope','un','believ','able','ing','ed','tion','ly','er','s','\'s','n\'t'];
+const COMMON=new Set('the a an and of to in is was for on with during check checks pump failed engine flight plane pilot crew gate fuel at it this that by from be as are not'.split(' '));
+const COLS=['#ffd6a5','#caffbf','#9bf6ff','#bdb2ff','#ffc6ff','#fdffb6','#a0c4ff','#ffadad'];
+function tokenize(s){const out=[];const parts=s.match(/\s*[\wऀ-ॿ']+|\s*[^\w\s]/g)||[];
+ parts.forEach(p=>{const sp=p.match(/^\s*/)[0],w=p.trim();
+  if(/[ऀ-ॿ]/.test(w)){[...w].forEach((ch,k)=>out.push((k?'':sp)+ch));return}
+  if(w.length<=6||COMMON.has(w.toLowerCase())){out.push(sp+w);return}
+  let rest=w,first=true;while(rest.length){let hit=PIECES.filter(x=>rest.toLowerCase().startsWith(x)).sort((a,b)=>b.length-a.length)[0];
+   const take=hit?hit.length:Math.min(4,rest.length);out.push((first?sp:'')+rest.slice(0,take));rest=rest.slice(take);first=false}});
+ return out}
+function hash(s){let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))%50000;return h+100}
+function tok(){const s=$('tin').value,t=tokenize(s);
+ $('toks').innerHTML=t.map((x,i)=>`<div class="tk" style="background:${COLS[i%COLS.length]}">${esc(x.replace(/ /g,'·'))}${$('showId').checked?`<small>${hash(x)}</small>`:''}</div>`).join('');
+ $('sC').textContent=s.length;$('sW').textContent=(s.match(/\S+/g)||[]).length;$('sT').textContent=t.length}
+const EX=['The aircraft\'s hydraulic pump failed during pre-flight checks.','Unbelievable turbulence over the Himalayas!','Borescope inspection found blade erosion.','उड़ान में देरी हो रही है','print("hello world")'];
+$('tex').innerHTML=EX.map(e=>`<button class="chip">${esc(e.slice(0,32))}${e.length>32?'…':''}</button>`).join('');
+[...$('tex').children].forEach((b,i)=>b.onclick=()=>{$('tin').value=EX[i];tok()});
+$('tin').oninput=tok;$('showId').onchange=tok;tok();
+
+/* 3 Embeddings */
+const W={pilot:[150,120,'crew'],'co-pilot':[185,90,'crew'],captain:[120,160,'crew'],'cabin crew':[200,170,'crew'],
+ aircraft:[470,110,'vehicle'],plane:[505,140,'vehicle'],jet:[440,150,'vehicle'],helicopter:[545,95,'vehicle'],train:[560,240,'vehicle'],
+ engine:[430,330,'part'],turbine:[470,365,'part'],wing:[380,380,'part'],'landing gear':[410,420,'part'],
+ fuel:[250,340,'fuel'],kerosene:[215,375,'fuel'],diesel:[280,400,'fuel'],
+ delay:[130,450,'ops'],late:[95,420,'ops'],cancelled:[170,485,'ops'],
+ banana:[630,470,'food'],mango:[600,500,'food'],driver:[590,200,'crew']};
+const GC={crew:'#1f5fbf',vehicle:'#d9480f',part:'#7a3fc4',fuel:'#b7791f',ops:'#c2410c',food:'#1a8a4a'};
+let sel=null,arrow=null;
+function emb(){const s=$('emb');s.innerHTML='';el('rect',{x:0,y:0,width:700,height:520,fill:'#f6f8fc',rx:12},s);
+ if(sel){const [x,y]=W[sel];Object.entries(W).filter(([k])=>k!==sel).map(([k,v])=>[k,Math.hypot(v[0]-x,v[1]-y)]).sort((a,b)=>a[1]-b[1]).slice(0,3).forEach(([k])=>el('line',{x1:x,y1:y,x2:W[k][0],y2:W[k][1],stroke:'#d9480f','stroke-width':3,'stroke-dasharray':'6 4'},s))}
+ if(arrow){arrow.forEach(([a,b,c])=>el('line',{x1:W[a][0],y1:W[a][1],x2:W[b][0],y2:W[b][1],stroke:c,'stroke-width':4,'marker-end':'url(#ah)'},s))}
+ const d=el('defs',{},s),m=el('marker',{id:'ah',viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto'},d);el('path',{d:'M0 0L10 5L0 10z',fill:'#1b2333'},m);
+ Object.entries(W).forEach(([k,[x,y,g]])=>{const gr=el('g',{style:'cursor:pointer'},s);el('circle',{cx:x,cy:y,r:k===sel?13:9,fill:GC[g],stroke:'#fff','stroke-width':3},gr);el('text',{x:x+14,y:y+6,'font-size':k===sel?22:18,'font-weight':k===sel?800:600,fill:'#1b2333'},gr,k);gr.onclick=()=>{sel=k;arrow=null;info()}})}
+function info(){const [x,y,g]=W[sel];const nb=Object.entries(W).filter(([k])=>k!==sel).map(([k,v])=>[k,Math.hypot(v[0]-x,v[1]-y)]).sort((a,b)=>a[1]-b[1]);
+ const vec=[...Array(6)].map((_,i)=>(Math.sin(x*0.01*(i+1)+y*0.02)*0.9).toFixed(2));
+ $('embInfo').innerHTML=`<b style="font-size:26px">"${sel}"</b><div style="font:16px ui-monospace,Menlo,monospace;margin:6px 0;color:var(--mut)">[${vec.join(', ')}, … 1,000+ more]</div>
+ Closest in meaning: ${nb.slice(0,3).map(([k])=>`<b>${k}</b>`).join(', ')}<br>Far away: <b>${nb[nb.length-1][0]}</b>`;emb()}
+const AR=[['pilot − aircraft + train ≈ ?','driver',[['aircraft','pilot','#1f5fbf'],['train','driver','#1a8a4a']],'The "who operates it" direction is the same for both vehicles.'],
+ ['kerosene − plane + train ≈ ?','diesel',[['plane','kerosene','#b7791f'],['train','diesel','#1a8a4a']],'The "what fuel it uses" direction carries over.'],
+ ['late ≈ ?','delay',[['late','delay','#c2410c']],'Different words, same meaning, so they sit close together. That is how semantic search finds them.']];
+$('arith').innerHTML=AR.map(a=>`<button class="chip">${a[0]}</button>`).join('');
+[...$('arith').children].forEach((b,i)=>b.onclick=()=>{const [q,ans,arr,why]=AR[i];sel=ans;arrow=arr;emb();$('arOut').innerHTML=`${q.replace('?','')} → <b style="font-size:26px;color:var(--gen)">${ans}</b><br>${why}`});
+emb();
+
+/* 4 Attention */
+const SENTS=[{w:['The','engine','was','replaced','because','it','was','overheating'],a:{5:{1:.72,3:.08,7:.12,0:.03,4:.05},7:{1:.55,5:.3,6:.15},3:{1:.6,2:.2,0:.2}},note:{5:'"it" looks mostly at <b>engine</b>. Engines overheat, so "it" means the engine.'}},
+ {w:['The','engine','was','replaced','because','it','was','old','and','the','new','part','arrived'],a:{5:{1:.78,3:.1,7:.08,0:.04}},note:{5:'"it" → <b>engine</b> again: the old thing that was replaced.'}},
+ {w:['The','pilot','thanked','the','mechanic','because','she','fixed','the','engine'],a:{6:{4:.7,1:.12,7:.12,2:.06}},note:{6:'"she" attends to <b>mechanic</b>, because the one who <b>fixed</b> the engine was the mechanic.'}},
+ {w:['The','pilot','thanked','the','mechanic','because','she','was','grateful'],a:{6:{1:.74,2:.12,8:.1,4:.04}},note:{6:'Now "she" → <b>pilot</b>. The one who was <b>grateful</b> and said thanks is the pilot. One word changed, and the attention moved.'}}];
+let S=0;
+$('sents').innerHTML=SENTS.map((s,i)=>`<button class="chip ${i?'':'on'}">Sentence ${i+1}</button>`).join('');
+[...$('sents').children].forEach((b,i)=>b.onclick=()=>{S=i;[...$('sents').children].forEach(x=>x.classList.toggle('on',x===b));att(null)});
+function att(src){const s=SENTS[S];$('sent').innerHTML=s.w.map((w,i)=>`<span class="w ${i===src?'src':''}" data-i="${i}">${w}</span>`).join('');
+ const svg=$('attSvg');svg.innerHTML='';
+ [...$('sent').children].forEach(e=>e.onclick=()=>att(+e.dataset.i));
+ if(src==null){$('attOut').innerHTML=`Click the word <b>"${s.w[Object.keys(s.a)[0]]}"</b>, then try others.`;return}
+ const card=svg.parentElement.getBoundingClientRect(),kids=[...$('sent').children];
+ svg.setAttribute('viewBox',`0 0 ${card.width} ${card.height}`);svg.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2';
+ const pt=i=>{const r=kids[i].getBoundingClientRect();return[r.left+r.width/2-card.left,r.top-card.top]};
+ let A=s.a[src];if(!A){A={};s.w.forEach((_,j)=>{if(j!==src)A[j]=Math.abs(j-src)===1?.3:.05})}
+ Object.entries(A).forEach(([j,v])=>{j=+j;const [x1,y1]=pt(src),[x2,y2]=pt(j),cy=Math.max(4,Math.min(y1,y2)-25-Math.abs(x2-x1)*.22);
+  el('path',{d:`M${x1},${y1} Q${(x1+x2)/2},${cy} ${x2},${y2}`,fill:'none',stroke:'#d9480f','stroke-width':2+v*22,opacity:.25+v,'stroke-linecap':'round'},svg);
+  kids[j].style.background=`rgba(217,72,15,${v*0.8})`;kids[j].style.color=v>.4?'#fff':''});
+ const top3=Object.entries(A).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([j,v])=>`<b>${s.w[j]}</b> ${Math.round(v*100)}%`).join(' · ');
+ $('attOut').innerHTML=`<b>"${s.w[src]}"</b> pays attention to: ${top3}<br>${(s.note&&s.note[src])||'Most words simply attend to their neighbours.'}`}
+att(null);window.addEventListener('resize',()=>att(null));
+
+/* 5 Next token */
+const LM={'The flight was delayed because of':[['fog',.34],['bad',.18],['a',.16],['technical',.14],['heavy',.1],['ATC',.08]],
+ 'fog':[['at',.5],['in',.25],['.',.15],['and',.1]],'bad':[['weather',.85],['visibility',.15]],'a':[['technical',.45],['bird',.25],['late',.2],['crew',.1]],
+ 'technical':[['issues',.6],['problem',.3],['snag',.1]],'heavy':[['rain',.55],['traffic',.3],['fog',.15]],'ATC':[['restrictions',.7],['congestion',.3]],
+ 'at':[['Delhi',.6],['the',.3],['dawn',.1]],'in':[['Delhi',.7],['the',.3]],'weather':[['at',.5],['.',.3],['in',.2]],'technical issues':[['.',.6],['with',.4]],
+ 'bird':[['strike',.95],['activity',.05]],'late':[['arrival',.7],['crew',.3]],'issues':[['.',.5],['with',.5]],'problem':[['.',.5],['with',.5]],'with':[['the',.8],['an',.2]],
+ 'the':[['engine',.4],['aircraft',.35],['runway',.25]],'Delhi':[['airport',.6],['.',.4]],'rain':[['.',.6],['and',.4]],'strike':[['.',.7],['on',.3]],
+ 'Dear passengers,':[['we',.5],['the',.3],['please',.2]],'we':[['regret',.6],['are',.4]],'regret':[['to',.9],['the',.1]],'to':[['inform',.8],['announce',.2]],'inform':[['you',.95],['all',.05]],'you':[['that',.8],['.',.2]],'that':[['flight',.6],['the',.4]],'flight':[['AI',.6],['101',.4]],'please':[['remain',.6],['fasten',.4]],
+ 'Write a Python function to':[['check',.35],['calculate',.3],['read',.2],['sort',.15]],'check':[['engine',.5],['if',.5]],'calculate':[['fuel',.6],['the',.4]],'engine':[['temperature',.6],['health',.4]],'fuel':[['burn',.7],['usage',.3]]};
+const STARTS=['The flight was delayed because of','Dear passengers,','Write a Python function to'];
+let words=[],base=STARTS[0];
+$('starts').innerHTML=STARTS.map((s,i)=>`<button class="chip ${i?'':'on'}">${s}</button>`).join('');
+[...$('starts').children].forEach((b,i)=>b.onclick=()=>{base=STARTS[i];words=[];[...$('starts').children].forEach(x=>x.classList.toggle('on',x===b));nt()});
+function dist(){const last=words.length?words[words.length-1]:base;const T=+$('temp').value;
+ let d=LM[last]||(words.length>1&&LM[words.slice(-2).join(' ')])||[['.',.5],['and',.3],['the',.2]];
+ if(T===0)return d.map(([w,p],i)=>[w,i===0?1:0]);const ex=d.map(([w,p])=>[w,Math.pow(p,1/T)]),z=ex.reduce((a,b)=>a+b[1],0);return ex.map(([w,p])=>[w,p/z])}
+function nt(){$('tV').textContent=$('temp').value;$('pr').innerHTML=esc(base)+' '+words.map((w,i)=>`<span class="${i===words.length-1?'new':''}">${esc(w)}</span>`).join(' ')+' <span style="color:#9aa6b8">▌</span>';
+ const d=dist(),done=words.length>=10||words[words.length-1]==='.';
+ $('bars').innerHTML=done?'<div style="font-size:20px">✅ Sentence finished. Start over or pick another prompt.</div>':`<div style="font-weight:700;margin-bottom:4px">Probability of the next token:</div>`+d.map(([w,p])=>`<div class="bar" data-w="${esc(w)}"><div class="t">${esc(w)}</div><div><div class="g" style="width:${Math.max(2,p*100)}%"></div></div><div>${Math.round(p*100)}%</div></div>`).join('');
+ $('bars').querySelectorAll('.bar').forEach(b=>b.onclick=()=>{words.push(b.dataset.w);nt()})}
+$('auto').onclick=()=>{const d=dist();let r=Math.random(),pick=d[0][0];for(const [w,p] of d){if((r-=p)<=0){pick=w;break}}if(words.length<10&&words[words.length-1]!=='.'){words.push(pick);nt()}};
+$('reset').onclick=()=>{words=[];nt()};$('temp').oninput=nt;nt();
+
+/* 6 BERT vs GPT */
+const BG=[{b:['The','pilot','[MASK]','the','aircraft','safely'],bp:[['landed',.71],['flew',.18],['parked',.07],['taxied',.04]],g:['The','pilot','landed','the'],gp:[['aircraft',.62],['plane',.25],['jet',.13]]},
+ {b:['Replace','the','[MASK]','before','next','flight'],bp:[['filter',.38],['tyre',.27],['seal',.2],['battery',.15]],g:['Replace','the','oil','filter'],gp:[['before',.55],['every',.3],['and',.15]]}];
+let bi=0;
+function arrows(svg,words,mode){svg.innerHTML='';const n=words.length,X=i=>40+i*(520/(n-1));const tgt=mode==='b'?words.indexOf('[MASK]'):n;
+ const d=el('defs',{},svg),m=el('marker',{id:'a'+mode,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:6,markerHeight:6,orient:'auto'},d);el('path',{d:'M0 0L10 5L0 10z',fill:mode==='b'?'#7a3fc4':'#d9480f'},m);
+ const tx=mode==='b'?X(tgt):Math.min(580,X(n-1)+60);
+ words.forEach((w,i)=>{if(i===tgt)return;if(mode==='g'&&i>=n)return;el('path',{d:`M${X(i)},110 Q${(X(i)+tx)/2},${30} ${tx},100`,fill:'none',stroke:mode==='b'?'#7a3fc4':'#d9480f','stroke-width':2.5,'marker-end':`url(#a${mode})`},svg)});
+ words.forEach((w,i)=>el('text',{x:X(i),y:135,'text-anchor':'middle','font-size':16,'font-weight':w==='[MASK]'?800:500,fill:w==='[MASK]'?'#7a3fc4':'#1b2333'},svg,w));
+ if(mode==='g')el('text',{x:tx,y:135,'text-anchor':'middle','font-size':16,'font-weight':800,fill:'#d9480f'},svg,'next?');
+ el('text',{x:300,y:18,'text-anchor':'middle','font-size':14,fill:'#5d6778'},svg,mode==='b'?'← reads BOTH directions →':'reads LEFT → RIGHT only')}
+function bars(id,d){$(id).innerHTML=d.map(([w,p])=>`<div class="bar"><div class="t">${w}</div><div><div class="g" style="width:${p*100}%;background:${id==='bertBars'?'#7a3fc4':'#d9480f'}"></div></div><div>${Math.round(p*100)}%</div></div>`).join('')}
+function bg(){const x=BG[bi];arrows($('bertSvg'),x.b,'b');arrows($('gptSvg'),x.g,'g');
+ $('bertQ').innerHTML=x.b.map(w=>w==='[MASK]'?'<span class="mask">[MASK]</span>':w).join(' ');$('gptQ').innerHTML=x.g.join(' ')+' <span class="mask" style="background:var(--gen)">?</span>';
+ bars('bertBars',x.bp);bars('gptBars',x.gp)}
+$('bgPick').innerHTML=BG.map((_,i)=>`<button class="chip ${i?'':'on'}">Example ${i+1}</button>`).join('');
+[...$('bgPick').children].forEach((b,i)=>b.onclick=()=>{bi=i;[...$('bgPick').children].forEach(x=>x.classList.toggle('on',x===b));bg()});bg();
+const TL=[['2017','Transformer','Google researchers publish "Attention Is All You Need". Attention replaces older step-by-step (RNN) models and makes huge training possible.'],
+ ['2018','BERT & GPT-1','Google\'s BERT (the reader) powers better search; OpenAI\'s GPT-1 shows next-word pre-training works.'],
+ ['2019','GPT-2','Much bigger. It writes surprisingly fluent paragraphs.'],
+ ['2020','GPT-3','175 billion parameters. It does new tasks from just a few examples in the prompt ("few-shot").'],
+ ['2022','ChatGPT','Fine-tuned with human feedback to follow instructions and chat. Mass adoption.'],
+ ['2023–24','GPT-4, Claude, Gemini, Llama','Multimodal (text + images), longer context, stronger reasoning, open-weight models.'],
+ ['2025–26','Agents','LLMs that use tools, browse, write code and complete multi-step tasks. Today\'s frontier.']];
+$('tl').innerHTML=TL.map((t,i)=>`<div class="tl" data-i="${i}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('');
+[...$('tl').children].forEach(d=>d.onclick=()=>{const i=+d.dataset.i;[...$('tl').children].forEach((x,k)=>x.classList.toggle('on',k<=i));$('tlOut').innerHTML=`<b>${TL[i][0]} · ${TL[i][1]}</b><br>${TL[i][2]}`});
+$('tl').children[0].click();
+</script>
+</body>
+</html>

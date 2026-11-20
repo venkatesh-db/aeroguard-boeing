@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AeroGuard Final Studio</title>
+<style>
+:root{--ink:#1b2333;--mut:#5d6778;--line:#dde2ea}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6fa;color:var(--ink);font:17px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+.hero{background:linear-gradient(120deg,#0b2545,#3b1f6b 60%,#7a3fc4);color:#fff;padding:40px 30px 50px;text-align:center}
+.hero h1{margin:0;font-size:42px}.hero p{margin:10px auto 0;max-width:860px;font-size:20px;opacity:.9}
+main{max-width:1250px;margin:-30px auto 0;padding:0 18px 30px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.tiles{grid-template-columns:1fr}}
+.tile{display:block;text-decoration:none;color:inherit;background:#fff;border-radius:20px;padding:24px;box-shadow:0 10px 30px #0b254522;border-top:10px solid var(--c);transition:transform .2s}
+.tile:hover{transform:translateY(-5px)}
+.tile .ic{font-size:56px}.tile h2{margin:6px 0;font-size:28px}
+.tile .role{display:inline-block;background:var(--c);color:#fff;border-radius:8px;padding:2px 10px;font-weight:800;font-size:14px}
+.tile ul{margin:10px 0 0;padding-left:20px;color:#33415c}
+.tile .go{display:inline-block;margin-top:14px;background:var(--c);color:#fff;border-radius:12px;padding:10px 18px;font-weight:800}
+.loop{background:#fff;border-radius:16px;padding:18px;margin-top:18px;border:1px solid var(--line)}
+.loop h3{margin:0 0 8px;font-size:22px}
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}
+.flow span{border-radius:12px;padding:10px 14px;color:#fff;font-weight:700}
+.flow i{font-style:normal;font-size:22px;color:var(--mut)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+@media(max-width:800px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.stat b{display:block;font-size:34px;color:#3b1f6b}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:900px){.two{grid-template-columns:1fr}}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.box h4{margin:0 0 6px;font-size:18px}
+.disc{font-size:13px;color:var(--mut);margin-top:16px;text-align:center}
+</style>
+</head>
+<body>
+<div class="hero"><h1>✈️ AeroGuard Final Studio</h1><p>Five days, 43 concepts. Engineers won't remember them all, and they don't need to. They need to <b>find the right concept when a problem appears</b> and <b>connect several concepts into a safe design</b>. These two experiences train exactly that.</p></div>
+<main>
+ <div class="tiles">
+  <a class="tile" href="1_concept_map.html" style="--c:#1f5fbf"><div class="ic">🗺️</div><span class="role">REMEMBER & CONNECT</span><h2>The AI Engineer's Map</h2>The whole syllabus on one screen, and how every concept builds on the others.<ul><li>30-second refresher for every concept, with an aviation example</li><li>"I forgot…" problem search → the concepts that fix it</li><li>Build paths: everything needed for a feature, in build order</li><li>Quick quizzes; track your mastery ✅</li></ul><span class="go">Open the Map →</span></a>
+  <a class="tile" href="2_design_studio.html" style="--c:#7a3fc4"><div class="ic">🧠</div><span class="role">THINK & DESIGN</span><h2>AeroGuard Design Studio</h2>Solve real aviation problems the way a senior AI engineer would, using design thinking.<ul><li>4 problem briefs, from starter to production</li><li>Empathise → Define → Ideate → Prototype → Test → Reflect</li><li>A live senior design review flags 🚩 risks as you build</li><li>Scenario tests, a scorecard and the expert's design to compare</li></ul><span class="go">Open the Studio →</span></a>
+ </div>
+ <div class="loop"><h3>🔁 How they work together</h3><div class="flow"><span style="background:#7a3fc4">🧠 Studio: face a real problem</span><i>→</i><span style="background:#c2410c">❌ A scenario fails</span><i>→</i><span style="background:#1f5fbf">🗺️ Map: refresh the missing concept</span><i>→</i><span style="background:#1a8a4a">✅ Redesign & pass</span><i>→</i><span style="background:#3b1f6b">🏅 Concept mastered</span></div></div>
+ <div class="stats"><div class="stat"><b>43</b>concepts</div><div class="stat"><b>22</b>"I forgot" problem shortcuts</div><div class="stat"><b>4</b>real aviation design briefs</div><div class="stat"><b>29</b>test scenarios</div></div>
+ <div class="two">
+  <div class="box"><h4>👩‍🎓 For learners</h4>① Open the Map and click through your weakest day. ② Pick the 🟢 Starter brief in the Studio. ③ When a scenario fails, use ? or the Map to refresh, then redesign. ④ Aim for 85+ on every brief.</div>
+  <div class="box"><h4>👨‍🏫 For trainers</h4>Use it as the Day 5 capstone: teams of 3 take one brief each (≈45 min), then present their design and score. Discuss every 🚩 and every difference from the expert design. That conversation is the real learning.</div>
+ </div>
+ <div class="disc">Teaching tool. Aviation scenarios, data and expert designs are illustrative. Real systems must follow your organisation's approved procedures and the applicable regulations; the AI is advisory only. Progress is saved only in this browser.</div>
+</main>
+</body>
+</html>

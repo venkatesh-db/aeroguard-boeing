@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Audit Evidence Builder</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--teal:#0f8a7a;--pur:#7a3fc4;--or:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{color:#fff;padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{margin:0;font-size:29px}header p{margin:2px 0 0;opacity:.9;font-size:16px}
+header .navl{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+header .navl a{color:#fff;text-decoration:none;border:2px solid #fff8;border-radius:20px;padding:6px 12px;font-size:14px;font-weight:700}
+main{max-width:1650px;margin:0 auto;padding:16px}
+.story{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+@media(max-width:1000px){.story{grid-template-columns:1fr 1fr}}
+.sbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px}
+.sbox b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin-bottom:2px}
+.sbox .v{font-size:16px}
+.arch{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:12px}
+.comp{border-radius:10px;padding:8px;color:#fff;text-align:center;font-weight:700;font-size:14px;opacity:.3;transition:all .3s}
+.comp small{display:block;font-weight:400;font-size:11px}
+.comp.on{opacity:1;transform:translateY(-3px) scale(1.04);box-shadow:0 6px 16px #0003}
+.comp.used{opacity:.75}
+.grid{display:grid;grid-template-columns:440px 1fr;gap:14px}
+@media(max-width:1150px){.grid{grid-template-columns:1fr}}
+.device{background:#1b2333;border-radius:26px;padding:12px}
+.screen{background:#f7f9fc;border-radius:16px;height:600px;display:flex;flex-direction:column;overflow:hidden}
+.abar{background:var(--navy);color:#fff;padding:10px 14px;font-weight:700;font-size:15px;display:flex;justify-content:space-between}
+.feed{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.bub{max-width:92%;padding:8px 12px;border-radius:12px;font-size:15px;white-space:pre-line;animation:pop .35s}
+.bub.u{align-self:flex-end;background:var(--navy);color:#fff}
+.bub.a{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+.bub.sys{align-self:center;background:#eef1f5;color:var(--mut);font-size:13px;border-radius:20px;padding:4px 12px}
+.art{align-self:stretch;background:#fff;border:2px solid var(--ok);border-radius:12px;padding:10px 12px;font-size:14px;animation:pop .35s}
+.art h4{margin:0 0 6px;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+.art table{width:100%;border-collapse:collapse;font-size:14px}.art td{padding:3px 6px;border-bottom:1px solid var(--line);vertical-align:top}.art td:first-child{color:var(--mut);width:38%}
+.pill{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:800;color:#fff}
+.appr{align-self:stretch;border:3px solid var(--gold);background:#fff8e6;border-radius:12px;padding:10px;animation:pop .35s}
+@keyframes pop{0%{transform:scale(.93);opacity:0}100%{transform:scale(1);opacity:1}}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.btn{background:var(--navy);color:#fff;border:0;padding:10px 15px;border-radius:10px;cursor:pointer;font-size:15px;font-weight:700}
+.btn.go{background:var(--ok)}.btn.ghost{background:#e3e9f3;color:var(--navy)}.btn.red{background:var(--bad)}
+.btn:disabled{opacity:.45;cursor:default}
+.prog{flex:1;min-width:160px;height:12px;background:#e6ebf2;border-radius:6px;overflow:hidden}.prog i{display:block;height:100%;background:var(--ok);transition:width .3s}
+.steps{display:flex;flex-direction:column;gap:6px}
+.step{display:grid;grid-template-columns:34px 1fr;gap:8px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:8px 10px;opacity:.45;transition:all .3s}
+.step.on{opacity:1;border-color:var(--or);box-shadow:0 4px 12px #d9480f22}
+.step.done{opacity:1;border-color:#b9e3c7}
+.step .n{width:30px;height:30px;border-radius:50%;background:#e3e9f3;display:flex;align-items:center;justify-content:center;font-weight:800}
+.step.on .n{background:var(--or);color:#fff}.step.done .n{background:var(--ok);color:#fff}
+.step h4{margin:0;font-size:16px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.step p{margin:2px 0 0;font-size:14px;color:var(--mut)}
+.step .data{display:none;margin-top:6px;font:12.5px/1.45 ui-monospace,Menlo,monospace;background:#0f1729;color:#cfe0ff;border-radius:8px;padding:8px 10px;white-space:pre-wrap;overflow:auto;max-height:220px}
+.step.on .data,.step.done.show .data{display:block}
+.ctag{font-size:11px;font-weight:800;color:#fff;border-radius:5px;padding:1px 6px}
+.results{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px}
+@media(max-width:1000px){.results{grid-template-columns:1fr}}
+.rcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.rcard h3{margin:0 0 6px;font-size:18px}
+.ba{display:grid;grid-template-columns:1fr 70px 70px;gap:6px;font-size:14px;padding:4px 0;border-bottom:1px solid var(--line);align-items:center}
+.ba .b{color:var(--bad);font-weight:700;text-align:center}.ba .a{color:var(--ok);font-weight:700;text-align:center}
+.li{font-size:15px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.disc{font-size:12.5px;color:var(--mut);margin-top:12px}
+.locked{opacity:.35;filter:grayscale(1)}
+</style>
+</head>
+<body>
+<script>
+/* Shared product list: [file id, short name, icon, department, colour, one-line pitch] */
+window.PRODUCTS=[
+ ["troubleshooting","Troubleshooting Copilot","🔧","MRO","#0f8a7a","Diagnose a defect in minutes with cited manual steps"],
+ ["workorder","Work-Order & Handover Drafter","📝","MRO","#0f8a7a","Turn rough notes into approved work orders and handovers"],
+ ["predictive","Predictive Maintenance Triage","📈","Engineering","#1f5fbf","Rank noisy sensor alerts into a clear inspection list"],
+ ["sbad","SB / AD Applicability Checker","📚","Engineering","#1f5fbf","Find which tails a new bulletin affects, with evidence"],
+ ["disruption","Disruption Recovery Assistant","🧭","Flight ops","#0b2545","Propose recovery options when the schedule breaks"],
+ ["aog","AOG Parts Sourcing Agent","📦","Supply chain","#b7791f","Find the fastest legal part to get an aircraft flying"],
+ ["safety","Safety Report Analyser","🛡️","Safety & quality","#c2410c","Spot emerging safety trends in free-text reports"],
+ ["audit","Audit Evidence Builder","✅","Safety & quality","#c2410c","Assemble a cited audit evidence pack in hours"],
+ ["customer","Passenger Service Agent","💬","Customer","#7a3fc4","Rebook and answer passengers in their language"],
+ ["training","Training & Knowledge Coach","🎓","Training","#5d6778","Capture expert know-how and coach new technicians"]];
+</script>
+<script>
+window.P={id:"audit",icon:"✅",color:"linear-gradient(90deg,#0b2545,#c2410c)",title:"Audit Evidence Builder",tagline:"Safety & quality · Assemble a cited evidence pack for an audit in hours, not weeks",app:"AeroGuard Quality",user:"📋 Vikram · quality manager",
+persona:"Vikram, quality manager preparing for an authority audit",problem:"Collecting records from many systems for each audit question takes weeks.",scenario:"An authority audit next week: 'Show tool-control and borescope training compliance for Q3.'",goal:"An organised evidence pack with sources, gaps flagged, reviewed by quality.",
+steps:[
+{title:"Enter the audit questions",comp:["ui","api"],what:"Audit checklist items are entered as structured questions.",data:'POST /audit-pack {"items":["Tool control compliance Q3","Borescope training currency for all B1 staff"]}',screen:{user:"Build evidence for: tool control Q3 · borescope training currency"}},
+{title:"Plan evidence collection",comp:["agent"],what:"The planner maps each question to the records and procedures needed.",data:'plan: item1 → tool_logs(Q3) + procedure MOE §2.18\n      item2 → training_records(B1) + borescope authorisation list',screen:{sys:"🕸️ Planned 4 evidence sources"}},
+{title:"Gather records via MCP + procedures via RAG",comp:["mcp","rag"],what:"Read-only tools fetch records; RAG finds the governing procedure paragraphs.",data:'tool_control.logs(Q3) ← 12,480 checkouts, 3 late returns\ntraining.records(B1) ← 46 staff, 2 expired authorisations\nsearch_documents("tool control procedure") ← MOE §2.18',screen:{bot:"Records collected. ⚠️ 2 expired borescope authorisations found."}},
+{title:"Evidence pack with gaps",comp:["ui"],what:"Each item: evidence, source, and an honest gap list.",screen:{card:{title:"📁 Audit evidence pack (draft)",badge:"DRAFT",badgeColor:"#b7791f",color:"#b7791f",rows:[["Tool control Q3","12,480 checkouts · 3 late returns closed · MOE §2.18 [src]"],["Borescope training","44/46 current ✅ · 2 expired ⚠️ (gap)"],["Gap actions","Re-authorise 2 staff before the audit"],["Sources","All records linked with IDs and dates"]]}}},
+{title:"Quality manager reviews",comp:["human"],what:"Nothing goes to the authority without human review.",approve:{ask:"Approve the evidence pack and raise actions for the 2 expired authorisations?",who:"Vikram (quality manager): approves",yes:"Approve pack",no:"Reject"}},
+{title:"Finalise + audit trail",comp:["mcp","ops"],what:"The pack is locked with a hash; the gap actions are tracked.",data:'pack locked sha256=9f2c… · actions raised ×2 · audit: compiled_by=agent reviewed_by=vikram',screen:{bot:"✅ Pack approved and locked. 2 corrective actions raised."}}],
+metrics:[["Audit prep time","2–3 weeks","2 days"],["Gaps found before the audit","late","early"],["Evidence traceability","manual","linked"]],
+human:["The quality manager approves every pack","Gaps are reported honestly, never hidden","Submission to the authority is a human act"],
+guards:["Read-only access to records","Every statement linked to a source record","Locked, versioned evidence packs"]}
+;
+</script>
+<script>
+/* Shared engine for every product demo. Each product page defines window.P before loading this file. */
+(function(){
+const P=window.P;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const COMP={ui:['🖥️ UI','app screen','#5d6778'],api:['⚡ FastAPI','validates · routes','#0b2545'],rag:['📚 RAG','manuals · records','#0f8a7a'],agent:['🕸️ LangGraph','plans · decides','#d9480f'],mcp:['🔌 MCP','enterprise systems','#7a3fc4'],ops:['🔭 Ops','trace · audit · eval','#b7791f'],human:['👷 Human','approves · decides','#1a8a4a']};
+const ORDER=['ui','api','agent','rag','mcp','human','ops'];
+const LIST=window.PRODUCTS||[];
+
+document.title=P.title;
+document.body.innerHTML=`
+<header style="background:${P.color}"><div><h1>${P.icon} ${esc(P.title)}</h1><p>${esc(P.tagline)}</p></div>
+ <div class="navl"><a href="index.html">🏠 All products</a><a href="../3_aviation_industry_outcomes.html">⬅ Industry outcomes</a>${nav()}</div></header>
+<main>
+ <div class="story">
+  <div class="sbox"><b>👤 Who</b><div class="v">${esc(P.persona)}</div></div>
+  <div class="sbox"><b>😣 Problem today</b><div class="v">${esc(P.problem)}</div></div>
+  <div class="sbox"><b>🎬 Scenario</b><div class="v">${esc(P.scenario)}</div></div>
+  <div class="sbox"><b>🎯 Goal</b><div class="v">${esc(P.goal)}</div></div>
+ </div>
+ <div class="arch" id="arch">${ORDER.filter(k=>k!=='human').map(k=>`<div class="comp" id="c_${k}" style="background:${COMP[k][2]}">${COMP[k][0]}<small>${COMP[k][1]}</small></div>`).join('')}</div>
+ <div class="grid">
+  <div class="device"><div class="screen"><div class="abar"><span>${P.icon} ${esc(P.app)}</span><span>${esc(P.user)}</span></div><div class="feed" id="feed"><div class="bub sys">Press ▶ Run the product to start the scenario</div></div></div></div>
+  <div>
+   <div class="ctrl"><button class="btn go" id="run">▶ Run the product</button><button class="btn" id="stepB">⏭ Next step</button><button class="btn ghost" id="reset">↺ Reset</button><div class="prog"><i id="prog"></i></div><span id="pt" style="font-size:14px;color:var(--mut)"></span></div>
+   <b>⚙️ End-to-end flow: what happens behind the screen</b>
+   <div class="steps" id="steps" style="margin-top:6px"></div>
+  </div>
+ </div>
+ <div class="results locked" id="results">
+  <div class="rcard"><h3>📊 Before vs after (illustrative)</h3><div class="ba" style="font-weight:700;color:var(--mut)"><span>Measure</span><span style="text-align:center">Before</span><span style="text-align:center">After</span></div>${P.metrics.map(([m,b,a])=>`<div class="ba"><span>${esc(m)}</span><span class="b">${esc(b)}</span><span class="a">${esc(a)}</span></div>`).join('')}</div>
+  <div class="rcard"><h3>👷 Where the human stays in control</h3>${P.human.map(h=>`<div class="li">✋ ${esc(h)}</div>`).join('')}</div>
+  <div class="rcard"><h3>🛡️ Guardrails built in</h3>${P.guards.map(h=>`<div class="li">🛡️ ${esc(h)}</div>`).join('')}</div>
+ </div>
+ <div class="disc">Illustrative teaching demo: data, names, numbers and system outputs are made up to show the flow. Not a real product or company system. Built on the course architecture (FastAPI + UI + RAG + LangGraph + MCP). Advisory only: airworthiness, release and safety decisions rest with authorised personnel under approved procedures.</div>
+</main>`;
+function nav(){const i=LIST.findIndex(x=>x[0]===P.id);if(i<0)return '';const p=LIST[(i-1+LIST.length)%LIST.length],n=LIST[(i+1)%LIST.length];return `<a href="${p[0]}.html">◀ ${esc(p[1])}</a><a href="${n[0]}.html">${esc(n[1])} ▶</a>`}
+
+$('steps').innerHTML=P.steps.map((s,i)=>`<div class="step" id="s${i}"><div class="n">${i+1}</div><div><h4>${esc(s.title)} ${(s.comp||[]).map(c=>`<span class="ctag" style="background:${COMP[c][2]}">${COMP[c][0]}</span>`).join('')}</h4><p>${esc(s.what)}</p>${s.data?`<div class="data">${esc(s.data)}</div>`:''}</div></div>`).join('');
+
+let k=0,busy=false,auto=false;
+function feed(html){$('feed').insertAdjacentHTML('beforeend',html);$('feed').scrollTop=1e6}
+function lightComps(cs){ORDER.forEach(c=>{const e=$('c_'+c);if(!e)return;if((cs||[]).includes(c)){e.classList.add('on','used')}else e.classList.remove('on')})}
+function screen(s){const v=s.screen;if(!v)return;
+ if(v.user)feed(`<div class="bub u">${esc(v.user)}</div>`);
+ if(v.sys)feed(`<div class="bub sys">${esc(v.sys)}</div>`);
+ if(v.bot)feed(`<div class="bub a">${esc(v.bot)}</div>`);
+ if(v.card){const c=v.card;feed(`<div class="art" style="border-color:${c.color||'#1a8a4a'}"><h4><span>${esc(c.title)}</span>${c.badge?`<span class="pill" style="background:${c.badgeColor||'#1a8a4a'}">${esc(c.badge)}</span>`:''}</h4><table>${c.rows.map(([a,b])=>`<tr><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join('')}</table>${c.note?`<div style="font-size:12px;color:var(--mut);margin-top:6px">${esc(c.note)}</div>`:''}</div>`)}}
+async function approval(s){return new Promise(res=>{feed(`<div class="appr" id="ap${k}">✋ <b>${esc(s.approve.ask)}</b><br><span style="font-size:13px;color:var(--mut)">${esc(s.approve.who)}</span><br><button class="btn go" id="ya${k}" style="margin-top:6px">✅ ${esc(s.approve.yes||'Approve')}</button> <button class="btn red" id="na${k}">❌ ${esc(s.approve.no||'Reject')}</button></div>`);
+ $('ya'+k).onclick=()=>{$('ap'+k).innerHTML='✅ Approved by '+esc(s.approve.who.split(':')[0]);res(true)};$('na'+k).onclick=()=>{$('ap'+k).innerHTML='❌ Rejected: the flow stops safely and nothing is changed in any system.';res(false)}})}
+async function next(){if(busy||k>=P.steps.length)return false;busy=true;const s=P.steps[k];
+ if(k>0){$('s'+(k-1)).classList.remove('on');$('s'+(k-1)).classList.add('done')}
+ const el=$('s'+k);el.classList.add('on');el.scrollIntoView({block:'nearest',behavior:'smooth'});lightComps(s.comp);
+ $('prog').style.width=((k+1)/P.steps.length*100)+'%';$('pt').textContent=`Step ${k+1} / ${P.steps.length}`;
+ await sleep(250);screen(s);
+ if(s.approve){const ok=await approval(s);if(!ok){busy=false;auto=false;k=P.steps.length;$('run').disabled=true;$('stepB').disabled=true;return false}}
+ k++;busy=false;
+ if(k>=P.steps.length){el.classList.remove('on');el.classList.add('done');lightComps([]);ORDER.forEach(c=>{const e=$('c_'+c);if(e)e.classList.add('used')});$('results').classList.remove('locked');feed(`<div class="bub sys">🏁 Scenario complete</div>`);$('run').disabled=true;$('stepB').disabled=true}
+ return true}
+$('stepB').onclick=()=>{if(!k)$('feed').innerHTML='';next()};
+$('run').onclick=async()=>{if(!k)$('feed').innerHTML='';auto=true;$('run').disabled=true;while(auto&&k<P.steps.length){const ok=await next();if(!ok)break;await sleep(P.steps[k-1]&&P.steps[k-1].approve?400:1500)}};
+$('reset').onclick=()=>location.reload();
+document.addEventListener('click',e=>{const st=e.target.closest('.step.done');if(st)st.classList.toggle('show')});
+})();
+</script>
+</body>
+</html>

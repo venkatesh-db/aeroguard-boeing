@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Engineer's Map</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f;--or:#d9480f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#3b1f6b);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{margin:0;font-size:28px}header p{margin:2px 0 0;opacity:.85;font-size:15px}
+header a{color:#fff;margin-left:auto;border:2px solid #fff8;border-radius:20px;padding:6px 12px;text-decoration:none;font-weight:700;font-size:14px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:10px 18px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.bar input{flex:1;min-width:260px;padding:10px 12px;font-size:16px;border:2px solid var(--line);border-radius:10px}
+.bar select{padding:9px;font-size:15px;border:2px solid var(--line);border-radius:10px;max-width:330px}
+.btn{background:var(--navy);color:#fff;border:0;padding:9px 13px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700}
+.btn.ghost{background:#e3e9f3;color:var(--navy)}.btn.go{background:var(--ok)}
+.wrap{display:grid;grid-template-columns:1fr 430px;gap:12px;padding:12px;max-width:1900px;margin:0 auto}
+@media(max-width:1200px){.wrap{grid-template-columns:1fr}}
+.mapcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px;overflow:auto}
+svg{width:100%;height:auto;display:block;min-width:1100px}
+.node{cursor:pointer}
+.node rect.box{transition:all .2s}
+.node:hover rect.box{stroke-width:3}
+.dim{opacity:.13}
+.side{display:flex;flex-direction:column;gap:12px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.panel h2{margin:0;font-size:24px;display:flex;gap:8px;align-items:center}
+.pill{display:inline-block;color:#fff;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:800;margin:4px 4px 0 0}
+.sec{margin-top:10px}
+.sec b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin-bottom:2px}
+.why{background:#f6f3fc;border-left:5px solid #7a3fc4;border-radius:8px;padding:8px 10px}
+.links{display:flex;gap:5px;flex-wrap:wrap}
+.chip{background:#e8eef9;color:var(--navy);border:0;border-radius:16px;padding:5px 10px;font-size:13px;cursor:pointer}
+.chip.sym{background:#fff4dc;color:#7a4f00}
+.quiz button{display:block;width:100%;text-align:left;margin:4px 0;border:2px solid var(--line);background:#fff;border-radius:8px;padding:7px 10px;font-size:14px;cursor:pointer}
+.quiz button.r{border-color:var(--ok);background:#e7f6ec}.quiz button.w{border-color:var(--bad);background:#fdecea}
+.prog{height:10px;background:#e6ebf2;border-radius:5px;overflow:hidden;margin:4px 0}.prog i{display:block;height:100%;transition:width .3s}
+.dayrow{display:grid;grid-template-columns:70px 1fr 48px;gap:6px;align-items:center;font-size:13px}
+.path li{margin:3px 0;cursor:pointer}
+.path li:hover{color:var(--blue)}
+.tipbox{background:#eef4ff;border-radius:10px;padding:10px;font-size:14px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--mut);padding:4px 8px}
+.legend span b{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:3px;vertical-align:middle}
+</style>
+</head>
+<body>
+<header><div><h1>🗺️ The AI Engineer's Map</h1><p>All 43 concepts from the 5 days, how they connect, and what to reach for when something breaks.</p></div><a href="index.html">🏠 Start</a><a href="2_design_studio.html" style="margin-left:0">🧠 Design Studio →</a></header>
+<div class="bar">
+ <input id="q" placeholder="🔎 Search a concept, or describe a problem, e.g. 'forgot earlier messages', 'fault code', 'too expensive'">
+ <select id="path"><option value="">🧭 Path: what do I need to build…?</option></select>
+ <button class="btn ghost" id="recall">🎲 Quiz me on something I haven't mastered</button>
+ <button class="btn ghost" id="clear">↺ Clear</button>
+</div>
+<div class="wrap">
+ <div class="mapcard"><div class="legend" id="legend"></div><svg id="map" viewBox="0 0 1500 880"></svg></div>
+ <div class="side">
+  <div class="panel" id="card"><h2>👋 Start here</h2><div class="tipbox" style="margin-top:8px">• <b>Click any concept</b> for a 30-second refresher<br>• <b>Type a problem</b> above and the concepts that fix it light up<br>• <b>Pick a path</b> to see everything needed to build a feature, in build order<br>• <b>Answer the quiz</b> on each card; mastered concepts turn green ✅</div>
+   <div class="sec"><b>😵 Common "I forgot" moments</b><div class="links" id="syms"></div></div></div>
+  <div class="panel" id="pathPanel" style="display:none"></div>
+  <div class="panel"><b>🏅 Your mastery</b> <span id="mcount" style="float:right;font-weight:800"></span><div class="prog"><i id="mall" style="background:var(--ok)"></i></div><div id="days"></div></div>
+ </div>
+</div>
+<script>
+/*__KG__*/
+const $=id=>document.getElementById(id);const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+const NS='http://www.w3.org/2000/svg';function el(t,a,p,x){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;p.appendChild(e);return e}
+const BY=Object.fromEntries(CONCEPTS.map(c=>[c.id,c]));
+const KIDS={};CONCEPTS.forEach(c=>c.deps.forEach(d=>(KIDS[d]=KIDS[d]||[]).push(c.id)));
+/* ---- mastery (per-viewer, optional storage) ---- */
+let mastered={};try{mastered=JSON.parse(localStorage.getItem('ag_mastered')||'{}')}catch(e){}
+function save(){try{localStorage.setItem('ag_mastered',JSON.stringify(mastered))}catch(e){}}
+/* ---- layout: one column per day ---- */
+const COLX={1:15,2:315,3:615,4:915,5:1215},W=270,H=46,POS={};
+[1,2,3,4,5].forEach(d=>{const list=CONCEPTS.filter(c=>c.day===d),gap=Math.min(58,(820-70)/list.length);list.forEach((c,i)=>POS[c.id]=[COLX[d],70+i*gap+(d===2?0:(820-70-list.length*gap)/2*0.5)])});
+let sel=null,lit=null;
+function edgePath(a,b){const [ax,ay]=POS[a],[bx,by]=POS[b];if(BY[a].day===BY[b].day){const x=ax,y1=ay+H/2,y2=by+H/2;return `M${x},${y1} C${x-38},${y1} ${x-38},${y2} ${x},${y2}`}
+ const x1=ax+W,y1=ay+H/2,x2=bx,y2=by+H/2,m=(x1+x2)/2;return `M${x1},${y1} C${m},${y1} ${m},${y2} ${x2},${y2}`}
+function draw(){const s=$('map');s.innerHTML='';
+ [1,2,3,4,5].forEach(d=>{const [n,t,c]=DAYS[d];el('rect',{x:COLX[d]-8,y:8,width:W+16,height:860,rx:16,fill:c,opacity:.07},s);el('text',{x:COLX[d]+W/2,y:34,'text-anchor':'middle','font-size':19,'font-weight':800,fill:c},s,n);el('text',{x:COLX[d]+W/2,y:54,'text-anchor':'middle','font-size':12.5,fill:'#5d6778'},s,t)});
+ const focus=sel?new Set([sel,...BY[sel].deps,...(KIDS[sel]||[])]):null;
+ CONCEPTS.forEach(c=>c.deps.forEach(d=>{let on=false,col='#9aa6b8',w=1.4,op=.35;
+  if(lit){on=lit.has(c.id)&&lit.has(d);if(on){col='#d9480f';w=3;op=.95}else op=.06}
+  else if(sel){if(c.id===sel){col='#1f5fbf';w=3;op=.95}else if(d===sel){col='#1a8a4a';w=3;op=.95}else op=.07}
+  el('path',{d:edgePath(d,c.id),fill:'none',stroke:col,'stroke-width':w,opacity:op},s)}));
+ CONCEPTS.forEach(c=>{const [x,y]=POS[c.id],g=el('g',{class:'node'},s),[ln,lc]=LANES[c.lane];
+  const dim=(lit&&!lit.has(c.id))||(focus&&!focus.has(c.id))?'dim':'';if(dim)g.setAttribute('class','node dim');
+  const isSel=c.id===sel,isM=mastered[c.id];
+  el('rect',{class:'box',x,y,width:W,height:H,rx:10,fill:isSel?'#0b2545':isM?'#e7f6ec':'#fff',stroke:isSel?'#0b2545':lit&&lit.has(c.id)?'#d9480f':isM?'#1a8a4a':'#cfd8e6','stroke-width':lit&&lit.has(c.id)?3:2},g);
+  el('rect',{x,y,width:7,height:H,rx:3,fill:lc},g);
+  el('text',{x:x+16,y:y+29,'font-size':15,'font-weight':700,fill:isSel?'#fff':'#1b2333'},g,(c.icon+' '+c.name).slice(0,34)+((c.icon+' '+c.name).length>34?'…':''));
+  if(isM)el('text',{x:x+W-20,y:y+29,'font-size':15},g,'✅');
+  g.onclick=()=>open(c.id)})}
+/* ---- concept card ---- */
+function chip(id){const c=BY[id];return `<button class="chip" data-go="${id}">${c.icon} ${esc(c.name)}</button>`}
+function open(id){sel=id;lit=null;$('pathPanel').style.display='none';$('path').value='';const c=BY[id],[dn,dt,dc]=DAYS[c.day],[ln,lc]=LANES[c.lane];
+ $('card').innerHTML=`<h2>${c.icon} ${esc(c.name)}</h2><span class="pill" style="background:${dc}">${dn}</span><span class="pill" style="background:${lc}">${ln}</span>
+ <div class="sec"><b>📖 In one line</b>${esc(c.def)}</div>
+ <div class="sec"><b>✈️ In aviation</b>${esc(c.av)}</div>
+ <div class="sec why"><b>🧠 Senior engineer's insight</b>${esc(c.why)}</div>
+ <div class="sec"><b>⬅️ Built on (learn these first)</b><div class="links">${c.deps.map(chip).join('')||'<i style="color:var(--mut)">A starting point</i>'}</div></div>
+ <div class="sec"><b>➡️ Powers (used later in)</b><div class="links">${(KIDS[id]||[]).map(chip).join('')||'<i style="color:var(--mut)">A final capability</i>'}</div></div>
+ <div class="sec"><a href="${c.demo}" target="_blank" style="font-weight:700">▶ Open the demo that teaches this (${dn})</a></div>
+ <div class="sec quiz"><b>❓ Quick check ${mastered[id]?'· ✅ mastered':''}</b>${esc(c.quiz[0])}${c.quiz[1].map((o,i)=>`<button data-i="${i}">${esc(o)}</button>`).join('')}<div id="qres"></div></div>`;
+ $('card').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>open(b.dataset.go));
+ $('card').querySelectorAll('.quiz button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ok=i===c.quiz[2];b.className=ok?'r':'w';$('card').querySelectorAll('.quiz button')[c.quiz[2]].className='r';
+  $('qres').innerHTML=ok?'<div style="color:var(--ok);font-weight:700">✅ Correct: marked as mastered</div>':'<div style="color:var(--bad);font-weight:700">Not quite: re-read the card, then try another concept</div>';if(ok){mastered[id]=true;save();prog();draw()}});
+ try{history.replaceState(null,'','#'+id)}catch(e){}draw();$('card').scrollIntoView({block:'nearest',behavior:'smooth'})}
+/* ---- search & symptoms ---- */
+function norm(s){return s.toLowerCase()}
+function search(txt){const t=norm(txt).trim();if(!t){lit=null;draw();return}
+ /* relevance ranking: symptoms weigh most, then concept names, then descriptions; filler words ignored */
+ const STOP=new Set('the a an and or not but our my is are was were it its this that with from for to of in on at by be can how why what when does do i me we you your get gets got too very app api system thing stuff'.split(' '));
+ const words=t.split(/[^a-z0-9]+/).filter(w=>w.length>2&&!STOP.has(w));const score={};const add=(id,v)=>score[id]=(score[id]||0)+v;
+ SYMPTOMS.forEach(([s,ids])=>{const st=norm(s),m=words.filter(w=>st.includes(w)).length;if(m&&m>=Math.ceil(words.length/2))ids.forEach((id,k)=>add(id,6*m-k))});
+ CONCEPTS.forEach(c=>{const nm=norm(c.name+' '+c.id),bd=norm(c.def+' '+c.av);words.forEach(w=>{if(nm.includes(w))add(c.id,4);else if(bd.includes(w))add(c.id,0.5)})});
+ words.forEach(w=>Object.keys(SYN).filter(k=>k===w||(w.length>=5&&k.length>=5&&(w.startsWith(k)||k.startsWith(w)))).forEach(k=>SYN[k].forEach((id,i)=>add(id,6-i))));
+ const top=Math.max(0,...Object.values(score));const hits=new Set(Object.entries(score).filter(([,v])=>v>=Math.max(2,top*0.45)).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([id])=>id));
+ sel=null;lit=hits;draw();
+ $('card').innerHTML=`<h2>🔎 ${hits.size} concept${hits.size===1?'':'s'} match</h2><div class="tipbox" style="margin-top:6px">"${esc(txt)}"</div><div class="sec"><div class="links">${[...hits].map(chip).join('')||'<i>No match: try different words or pick a symptom below</i>'}</div></div><div class="sec"><b>😵 Common "I forgot" moments</b><div class="links" id="syms"></div></div>`;
+ symChips();$('card').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>open(b.dataset.go))}
+function symChips(){$('syms').innerHTML=SYMPTOMS.map(([s],i)=>`<button class="chip sym" data-s="${i}">${esc(s)}</button>`).join('');
+ $('syms').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{const [s,ids]=SYMPTOMS[+b.dataset.s];sel=null;lit=new Set(ids);draw();
+  $('card').innerHTML=`<h2>🩺 ${esc(s)}</h2><div class="sec"><b>Concepts that fix it</b></div>`+ids.map(id=>{const c=BY[id];return `<div class="sec"><button class="chip" data-go="${id}">${c.icon} ${esc(c.name)}</button><div style="font-size:14px;margin-top:2px">${esc(c.why)}</div></div>`}).join('')+`<div class="sec"><b>Other symptoms</b><div class="links" id="syms"></div></div>`;
+  symChips();$('card').querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>open(x.dataset.go))})}
+let qt;$('q').oninput=()=>{clearTimeout(qt);qt=setTimeout(()=>search($('q').value),200)};
+/* ---- path mode: ancestors in build order ---- */
+function ancestors(targets){const out=new Set();const walk=id=>{if(out.has(id))return;out.add(id);BY[id].deps.forEach(walk)};targets.forEach(walk);return out}
+function topo(set){const order=[],done=new Set();const vis=id=>{if(done.has(id))return;BY[id].deps.filter(d=>set.has(d)).forEach(vis);done.add(id);order.push(id)};
+ [...set].sort((a,b)=>BY[a].day-BY[b].day||CONCEPTS.indexOf(BY[a])-CONCEPTS.indexOf(BY[b])).forEach(vis);return order}
+$('path').innerHTML+=PATHS.map(([n],i)=>`<option value="${i}">${esc(n)}</option>`).join('');
+$('path').onchange=()=>{const v=$('path').value;if(v===''){lit=null;$('pathPanel').style.display='none';draw();return}
+ const [n,targets]=PATHS[+v],set=ancestors(targets),order=topo(set);sel=null;lit=set;draw();
+ const byDay=[1,2,3,4,5].map(d=>order.filter(id=>BY[id].day===d)).map((l,i)=>l.length?`<li style="list-style:none;margin-top:6px"><b style="color:${DAYS[i+1][2]}">${DAYS[i+1][0]}</b></li>`+l.map(id=>`<li data-go="${id}">${BY[id].icon} ${esc(BY[id].name)} ${mastered[id]?'✅':''}</li>`).join(''):'').join('');
+ const m=order.filter(id=>mastered[id]).length;
+ $('pathPanel').style.display='block';$('pathPanel').innerHTML=`<b style="font-size:18px">🧭 ${esc(n)}</b><div style="font-size:14px;color:var(--mut)">${order.length} concepts across ${new Set(order.map(id=>BY[id].day)).size} days, in build order · you've mastered ${m}/${order.length}</div><ol class="path" style="padding-left:20px;margin:6px 0">${byDay}</ol><div class="tipbox">💡 Every advanced feature stands on Day 1–2 basics. If a step feels hard, the gap is usually one level below it.</div>`;
+ $('pathPanel').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>open(b.dataset.go))};
+/* ---- mastery ---- */
+function prog(){const n=CONCEPTS.filter(c=>mastered[c.id]).length;$('mcount').textContent=`${n} / ${CONCEPTS.length}`;$('mall').style.width=n/CONCEPTS.length*100+'%';
+ $('days').innerHTML=[1,2,3,4,5].map(d=>{const l=CONCEPTS.filter(c=>c.day===d),m=l.filter(c=>mastered[c.id]).length;return `<div class="dayrow"><span>${DAYS[d][0]}</span><div class="prog"><i style="width:${m/l.length*100}%;background:${DAYS[d][2]}"></i></div><span>${m}/${l.length}</span></div>`}).join('')+'<button class="btn ghost" id="resetM" style="margin-top:6px;font-size:12px">Reset my progress</button>';
+ $('resetM').onclick=()=>{mastered={};save();prog();draw()}}
+$('recall').onclick=()=>{const left=CONCEPTS.filter(c=>!mastered[c.id]);if(!left.length){alert('🎉 You have mastered all 43 concepts!');return}open(left[Math.floor(Math.random()*left.length)].id)};
+$('clear').onclick=()=>{sel=null;lit=null;$('q').value='';$('path').value='';$('pathPanel').style.display='none';draw()};
+$('legend').innerHTML=Object.values(LANES).map(([n,c])=>`<span><b style="background:${c}"></b>${n}</span>`).join('')+'<span>· lines = "built on"</span>';
+symChips();prog();draw();
+const h=decodeURIComponent((location.hash||'').slice(1));if(BY[h])open(h);
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aircraft Factory AI</title>
+<style>
+:root{--bg:#f4f6fa;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#134074);color:#fff;padding:18px 28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+header h1{font-size:32px;margin:0}
+header p{margin:2px 0 0;opacity:.85;font-size:19px}
+.views{margin-left:auto;display:flex;gap:8px}
+.views button{border:2px solid #fff8;background:transparent;color:#fff;padding:10px 18px;border-radius:10px;font-size:18px;cursor:pointer}
+.views button.on{background:#fff;color:var(--navy);font-weight:700}
+main{max-width:1700px;margin:0 auto;padding:22px 20px}
+/* production line */
+.line{display:flex;gap:8px;align-items:stretch;margin-bottom:22px;overflow-x:auto;padding-bottom:4px}
+.st{flex:1;min-width:150px;background:#fff;border:3px solid var(--line);border-radius:14px;padding:12px 10px;text-align:center;cursor:pointer;position:relative;transition:all .2s}
+.st .ic{font-size:36px}
+.st b{display:block;font-size:19px;margin-top:4px}
+.st small{color:var(--mut);font-size:14px}
+.st.on{border-color:var(--navy);background:var(--navy);color:#fff;transform:translateY(-4px)}
+.st.on small{color:#cfe0ff}
+.arrow{align-self:center;font-size:26px;color:#9aa6b8}
+.headline{font-size:30px;font-weight:800;margin:0 0 4px}
+.sub{font-size:20px;color:var(--mut);margin-bottom:18px}
+.pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+@media(max-width:1100px){.pipe{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.pipe{grid-template-columns:1fr}}
+.stage{border-radius:16px;padding:22px;color:#fff;animation:fade .35s}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stage h4{margin:0;font-size:28px}
+.stage .who{font-size:18px;opacity:.9;margin-bottom:12px}
+.title{font-size:23px;font-weight:800;background:#ffffff40;border-radius:10px;padding:12px 14px;margin-bottom:10px;line-height:1.3}
+.row{background:#ffffff26;border-radius:10px;padding:10px 14px;font-size:19px;line-height:1.4;margin-top:10px}
+.row .k{display:block;font-size:14px;text-transform:uppercase;letter-spacing:.06em;opacity:.85;font-weight:700}
+.row code{background:#0003;padding:1px 6px;border-radius:4px;font-size:17px}
+.win{font-weight:700;background:#ffffff40}
+/* matrix */
+table{width:100%;border-collapse:separate;border-spacing:6px;font-size:17px}
+th{color:#fff;padding:12px;border-radius:10px;font-size:20px;text-align:left}
+td{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;vertical-align:top}
+td.stg{font-weight:800;font-size:19px;background:#e8eef9;white-space:nowrap}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:22px}
+.lg{flex:1;min-width:220px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:18px;border-top:6px solid}
+.disc{font-size:15px;color:var(--mut);margin-top:16px}
+.ctrl{display:flex;gap:12px;margin-top:18px}
+.btn{background:var(--navy);color:#fff;border:0;padding:12px 22px;border-radius:10px;cursor:pointer;font-size:18px;font-weight:700}
+.btn.ghost{background:#e3e9f3;color:var(--navy)}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>🏭 Building an Aircraft with AI</h1><p>How AI, ML, Deep Learning and GenAI help at every stage of aircraft manufacturing</p></div>
+  <div class="views"><button data-v="walk" class="on">Walk the factory</button><button data-v="matrix">Full picture</button></div>
+</header>
+<main>
+<section id="walk">
+  <div class="line" id="line"></div>
+  <div class="headline" id="headline"></div>
+  <div class="sub" id="sub"></div>
+  <div class="pipe" id="pipe"></div>
+  <div class="ctrl"><button class="btn ghost" id="prev">← Previous stage</button><button class="btn" id="next">Next stage →</button></div>
+</section>
+<section id="matrix" style="display:none">
+  <div class="headline">The whole factory on one page</div>
+  <div class="sub">Each row is a stage of building the aircraft. Each column is a type of AI.</div>
+  <table id="tbl"></table>
+</section>
+<div class="legend">
+  <div class="lg" style="border-color:#1f5fbf"><b>AI: rules & automation</b><br>Humans write the rules; machines follow them exactly.</div>
+  <div class="lg" style="border-color:#0f8a7a"><b>ML: learns from data</b><br>Finds patterns in past data to predict a number or a category.</div>
+  <div class="lg" style="border-color:#7a3fc4"><b>DL: sees & hears</b><br>Neural networks that understand images, sound and signals.</div>
+  <div class="lg" style="border-color:#d9480f"><b>GenAI: creates & assists</b><br>Writes, summarises, designs and answers in plain language.</div>
+</div>
+<div class="disc">Illustrative examples based on public industry practice and research. Not a description of any specific company's systems.</div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const COL={ai:'#1f5fbf',ml:'#0f8a7a',dl:'#7a3fc4',gen:'#d9480f'};
+const NAME={ai:['Artificial Intelligence','Rules & automation'],ml:['Machine Learning','Learns from data'],dl:['Deep Learning','Sees & hears'],gen:['Generative AI','Creates & assists']};
+// each: [title, input, does, benefit]
+const STAGES=[
+ {ic:'📐',n:'Design',s:'Engineering',head:'Stage 1: Design the aircraft',sub:'Engineers design millions of parts on computers before anything is built.',
+  ai:['Design-rule checks','CAD model of a wing bracket','<code>IF wall thickness &lt; 2 mm → reject</code>','Catches rule breaks instantly'],
+  ml:['Simulation shortcut','Results of thousands of past airflow simulations','Predicts drag and stress for a new shape in seconds instead of hours','Engineers test many more ideas'],
+  dl:['Design similarity search','Images and 3D shapes of existing parts','Finds "a part like this already exists"','Reuse parts and avoid duplicates'],
+  gen:['Generative design','Goal: "lighter bracket, same strength"','Creates dozens of new part shapes to choose from','Lighter aircraft, less fuel burn']},
+ {ic:'🚚',n:'Supply chain',s:'Parts & materials',head:'Stage 2: Get the right parts on time',sub:'An airliner has millions of parts from thousands of suppliers worldwide.',
+  ai:['Automatic reordering','Stock level in the warehouse','<code>IF rivets &lt; 10,000 → order more</code>','Line never runs out of basics'],
+  ml:['Delay prediction','Supplier history, shipping routes, weather','Predicts "this shipment will be 6 days late" (regression)','Re-plan before the line stops'],
+  dl:['Document & label reading','Photos of shipping labels and certificates','Reads part numbers and serials automatically','No manual typing errors'],
+  gen:['Supply chain assistant','"Which parts are at risk for next month\'s aircraft?"','Summarises risks and drafts emails to suppliers','Planners act faster']},
+ {ic:'⚙️',n:'Fabrication',s:'Making parts',head:'Stage 3: Make the parts',sub:'Machines cut metal, lay up carbon-fibre composites and drill parts to tight tolerances.',
+  ai:['CNC machine programs','Part drawing and tool path','Machine follows exact programmed steps','Repeatable precision'],
+  ml:['Tool-wear prediction','Spindle load, temperature, cutting time','Predicts "replace this drill bit in 40 parts"','Less scrap, fewer broken tools'],
+  dl:['Composite layup check','Camera images of carbon-fibre layers','Spots wrinkles, gaps or wrong direction of fibres','Defects found before curing'],
+  gen:['Machinist copilot','"Why is this part out of tolerance?"','Explains likely causes from manuals and past logs','Faster problem-solving']},
+ {ic:'🔩',n:'Assembly',s:'Putting it together',head:'Stage 4: Assemble the aircraft',sub:'Fuselage sections, wings and systems come together. Tens of thousands of fasteners per aircraft.',
+  ai:['Robotic drilling & fastening','Hole positions from the digital model','Robots drill and fasten in exact spots','Faster and safer for workers'],
+  ml:['Line scheduling','Task times, staff, part arrival','Predicts which station will become the bottleneck','Keeps the line moving'],
+  dl:['Smart tool & AR guidance','Camera on a worker\'s tablet or glasses','Recognises the part and shows the next step on screen','Fewer assembly mistakes'],
+  gen:['Work-instruction writer','Engineering changes and drawings','Drafts clear step-by-step instructions for mechanics','Instructions ready faster']},
+ {ic:'🔍',n:'Quality',s:'Inspection',head:'Stage 5: Inspect the quality',sub:'Every part and joint must meet strict safety standards before the aircraft can fly.',
+  ai:['Measurement checks','Laser scanner measurements','<code>IF gap &gt; 0.5 mm → flag</code>','Consistent pass/fail'],
+  ml:['Defect-risk scoring','Past defects, station, shift, material batch','Classifies "high risk / low risk" for each assembly','Inspect smarter, not just more'],
+  dl:['Visual & ultrasound inspection','Images and ultrasound scans','Finds scratches, dents, missing fasteners and hidden flaws','Sees what tired eyes miss'],
+  gen:['Inspection report writer','Inspector notes + photos','Writes the non-conformance report in standard format','Hours of paperwork saved']},
+ {ic:'🛫',n:'Test & delivery',s:'Ready to fly',head:'Stage 6: Test and deliver',sub:'Systems are tested on the ground and in flight before handing over to the airline.',
+  ai:['Automated test sequences','Test plan for electrical and hydraulic systems','Runs hundreds of checks in a fixed order','Nothing gets skipped'],
+  ml:['Anomaly detection','Sensor data from ground and flight tests','Flags readings that differ from normal aircraft','Problems caught before delivery'],
+  dl:['Sound & vibration analysis','Microphone and vibration data','Hears unusual engine or system noises','Early warning of hidden issues'],
+  gen:['Delivery documentation','All test results and records','Summarises the aircraft\'s history for the airline','Smooth handover']}
+];
+let i=0;
+function walk(){
+  const S=STAGES[i];
+  $('line').innerHTML=STAGES.map((s,k)=>`${k?'<div class="arrow">→</div>':''}<div class="st ${k===i?'on':''}" data-k="${k}"><div class="ic">${s.ic}</div><b>${s.n}</b><small>${s.s}</small></div>`).join('');
+  [...$('line').querySelectorAll('.st')].forEach(b=>b.onclick=()=>{i=+b.dataset.k;walk()});
+  $('headline').textContent=S.head;$('sub').textContent=S.sub;
+  $('pipe').innerHTML=['ai','ml','dl','gen'].map(k=>{const [t,inp,does,win]=S[k];return `<div class="stage" style="background:${COL[k]}">
+    <h4>${NAME[k][0]}</h4><div class="who">${NAME[k][1]}</div><div class="title">${t}</div>
+    <div class="row"><span class="k">Input</span>${inp}</div>
+    <div class="row"><span class="k">What it does</span>${does}</div>
+    <div class="row win"><span class="k">Benefit</span>✅ ${win}</div></div>`}).join('');
+  $('prev').style.opacity=i?1:.4;
+  $('next').textContent=i===STAGES.length-1?'↺ Back to start':'Next stage →';
+}
+$('next').onclick=()=>{i=(i+1)%STAGES.length;walk()};
+$('prev').onclick=()=>{if(i>0){i--;walk()}};
+document.addEventListener('keydown',e=>{if($('walk').style.display==='none')return;if(e.key==='ArrowRight')$('next').click();if(e.key==='ArrowLeft')$('prev').click()});
+
+$('tbl').innerHTML='<tr><th style="background:#0b2545">Stage</th>'+['ai','ml','dl','gen'].map(k=>`<th style="background:${COL[k]}">${NAME[k][0]}</th>`).join('')+'</tr>'+
+ STAGES.map(s=>`<tr><td class="stg">${s.ic} ${s.n}</td>${['ai','ml','dl','gen'].map(k=>`<td><b>${s[k][0]}</b><br>${s[k][3]}</td>`).join('')}</tr>`).join('');
+
+document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.views button').forEach(x=>x.classList.toggle('on',x===b));
+  $('walk').style.display=b.dataset.v==='walk'?'':'none';$('matrix').style.display=b.dataset.v==='matrix'?'':'none';
+});
+walk();
+</script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RailBook ML Demo</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--blue:#1f5fbf;--navy:#1d3b6a;--ok:#1a8a4a;--bad:#c2410c;--warn:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--navy);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header h1{font-size:20px;margin:0}
+header .sub{opacity:.8;font-size:14px}
+.tabs{display:flex;gap:8px;margin-left:auto}
+.tabs button{border:1px solid #fff6;background:transparent;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:14px}
+.tabs button.on{background:#fff;color:var(--navy);font-weight:600}
+main{max-width:1250px;margin:0 auto;padding:18px 16px}
+.q{font-size:22px;font-weight:600;margin:4px 0 4px}
+.qsub{color:var(--mut);margin-bottom:14px}
+.grid{display:grid;grid-template-columns:300px 1fr 1.25fr;gap:16px}
+@media(max-width:1000px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+label{display:block;font-size:14px;margin:12px 0 4px;font-weight:500}
+label span{float:right;color:var(--blue);font-weight:700}
+input[type=range]{width:100%}
+select{width:100%;padding:6px;border-radius:6px;border:1px solid var(--line);font-size:14px}
+.ticket{border:2px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--mut);margin-bottom:6px}
+.ticket b{color:var(--ink)}
+.guess{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 12px}
+.guess input{width:90px;padding:6px;border:1px solid var(--line);border-radius:6px;font-size:15px}
+.btn{background:var(--blue);color:#fff;border:0;padding:9px 14px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}
+.btn.ghost{background:#e8eef9;color:var(--blue)}
+.big{font-size:64px;font-weight:800;line-height:1;margin:8px 0}
+.unit{font-size:22px;color:var(--mut);font-weight:600}
+.hidden{filter:blur(14px);user-select:none}
+.bar{height:14px;border-radius:7px;background:linear-gradient(90deg,#1a8a4a,#e0b300,#c2410c);position:relative;margin:18px 0 6px}
+.bar i{position:absolute;top:-6px;width:4px;height:26px;background:var(--ink);border-radius:2px;transition:left .3s}
+.scale{display:flex;justify-content:space-between;font-size:12px;color:var(--mut)}
+.stamp{display:inline-block;border:5px solid;border-radius:10px;padding:8px 18px;font-size:34px;font-weight:900;letter-spacing:.05em;transform:rotate(-6deg);margin:18px 0 8px;transition:all .3s}
+.stamp.ok{color:var(--ok);border-color:var(--ok)}
+.stamp.no{color:var(--bad);border-color:var(--bad)}
+.conf{font-size:15px;color:var(--mut)}
+.note{background:#eef4ff;border-left:4px solid var(--blue);padding:10px 12px;border-radius:6px;font-size:14px;margin-top:14px}
+.verdict{margin-top:10px;font-weight:600}
+svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--mut);margin-top:6px;flex-wrap:wrap}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media(max-width:800px){.cmp{grid-template-columns:1fr}}
+.pile{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:14px}
+.chip.sel{border-color:var(--blue);box-shadow:0 0 0 2px #1f5fbf55}
+.bin{min-height:150px;border:2px dashed var(--line);border-radius:12px;padding:12px;cursor:pointer}
+.bin h4{margin:0 0 8px}
+.chip.right{background:#e7f6ec;border-color:var(--ok)}
+.chip.wrong{background:#fdecea;border-color:var(--bad)}
+</style>
+</head>
+<body>
+<header>
+  <h1>🚆 RailBook</h1><span class="sub">How ML predicts things about your train journey</span>
+  <div class="tabs">
+    <button data-t="reg" class="on">① Regression: Delay</button>
+    <button data-t="cls">② Classification: Waitlist</button>
+    <button data-t="game">③ Sort it!</button>
+  </div>
+</header>
+<main>
+
+<!-- REGRESSION -->
+<section id="reg">
+  <div class="q">"How many minutes late will this train arrive?"</div>
+  <div class="qsub">Regression predicts a <b>number</b> on a continuous scale. It can be 12, 47.5 or 90 minutes.</div>
+  <div class="grid">
+    <div class="card">
+      <h3>Your journey (inputs)</h3>
+      <div class="ticket">Train <b>12951</b> · Mumbai → Delhi</div>
+      <label>Route distance <span id="rDistV"></span></label>
+      <input type="range" id="rDist" min="100" max="2000" step="50" value="1380">
+      <label>Weather</label>
+      <select id="rWx"><option value="0">☀️ Clear</option><option value="15">🌧 Rain</option><option value="35">🌫 Dense fog</option></select>
+      <label>Season</label>
+      <select id="rSeason"><option value="0">Normal</option><option value="20">Festival rush (Diwali / Chhath)</option></select>
+      <label>Day of travel</label>
+      <select id="rDay"><option value="0">Weekday</option><option value="8">Weekend</option></select>
+    </div>
+    <div class="card">
+      <h3>Prediction</h3>
+      <div class="guess">Your guess: <input id="rGuess" type="number" placeholder="min"> <button class="btn" id="rReveal">Reveal model</button></div>
+      <div id="rOut" class="hidden"><div class="big"><span id="rVal">0</span> <span class="unit">min late</span></div>
+        <div class="bar"><i id="rPin"></i></div>
+        <div class="scale"><span>0 · on time</span><span>60</span><span>120+ min</span></div>
+        <div class="verdict" id="rVerdict"></div>
+      </div>
+      <div class="note">Move any slider and watch the number <b>slide smoothly</b>. That is what makes it regression.</div>
+    </div>
+    <div class="card">
+      <h3>Peek inside the model</h3>
+      <svg id="rChart" viewBox="0 0 520 340"></svg>
+      <div class="legend"><span><i class="dot" style="background:#9fb3d1"></i>Past trips (training data)</span><span><i class="dot" style="background:#1f5fbf"></i>Best-fit line (the model)</span><span><i class="dot" style="background:#c2410c"></i>Your train</span></div>
+      <div class="note">The model draws the <b>best-fit line</b> through past trips, then reads your train's position off that line.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CLASSIFICATION -->
+<section id="cls" style="display:none">
+  <div class="q">"Will my waitlisted ticket WL <span id="wlTitle">23</span> get confirmed?"</div>
+  <div class="qsub">Classification picks a <b>category</b>: Confirmed or Not confirmed, with a confidence score.</div>
+  <div class="grid">
+    <div class="card">
+      <h3>Your booking (inputs)</h3>
+      <div class="ticket">Train <b>12951</b> · Sleeper class · Status <b>WL <span id="wlTk">23</span></b></div>
+      <label>Waitlist number <span id="cWlV"></span></label>
+      <input type="range" id="cWl" min="1" max="60" value="23">
+      <label>Days before travel <span id="cDaysV"></span></label>
+      <input type="range" id="cDays" min="0" max="60" value="30">
+      <label>Season</label>
+      <select id="cSeason"><option value="0">Normal</option><option value="1.6">Festival rush</option></select>
+      <label>Quota</label>
+      <select id="cQuota"><option value="0">General</option><option value="0.8">Ladies / Senior citizen</option><option value="-1">Tatkal</option></select>
+    </div>
+    <div class="card">
+      <h3>Prediction</h3>
+      <div class="guess">Your guess:
+        <button class="btn ghost" data-g="1">Confirmed</button><button class="btn ghost" data-g="0">Not confirmed</button>
+      </div>
+      <div id="cOut" class="hidden">
+        <div class="stamp" id="cStamp">CONFIRMED</div>
+        <div class="conf">Model confidence: <b id="cConf">78%</b></div>
+        <div class="bar" style="background:linear-gradient(90deg,#c2410c,#e0b300 50%,#1a8a4a)"><i id="cPin"></i></div>
+        <div class="scale"><span>0% chance</span><span>50% · decision line</span><span>100%</span></div>
+        <div class="verdict" id="cVerdict"></div>
+      </div>
+      <div class="note">The chance moves smoothly, but the answer <b>snaps</b> into one of two buckets at 50%. That is what makes it classification.</div>
+    </div>
+    <div class="card">
+      <h3>Peek inside the model</h3>
+      <svg id="cChart" viewBox="0 0 520 340"></svg>
+      <div class="legend"><span><i class="dot" style="background:#1a8a4a"></i>Past: got confirmed</span><span><i class="dot" style="background:#e07a4f"></i>Past: not confirmed</span><span><i class="dot" style="background:#1d3b6a"></i>Your ticket</span><span>— decision boundary</span></div>
+      <div class="note">The model learns a <b>boundary line</b> that separates the two groups. Your ticket's category depends on which side it falls.</div>
+    </div>
+  </div>
+</section>
+
+<!-- GAME -->
+<section id="game" style="display:none">
+  <div class="q">Regression or Classification?</div>
+  <div class="qsub">Click a card, then click the bin it belongs in. Ask yourself whether the answer is a <b>number</b> or a <b>category</b>.</div>
+  <div class="pile" id="pile"></div>
+  <div class="cmp">
+    <div class="bin" data-b="r"><h4>📈 Regression: predicts a number</h4><div class="pile"></div></div>
+    <div class="bin" data-b="c"><h4>🏷️ Classification: picks a category</h4><div class="pile"></div></div>
+  </div>
+  <div class="verdict" id="score"></div>
+  <button class="btn ghost" id="reset" style="margin-top:10px">Reset</button>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+function rng(seed){return()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646}}
+function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;parent.appendChild(e);return e}
+
+// tabs
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  ['reg','cls','game'].forEach(id=>$(id).style.display=id===b.dataset.t?'':'none');
+});
+
+// axes helper
+function axes(svg,xl,yl,xmax,ymax,xt,yt){
+  svg.innerHTML='';const P={l:50,r:15,t:15,b:42,w:520,h:340};
+  const X=v=>P.l+v/xmax*(P.w-P.l-P.r),Y=v=>P.h-P.b-v/ymax*(P.h-P.t-P.b);
+  xt.forEach(v=>{el('line',{x1:X(v),x2:X(v),y1:P.t,y2:P.h-P.b,stroke:'#eef1f5'},svg);el('text',{x:X(v),y:P.h-P.b+16,'text-anchor':'middle','font-size':11,fill:'#5d6778'},svg,v)});
+  yt.forEach(v=>{el('line',{x1:P.l,x2:P.w-P.r,y1:Y(v),y2:Y(v),stroke:'#eef1f5'},svg);el('text',{x:P.l-6,y:Y(v)+4,'text-anchor':'end','font-size':11,fill:'#5d6778'},svg,v)});
+  el('text',{x:(P.l+P.w)/2,y:P.h-6,'text-anchor':'middle','font-size':12,fill:'#1b2333'},svg,xl);
+  el('text',{x:14,y:(P.t+P.h-P.b)/2,'text-anchor':'middle','font-size':12,fill:'#1b2333',transform:`rotate(-90 14 ${(P.t+P.h-P.b)/2})`},svg,yl);
+  return{X,Y,P};
+}
+
+// ---------- REGRESSION ----------
+const rIn=['rDist','rWx','rSeason','rDay'].map($);
+let rRevealed=false;
+function delay(d,off){return 5+0.025*d+off}
+function renderReg(){
+  const d=+$('rDist').value,off=+$('rWx').value+ +$('rSeason').value+ +$('rDay').value;
+  $('rDistV').textContent=d+' km';
+  const v=Math.round(delay(d,off));
+  $('rVal').textContent=v;
+  $('rPin').style.left=Math.min(100,v/120*100)+'%';
+  const g=$('rGuess').value;
+  $('rVerdict').textContent=rRevealed&&g!==''?`You guessed ${g} min. The model is off from you by ${Math.abs(v-g)} min.`:'';
+  const svg=$('rChart'),{X,Y}=axes(svg,'Route distance (km)','Delay (min)',2000,140,[0,500,1000,1500,2000],[0,20,40,60,80,100,120,140]);
+  const r=rng(7);
+  for(let i=0;i<70;i++){const x=100+r()*1900,y=Math.max(0,delay(x,off)+(r()-.5)*36);el('circle',{cx:X(x),cy:Y(Math.min(y,140)),r:4,fill:'#9fb3d1',opacity:.8},svg)}
+  el('line',{x1:X(0),y1:Y(delay(0,off)),x2:X(2000),y2:Y(Math.min(140,delay(2000,off))),stroke:'#1f5fbf','stroke-width':3},svg);
+  el('line',{x1:X(d),x2:X(d),y1:Y(0),y2:Y(Math.min(v,140)),stroke:'#c2410c','stroke-dasharray':'4 4'},svg);
+  el('circle',{cx:X(d),cy:Y(Math.min(v,140)),r:8,fill:'#c2410c',stroke:'#fff','stroke-width':2},svg);
+  el('text',{x:X(d)+10,y:Y(Math.min(v,140))-10,'font-size':13,'font-weight':700,fill:'#c2410c'},svg,v+' min');
+}
+rIn.forEach(i=>i.oninput=renderReg);$('rGuess').oninput=renderReg;
+$('rReveal').onclick=()=>{rRevealed=true;$('rOut').classList.remove('hidden');renderReg()};
+
+// ---------- CLASSIFICATION ----------
+let cGuess=null,cRevealed=false;
+const sig=z=>1/(1+Math.exp(-z));
+function score(wl,days,s,q){return 3-0.13*wl+0.06*days-s+q}
+function renderCls(){
+  const wl=+$('cWl').value,days=+$('cDays').value,s=+$('cSeason').value,q=+$('cQuota').value;
+  $('cWlV').textContent='WL '+wl;$('cDaysV').textContent=days+' days';$('wlTitle').textContent=wl;$('wlTk').textContent=wl;
+  const p=sig(score(wl,days,s,q)),ok=p>=.5;
+  const st=$('cStamp');st.textContent=ok?'CONFIRMED':'NOT CONFIRMED';st.className='stamp '+(ok?'ok':'no');
+  $('cConf').textContent=Math.round((ok?p:1-p)*100)+'% sure it is '+(ok?'Confirmed':'Not confirmed');
+  $('cPin').style.left=(p*100)+'%';
+  $('cVerdict').textContent=cRevealed&&cGuess!==null?(cGuess===ok?'✅ You and the model agree.':'❌ The model disagrees with your guess.'):'';
+  const svg=$('cChart'),{X,Y}=axes(svg,'Waitlist number','Days before travel',60,60,[0,10,20,30,40,50,60],[0,10,20,30,40,50,60]);
+  const r=rng(11);
+  for(let i=0;i<110;i++){const w=1+r()*59,dd=r()*60,lab=r()<sig(score(w,dd,s,q)*1.4);el('circle',{cx:X(w),cy:Y(dd),r:4.5,fill:lab?'#1a8a4a':'#e07a4f',opacity:.75},svg)}
+  // boundary: score=0 => days=(0.13w-3+s-q)/0.06
+  const pts=[];for(let w=0;w<=60;w+=1){const dd=(0.13*w-3+s-q)/0.06;if(dd>=0&&dd<=60)pts.push(X(w)+','+Y(dd))}
+  if(pts.length>1)el('polyline',{points:pts.join(' '),fill:'none',stroke:'#1b2333','stroke-width':2.5,'stroke-dasharray':'7 5'},svg);
+  el('text',{x:X(4),y:Y(56),'font-size':12,'font-weight':700,fill:'#1a8a4a'},svg,'CONFIRMED zone');
+  el('text',{x:X(56),y:Y(3),'text-anchor':'end','font-size':12,'font-weight':700,fill:'#c2410c'},svg,'NOT CONFIRMED zone');
+  el('circle',{cx:X(wl),cy:Y(days),r:9,fill:'#1d3b6a',stroke:'#fff','stroke-width':3},svg);
+  el('text',{x:X(wl)+12,y:Y(days)+4,'font-size':13,'font-weight':700,fill:'#1d3b6a'},svg,'You');
+}
+['cWl','cDays','cSeason','cQuota'].forEach(id=>$(id).oninput=renderCls);
+document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{cGuess=b.dataset.g==='1';cRevealed=true;$('cOut').classList.remove('hidden');renderCls()});
+
+// ---------- GAME ----------
+const CARDS=[['Food delivery time (min)','r'],['Is this email spam?','c'],['House price (₹ lakh)','r'],['Is this UPI payment fraud?','c'],['Cab fare for a ride','r'],['Will the flight be delayed? (yes/no)','c'],['Tomorrow\'s temperature','r'],['Cat or dog in this photo?','c'],['Fuel burn on a flight (kg)','r'],['Does this engine part need maintenance?','c']];
+let sel=null;
+function setupGame(){
+  sel=null;$('score').textContent='';
+  document.querySelectorAll('.bin .pile').forEach(p=>p.innerHTML='');
+  const pile=$('pile');pile.innerHTML='';
+  CARDS.slice().sort(()=>Math.random()-.5).forEach(([t,a])=>{const c=document.createElement('div');c.className='chip';c.textContent=t;c.dataset.a=a;
+    c.onclick=e=>{e.stopPropagation();if(c.parentElement!==pile)return;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');sel=c};pile.appendChild(c)});
+}
+document.querySelectorAll('.bin').forEach(b=>b.onclick=()=>{if(!sel)return;sel.classList.remove('sel');sel.classList.add(sel.dataset.a===b.dataset.b?'right':'wrong');b.querySelector('.pile').appendChild(sel);sel=null;
+  const done=document.querySelectorAll('.bin .chip').length,right=document.querySelectorAll('.bin .chip.right').length;
+  $('score').textContent=`Score: ${right} / ${done}`+(done===CARDS.length?(right===done?' 🎉 Perfect!':' (red cards are in the wrong bin)'):'')});
+$('reset').onclick=setupGame;
+
+renderReg();renderCls();setupGame();
+</script>
+</body>
+</html>

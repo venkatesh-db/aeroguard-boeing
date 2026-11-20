@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Milestone 2 Lab</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--teal:#0f8a7a;--pur:#7a3fc4;--or:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#3b1f6b);color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:32px}header p{margin:2px 0 0;opacity:.85}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 26px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:10px 16px;font-size:17px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:20px}
+.tab{display:none}.tab.on{display:block}
+h2{font-size:30px;margin:0 0 8px}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:1000px){.trio{grid-template-columns:1fr}}
+.box{border-radius:14px;padding:14px 16px;font-size:18px;border:2px solid}
+.box b{display:block;font-size:15px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:1100px){.two{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;background:#fff;font-size:17px}
+.step.on{border-color:var(--ok);background:#f2fbf5}
+.step input{transform:scale(1.5);margin-top:6px}
+.step small{display:block;color:var(--mut)}
+.code{background:#0f1729;color:#e5ecff;border-radius:12px;padding:12px 0;font:15px/1.6 ui-monospace,Menlo,monospace;overflow:auto;max-height:520px}
+.code div{padding:0 14px;white-space:pre;opacity:.28;transition:all .3s}
+.code div.on{opacity:1}.code div.new{background:#1a8a4a33;box-shadow:inset 4px 0 #3ddc84}
+.kw{color:#c792ea}.st{color:#a5e88b}.dc{color:#ffcb6b}.cm{color:#6b7a99}.ty{color:#7fc8ff}
+.btn{background:var(--navy);color:#fff;border:0;padding:11px 16px;border-radius:10px;cursor:pointer;font-size:17px;font-weight:700;margin:6px 6px 0 0}
+.btn.go{background:var(--ok)}.btn.ghost{background:#e3e9f3;color:var(--navy)}
+.btn:disabled{opacity:.45}
+.out{border-radius:12px;padding:12px 14px;margin-top:10px;font-size:17px;white-space:pre-wrap;animation:pop .3s}
+.out.ok{background:#e7f6ec;border:1px solid var(--ok)}.out.bad{background:#fdecea;border:1px solid var(--bad)}.out.warn{background:#fff4dc;border:1px solid var(--gold)}
+@keyframes pop{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
+.mono{font:15px/1.5 ui-monospace,Menlo,monospace;background:#0f1729;color:#9ff0b5;border-radius:10px;padding:10px 12px;white-space:pre-wrap;margin-top:8px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{background:#e8eef9;color:var(--navy);border:0;border-radius:20px;padding:8px 13px;font-size:15px;cursor:pointer}
+.chip:disabled{opacity:.4}
+.phone{background:#1b2333;border-radius:24px;padding:12px}
+.scr{background:#f7f9fc;border-radius:14px;height:470px;display:flex;flex-direction:column;overflow:hidden}
+.bar{background:var(--navy);color:#fff;padding:9px 12px;font-weight:700;font-size:16px;display:flex;justify-content:space-between}
+.body{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:6px}
+.msg{max-width:86%;padding:8px 12px;border-radius:12px;font-size:16px;animation:pop .3s;white-space:pre-line}
+.msg.u{align-self:flex-end;background:var(--navy);color:#fff}.msg.a{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+.spin{display:inline-block;width:22px;height:22px;border:3px solid #cfd8e6;border-top-color:var(--navy);border-radius:50%;animation:rot 1s linear infinite;vertical-align:middle}
+@keyframes rot{to{transform:rotate(360deg)}}
+.cursor{display:inline-block;width:8px;height:17px;background:var(--or);vertical-align:middle;animation:blink .8s infinite}
+@keyframes blink{50%{opacity:0}}
+.tag{display:inline-block;color:#fff;font-weight:800;border-radius:8px;padding:3px 10px;font-size:15px}
+.check label{display:flex;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);font-size:17px;cursor:pointer}
+.check input{transform:scale(1.4)}
+.prog{height:22px;background:#e6ebf2;border-radius:11px;overflow:hidden;margin:6px 0}
+.prog i{display:block;height:100%;background:var(--ok);transition:width .4s}
+.disc{font-size:14px;color:var(--mut);margin-top:14px}
+x-kw{color:#c792ea}x-st{color:#a5e88b}x-dc{color:#ffcb6b}x-cm{color:#6b7a99}x-ty{color:#7fc8ff}
+</style>
+</head>
+<body>
+<header><h1>🧪 Day 3 Lab: From Chatbot v1 to MRO Copilot v2</h1><p>Page 3 of 3 · Enforce JSON in FastAPI · Add session memory · 🏁 Project Milestone 2: streaming + multi-turn chat UI</p></header>
+<nav id="nav">
+  <button data-t="t1" class="on">① Enforce JSON in FastAPI</button>
+  <button data-t="t2">② Add session memory</button>
+  <button data-t="t3">③ 🏁 Milestone 2 UI</button>
+</nav>
+<main>
+
+<!-- 1 JSON -->
+<section class="tab on" id="t1">
+  <h2>① Enforce structured JSON output inside the FastAPI backend</h2>
+  <div class="trio">
+    <div class="box" style="border-color:var(--blue);background:#eef4ff"><b style="color:var(--blue)">📖 Simple definition</b>The backend <b>never trusts</b> the LLM's text. It checks the answer against a schema, retries if it's wrong, and only sends <b>clean, typed JSON</b> to the UI.</div>
+    <div class="box" style="border-color:var(--gold);background:#fff8e6"><b style="color:var(--gold)">🎮 Experience</b>Tick the 4 build steps one at a time and press <b>Run</b>. Watch what reaches the technician's tablet at each stage.</div>
+    <div class="box" style="border-color:var(--ok);background:#f2fbf5"><b style="color:var(--ok)">✈️ Aviation use case</b>Note: <i>"Eng 2 hi vib on VT-SKA, 3rd time this wk"</i> → a <b>DefectReport</b> the defect system can file automatically.</div>
+  </div>
+  <div class="two">
+    <div class="card">
+      <div class="steps" id="s1"></div>
+      <button class="btn go" id="run1">▶ Run POST /api/v1/defects/analyze</button>
+      <div id="out1"></div>
+    </div>
+    <div class="code" id="code1"></div>
+  </div>
+</section>
+
+<!-- 2 MEMORY -->
+<section class="tab" id="t2">
+  <h2>② Add session / conversation memory</h2>
+  <div class="trio">
+    <div class="box" style="border-color:var(--blue);background:#eef4ff"><b style="color:var(--blue)">📖 Simple definition</b>The LLM remembers nothing. The backend <b>stores each conversation under a session_id</b> and sends the past turns along with every new question.</div>
+    <div class="box" style="border-color:var(--gold);background:#fff8e6"><b style="color:var(--gold)">🎮 Experience</b>Tick the steps, then chat. Without memory, "Which engine was it?" gets "I don't know". With memory, it answers.</div>
+    <div class="box" style="border-color:var(--ok);background:#f2fbf5"><b style="color:var(--ok)">✈️ Aviation use case</b>A technician troubleshoots VT-SKA over several messages without repeating the tail number, engine and findings every time.</div>
+  </div>
+  <div class="two">
+    <div class="card">
+      <div class="steps" id="s2"></div>
+      <div class="phone" style="margin-top:12px"><div class="scr" style="height:330px"><div class="bar"><span>📱 MRO Copilot</span><span id="sid2">session s-77a1</span></div><div class="body" id="chat2"></div></div></div>
+      <div class="chips" id="q2"></div><button class="btn ghost" id="reset2">↺ Restart conversation</button>
+    </div>
+    <div><div class="code" id="code2"></div><div class="mono" id="store2"></div></div>
+  </div>
+</section>
+
+<!-- 3 MILESTONE -->
+<section class="tab" id="t3">
+  <h2>③ 🏁 Project Milestone 2: streaming + multi-turn chat history in the UI</h2>
+  <div class="trio">
+    <div class="box" style="border-color:var(--blue);background:#eef4ff"><b style="color:var(--blue)">📖 Simple definition</b>Upgrade the screen from <b>"one question, wait, one answer"</b> to a <b>real chat</b>: answers appear word by word, and all earlier messages stay visible.</div>
+    <div class="box" style="border-color:var(--gold);background:#fff8e6"><b style="color:var(--gold)">🎮 Experience</b>Ask the same 3 questions in <b>v1</b> and in <b>v2</b>, side by side. Feel the difference in waiting and context.</div>
+    <div class="box" style="border-color:var(--ok);background:#f2fbf5"><b style="color:var(--ok)">✈️ Aviation use case</b>A technician on the hangar floor reads the first steps while the rest is still being written, and scrolls back through the whole troubleshooting thread.</div>
+  </div>
+  <div class="two">
+    <div><div style="display:flex;justify-content:space-between;align-items:center"><span class="tag" style="background:#5d6778">v1 · Milestone 1</span><span style="font-size:15px;color:var(--mut)">blocking · single answer · no history</span></div>
+      <div class="phone" style="margin-top:6px"><div class="scr"><div class="bar"><span>📱 Copilot v1</span><span></span></div><div class="body" id="v1"></div></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;align-items:center"><span class="tag" style="background:var(--ok)">v2 · Milestone 2</span><span style="font-size:15px;color:var(--mut)">streaming · chat history · session</span></div>
+      <div class="phone" style="margin-top:6px"><div class="scr"><div class="bar"><span>📱 MRO Copilot v2</span><span><button class="chip" id="newChat" style="padding:2px 10px">＋ New chat</button></span></div><div class="body" id="v2"></div></div></div></div>
+  </div>
+  <div class="chips" id="q3" style="justify-content:center;margin-top:12px"></div>
+  <div class="two" style="margin-top:12px">
+    <div><b style="font-size:20px">🌐 UI code: read the stream and keep history</b><div class="code" id="code3"></div></div>
+    <div class="card"><b style="font-size:20px">✅ Milestone 2 acceptance checklist</b><div class="prog"><i id="prog"></i></div><div class="check" id="chk"></div></div>
+  </div>
+  <div class="disc">Simulation for teaching: no real LLM or server is called. <code>call_llm()</code> stands for whichever LLM SDK your project uses; check the official docs for its exact call and streaming syntax. MRO Copilot is advisory only.</div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===b.dataset.t))});
+function hl(s){return esc(s).replace(/(#.*)$/,'<x-cm>$1</x-cm>').replace(/(\/\/.*)$/,'<x-cm>$1</x-cm>').replace(/("[^"]*"|'[^']*'|`[^`]*`)/g,'<x-st>$1</x-st>').replace(/(@\w+(\.\w+)*)/g,'<x-dc>$1</x-dc>').replace(/\b(from|import|def|class|return|for|in|if|else|try|except|raise|async|await|const|let|while|break|new|function|None|True|False)\b/g,'<x-kw>$1</x-kw>').replace(/\b(BaseModel|Field|Literal|HTTPException|ValidationError|StreamingResponse|str|int|bool|list|dict)\b/g,'<x-ty>$1</x-ty>')}
+function codeBox(id,lines,active,fresh){$(id).innerHTML=lines.map(([s,l])=>`<div class="${active.has(s)||s===0?'on':''} ${s===fresh?'new':''}">${hl(l)||' '}</div>`).join('')}
+function stepBox(id,steps,active,cb){$(id).innerHTML=steps.map((s,i)=>`<label class="step ${active.has(i+1)?'on':''}"><input type="checkbox" data-s="${i+1}" ${active.has(i+1)?'checked':''}><span><b>Step ${i+1}: ${s[0]}</b><small>${s[1]}</small></span></label>`).join('');
+ $(id).querySelectorAll('input').forEach(c=>c.onchange=()=>{const n=+c.dataset.s;c.checked?active.add(n):active.delete(n);c.closest('.step').classList.toggle('on',c.checked);cb(c.checked?n:null)})}
+
+/* ===== 1 JSON ===== */
+const S1=[['Define the schema','A Pydantic DefectReport model: the "form" the LLM must fill'],['Put the schema in the prompt','Tell the LLM: "Return ONLY JSON matching this schema"'],['Validate + retry','Parse and validate; on error, send the error back (max 3 tries)'],['Typed endpoint + safe error','response_model=DefectReport; after 3 failures return a clean 502']];
+const C1=[[0,'from fastapi import FastAPI, HTTPException'],[0,'from pydantic import BaseModel, Field, ValidationError'],[0,'from typing import Literal'],[0,'import json'],[0,''],
+ [1,'class DefectReport(BaseModel):'],[1,'    tail_number: str = Field(pattern=r"^VT-[A-Z]{3}$")'],[1,'    ata_chapter: int = Field(ge=5, le=99)'],[1,'    severity: Literal["low", "medium", "high"]'],[1,'    summary: str'],[1,'    requires_engineer_review: bool'],[1,''],
+ [2,'SYSTEM = f"""You are MRO Copilot. Return ONLY JSON matching:'],[2,'{json.dumps(DefectReport.model_json_schema())}'],[2,'No extra text. Never certify airworthiness."""'],[2,''],
+ [3,'def get_report(note: str) -> DefectReport:'],[3,'    messages = [{"role": "system", "content": SYSTEM},'],[3,'                {"role": "user", "content": note}]'],[3,'    for attempt in range(3):'],[3,'        raw = call_llm(messages)'],[3,'        try:'],[3,'            return DefectReport.model_validate_json(raw)'],[3,'        except ValidationError as e:          # 🔁 retry with the error'],[3,'            messages.append({"role": "assistant", "content": raw})'],[3,'            messages.append({"role": "user", "content": f"Fix: {e}"})'],[3,'    raise ValueError("LLM failed to return valid JSON")'],[3,''],
+ [4,'@app.post("/api/v1/defects/analyze", response_model=DefectReport)'],[4,'def analyze(req: AnalyzeRequest):'],[4,'    try:'],[4,'        return get_report(req.note)'],[4,'    except ValueError:'],[4,'        raise HTTPException(502, detail="AI_BAD_OUTPUT: please use the manual form")']];
+const a1=new Set();let f1=null;
+const GOOD='{"tail_number":"VT-SKA","ata_chapter":72,"severity":"high","summary":"Engine 2 high vibration after start, repeat x3","requires_engineer_review":true}';
+const r1=()=>codeBox('code1',C1,a1,f1);stepBox('s1',S1,a1,n=>{f1=n;r1();$('out1').innerHTML=''});r1();
+$('run1').onclick=async()=>{const h=a1;$('out1').innerHTML='';const show=(c,t)=>$('out1').insertAdjacentHTML('beforeend',`<div class="out ${c}">${t}</div>`);$('run1').disabled=true;
+ if(!h.has(2)){show('bad','🤖 LLM replied:\n"VT-SKA has an engine vibration problem on engine 2. It has happened three times. I recommend a borescope…"');await sleep(500);show('bad','📱 Tablet receives a paragraph, not fields. The defect system cannot file it. ❌\n➡️ Tick Step 2: ask for JSON with a schema.')}
+ else if(!h.has(1)){show('warn','🤖 LLM replied (JSON, but you never defined the schema):\n{"aircraft":"VT-SKA","problem":"vibration","priority":"URGENT"}');await sleep(500);show('bad','📱 Tablet expects tail_number / ata_chapter / severity, so fields are missing and the screen shows blanks. ❌\n➡️ Tick Step 1: define the schema.')}
+ else if(!h.has(3)){show('warn','🤖 LLM replied:\n```json\n{"tail_number":"VT-SKA","ata_chapter":"seventy-two","severity":"URGENT"}\n```');await sleep(500);show('bad','💥 Nobody validated it. "seventy-two" and "URGENT" go straight to the tablet (or json.loads crashes with a 500). ❌\n➡️ Tick Step 3: validate + retry.')}
+ else{show('warn','Attempt 1 → {"ata_chapter":"seventy-two","severity":"URGENT",…}\n❌ ValidationError: ata_chapter must be int; severity must be low/medium/high');await sleep(700);show('warn','🔁 Attempt 2 (error sent back) →\n'+GOOD+'\n✅ DefectReport.model_validate_json() passed');await sleep(600);
+  show(h.has(4)?'ok':'warn',h.has(4)?'📱 Tablet receives typed, guaranteed JSON. Defect D-2041 is filed automatically ✅\n(If all 3 attempts had failed → clean 502 "please use the manual form", never a crash.)':'✅ Valid now, but without Step 4 a total failure would crash the endpoint with a 500 and an ugly error. Tick Step 4.')}
+ $('run1').disabled=false};
+
+/* ===== 2 MEMORY ===== */
+const S2=[['Create a session store','A dict keyed by session_id (use Redis or a DB in production)'],['Accept session_id in the request','The UI sends the same id with every message'],['Load history, call LLM, save both turns','Send system + past messages + the new one'],['Trim long histories','Keep the last 10 messages to stay inside the context window']];
+const C2=[[0,'from pydantic import BaseModel'],[0,''],[1,'SESSIONS: dict[str, list[dict]] = {}     # session_id → messages'],[1,''],
+ [2,'class ChatRequest(BaseModel):'],[2,'    session_id: str'],[2,'    message: str'],[2,''],[0,'@app.post("/api/v1/chat")'],[0,'def chat(req: ChatRequest):'],
+ [3,'    history = SESSIONS.setdefault(req.session_id, [])'],[3,'    history.append({"role": "user", "content": req.message})'],[4,'    recent = history[-10:]                  # ✂️ keep last 10'],
+ [3,'    reply = call_llm([{"role": "system", "content": SYSTEM}] + recent)'],[3,'    history.append({"role": "assistant", "content": reply})'],[0,'    return {"session_id": req.session_id, "reply": reply}']];
+const a2=new Set();let f2=null;
+const Q2=[['VT-SKA engine 2 vibration 4.8 ips after start.','Noted: VT-SKA, engine 2, 4.8 ips after start. Was EGT normal?'],['EGT normal, 3rd time this week.','A repeat defect with normal EGT suggests mechanical causes (fan imbalance or bearing). Suggest a borescope per the AMM.'],['Which aircraft and engine was it again?',null]];
+let h2=[],i2=0;
+const r2=()=>{codeBox('code2',C2,a2,f2);const ok=[1,2,3].every(n=>a2.has(n));$('store2').textContent=a2.has(1)?'SESSIONS = '+JSON.stringify({'s-77a1':ok?h2.map(([r,t])=>({role:r,content:t.slice(0,28)+'…'})):[]},null,2):'# no session store yet: every request starts from zero'};
+stepBox('s2',S2,a2,n=>{f2=n;r2()});
+function chat2(){$('chat2').innerHTML=h2.map(([r,t])=>`<div class="msg ${r==='user'?'u':'a'}">${esc(t)}</div>`).join('');$('chat2').scrollTop=1e6}
+$('q2').innerHTML=Q2.map((q,i)=>`<button class="chip" ${i?'disabled':''}>${i+1}. ${esc(q[0])}</button>`).join('');
+[...$('q2').children].forEach((b,i)=>b.onclick=async()=>{if(i!==i2)return;b.disabled=true;h2.push(['user',Q2[i][0]]);chat2();await sleep(600);
+ const ok=[1,2,3].every(n=>a2.has(n));let a=Q2[i][1];
+ if(!a)a=ok?'It was VT-SKA, engine #2: 4.8 ips vibration after start, EGT normal, repeat defect (3rd this week).':'❓ I don\'t have that information. Which aircraft and engine are you asking about?\n(Steps 1–3 are not all ticked, so the backend sent only this one message.)';
+ h2.push(['assistant',a]);chat2();r2();i2++;if($('q2').children[i2])$('q2').children[i2].disabled=false});
+$('reset2').onclick=()=>{h2=[];i2=0;[...$('q2').children].forEach((b,i)=>b.disabled=i>0);chat2();r2()};r2();
+
+/* ===== 3 MILESTONE ===== */
+const Q3=[['VT-SKA engine 2 vibrates after start. Where do I start?','Start with the basics:\n1. Confirm the vibration reading and trend data.\n2. Check the engine mounts and fan for visible damage.\n3. Plan a borescope inspection per the AMM (ATA 72).\nAdvisory only. Confirm with a certifying engineer.'],
+ ['Mounts are fine. Is a borescope really needed?','Since the mounts are OK and this is a repeat defect on VT-SKA engine 2, a borescope is the best next step to look for fan-blade or bearing damage. Follow the AMM task and record the findings.'],
+ ['Summarise everything for the handover.','Handover: VT-SKA eng #2, high vibration after start (repeat). Mounts checked OK. Borescope recommended and not yet done. Needs engineer review before release.']];
+let qi3=0,busy=false,h3=[];
+$('q3').innerHTML=Q3.map((q,i)=>`<button class="chip" ${i?'disabled':''} style="font-size:16px">${i+1}. ${esc(q[0])}</button>`).join('');
+async function v1(q,a){$('v1').innerHTML=`<div class="msg u">${esc(q)}</div><div style="text-align:center;color:var(--mut);margin-top:30px"><span class="spin"></span> Waiting for the full answer…</div>`;
+ const t=performance.now();await sleep(4500);
+ const ctx=qi3>0&&/borescope|everything/i.test(q)?'\n\n(⚠️ v1 has no memory, so this reply ignores what you said before.)':'';
+ $('v1').innerHTML=`<div class="msg u">${esc(q)}</div><div class="msg a">${esc(qi3===2?'Please provide the details of the work you would like summarised.':qi3===1?'A borescope may be needed depending on the aircraft and symptoms. Please provide more details.':a)}${ctx}</div><div style="font-size:13px;color:var(--mut);text-align:center">⏱ ${((performance.now()-t)/1000).toFixed(1)} s before anything appeared · previous messages gone</div>`}
+async function v2(q,a){h3.push(['user',q]);const box=$('v2');box.insertAdjacentHTML('beforeend',`<div class="msg u">${esc(q)}</div>`);const m=document.createElement('div');m.className='msg a';m.innerHTML='<span class="cursor"></span>';box.appendChild(m);box.scrollTop=1e6;
+ const t=performance.now();await sleep(350);let txt='';for(const w of a.split(/(\s+)/)){txt+=w;m.innerHTML=esc(txt)+'<span class="cursor"></span>';box.scrollTop=1e6;await sleep(w.trim()?55:0)}
+ m.innerHTML=esc(txt)+`<div style="font-size:12px;color:var(--mut);margin-top:4px">⚡ first words after 0.4 s</div>`;h3.push(['assistant',a])}
+[...$('q3').children].forEach((b,i)=>b.onclick=async()=>{if(busy||i!==qi3)return;busy=true;b.disabled=true;const [q,a]=Q3[i];await Promise.all([v1(q,a),v2(q,a)]);qi3++;busy=false;if($('q3').children[qi3])$('q3').children[qi3].disabled=false});
+$('newChat').onclick=()=>{$('v2').innerHTML='<div style="text-align:center;color:var(--mut);font-size:14px">New session started · new session_id</div>';$('v1').innerHTML='';h3=[];qi3=0;[...$('q3').children].forEach((b,i)=>b.disabled=i>0)};
+const C3=['// keep one id per conversation','let sessionId = crypto.randomUUID()','','async function send(text) {','  addBubble("user", text)            // history stays on screen','  const bubble = addBubble("assistant", "")','  const res = await fetch("/api/v1/chat/stream", {','    method: "POST",','    headers: { "Content-Type": "application/json" },','    body: JSON.stringify({ session_id: sessionId, message: text })','  })','  const reader = res.body.getReader()','  const decoder = new TextDecoder()','  while (true) {','    const { done, value } = await reader.read()','    if (done) break','    bubble.textContent += parseTokens(decoder.decode(value)) // word by word','  }','}','','newChatButton.onclick = () => { sessionId = crypto.randomUUID(); clearBubbles() }'];
+$('code3').innerHTML=C3.map(l=>`<div class="on">${hl(l)||' '}</div>`).join('');
+const CHK=['Backend validates LLM output with a Pydantic schema (+ retry)','Backend stores history per session_id','UI sends session_id with every message','Answers stream in word by word (SSE)','All previous messages stay visible in a chat thread','"New chat" button starts a fresh session','Errors show a friendly message, never a crash','Every answer carries the "advisory only" notice'];
+$('chk').innerHTML=CHK.map((c,i)=>`<label><input type="checkbox" data-i="${i}"> ${c}</label>`).join('');
+$('chk').querySelectorAll('input').forEach(c=>c.onchange=()=>{const n=$('chk').querySelectorAll('input:checked').length;$('prog').style.width=n/CHK.length*100+'%';const d=$('done3');if(n===CHK.length&&!d)$('prog').parentElement.insertAdjacentHTML('afterend','<div class="out ok" id="done3">🏁 Milestone 2 complete! 🎉</div>');if(n<CHK.length&&d)d.remove()});
+</script>
+</body>
+</html>

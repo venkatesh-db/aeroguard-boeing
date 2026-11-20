@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aviation AI Impact</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--teal:#0f8a7a;--pur:#7a3fc4;--or:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#1f5fbf);color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:31px}header p{margin:2px 0 0;opacity:.85}
+nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 20px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:8px 14px;font-size:16px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:18px}
+.tab{display:none}.tab.on{display:block}
+h2{font-size:28px;margin:0 0 6px}
+.lead{color:var(--mut);font-size:19px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.chip{background:#e8eef9;color:var(--navy);border:2px solid transparent;border-radius:20px;padding:7px 12px;font-size:15px;cursor:pointer}
+.chip.on{background:var(--navy);color:#fff}
+.uc{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px}
+.ucc{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;transition:all .2s}
+.ucc:hover{border-color:var(--blue);transform:translateY(-3px)}
+.ucc h3{margin:0;font-size:19px}
+.tag{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:800;color:#fff;margin:4px 4px 0 0}
+.ucc .more{display:none;margin-top:8px;font-size:15px}
+.ucc.open{border-color:var(--ok)}.ucc.open .more{display:block}
+.ucc .row{display:grid;grid-template-columns:120px 1fr;gap:6px;padding:3px 0;border-top:1px dashed var(--line)}
+.ucc .row b{color:var(--mut);font-size:13px;text-transform:uppercase}
+.kpi{display:inline-block;background:#e7f6ec;color:var(--ok);border-radius:6px;padding:1px 7px;font-size:13px;font-weight:700;margin:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:1100px){.two{grid-template-columns:1fr}}
+.tl{display:flex;height:46px;border-radius:10px;overflow:hidden;margin:6px 0 2px}
+.tl div{display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;transition:flex .6s;white-space:nowrap;overflow:hidden}
+.leg{display:flex;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--mut)}
+label.s{display:block;font-weight:700;margin:8px 0 2px}label.s span{float:right;color:var(--or)}
+input[type=range]{width:100%}
+.big{font-size:44px;font-weight:800;color:var(--ok)}
+.phase{border-radius:14px;padding:12px;color:#fff}
+.phase h3{margin:0 0 4px}
+.phase ul{margin:6px 0 0;padding-left:20px;font-size:15px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:1000px){.three{grid-template-columns:1fr}}
+.no{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--bad);background:#fff4f2;border-radius:12px;padding:10px 12px;margin:6px 0;font-size:17px}
+.yes{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--ok);background:#f2fbf5;border-radius:12px;padding:10px 12px;margin:6px 0;font-size:17px}
+.stack{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
+.stack div{border-radius:10px;padding:8px;color:#fff;text-align:center;font-size:14px;font-weight:700}
+.disc{font-size:13px;color:var(--mut);margin-top:12px}
+.next{display:block;text-align:center;margin-top:14px;font-size:19px;font-weight:700;color:var(--blue)}
+</style>
+</head>
+<body>
+<header><h1>🌍 What This Unlocks in Aviation: Industry Outcomes</h1><p>Page 3 of 4 · Chatbot + knowledge base + agents + MCP + deployment: what airlines, MROs and manufacturers can achieve with it</p></header>
+<nav id="nav">
+  <button data-t="t1" class="on">① Use-case map</button>
+  <button data-t="t2">② A technician's day: before vs after</button>
+  <button data-t="t3">③ Value estimator</button>
+  <button data-t="t4">④ Adoption roadmap</button>
+  <button data-t="t5">⑤ What AI will NOT do</button>
+</nav>
+<main>
+
+<section class="tab on" id="t1">
+  <h2>The same 5-piece architecture, many aviation use cases</h2>
+  <div class="stack"><div style="background:#5d6778">🖥️ UI + FastAPI</div><div style="background:#0f8a7a">📚 RAG knowledge base</div><div style="background:#d9480f">🕸️ LangGraph agent</div><div style="background:#7a3fc4">🔌 MCP connectors</div><div style="background:#b7791f">🔭 Ops & governance</div></div>
+  <div class="lead">Filter by department, click a card to see how it works, then press <b>▶ Open the product demo</b> to experience it end to end · <a href="products/index.html" style="font-weight:700">🗂️ Open the product gallery</a></div>
+  <div class="chips" id="depts"></div>
+  <div class="uc" id="ucs"></div>
+</section>
+
+<section class="tab" id="t2">
+  <h2>A line technician's 8-hour shift (illustrative)</h2>
+  <div class="lead">Drag the slider to see time move from searching and paperwork back to hands-on maintenance.</div>
+  <div class="card">
+    <label class="s">AI assistant adoption <span id="adV"></span></label><input type="range" id="ad" min="0" max="100" step="10" value="0">
+    <div class="tl" id="tl"></div><div class="leg" id="leg"></div>
+    <div class="two" style="margin-top:12px"><div id="dayTxt" style="font-size:17px"></div><div class="card" style="background:#f6f8fc"><b>Hands-on maintenance time</b><div class="big" id="hands"></div><div style="color:var(--mut);font-size:15px">Assumptions are illustrative; measure your own baseline before claiming results.</div></div></div>
+  </div>
+</section>
+
+<section class="tab" id="t3">
+  <h2>Value estimator (your assumptions, not promises)</h2>
+  <div class="lead">Every number here is an <b>editable assumption</b>. Use it to start a business-case conversation, then validate with a pilot.</div>
+  <div class="two">
+    <div class="card">
+      <label class="s">Technicians using the assistant <span id="nV"></span></label><input type="range" id="n" min="10" max="2000" step="10" value="200">
+      <label class="s">Minutes saved per technician per shift <span id="mV"></span></label><input type="range" id="m" min="0" max="90" step="5" value="30">
+      <label class="s">Shifts per year <span id="sV"></span></label><input type="range" id="s" min="150" max="260" step="10" value="220">
+      <label class="s">Loaded cost per hour (₹) <span id="cV"></span></label><input type="range" id="c" min="500" max="5000" step="100" value="1500">
+      <label class="s">AI running cost per technician per month (₹) <span id="aV"></span></label><input type="range" id="a" min="0" max="5000" step="100" value="1500">
+    </div>
+    <div class="card"><div id="val"></div></div>
+  </div>
+  <div class="disc">Simplified model: hours saved × cost per hour − AI running cost. It ignores implementation cost, change management and benefits such as fewer repeat defects or less aircraft downtime, which are often larger but must be measured.</div>
+</section>
+
+<section class="tab" id="t4">
+  <h2>Crawl → walk → run: a safe adoption roadmap</h2>
+  <div class="three">
+    <div class="phase" style="background:#0f8a7a"><h3>🐢 Crawl · read-only assistant</h3><div>0–6 months</div><ul><li>RAG over manuals, SBs and past fixes</li><li>Answers with citations</li><li>No write access to MRO systems</li><li>Measure: answer accuracy, time to find information</li></ul></div>
+    <div class="phase" style="background:#1f5fbf"><h3>🚶 Walk · agent drafts, human approves</h3><div>6–18 months</div><ul><li>LangGraph agent + MCP read tools</li><li>Drafts work orders and handovers</li><li>Every write needs human approval</li><li>Measure: drafts accepted, errors caught</li></ul></div>
+    <div class="phase" style="background:#7a3fc4"><h3>🏃 Run · orchestrated workflows</h3><div>18+ months</div><ul><li>Multi-agent: troubleshooting + parts + planning</li><li>Predictive signals feed the agent</li><li>Governed by audit, eval and role permissions</li><li>Measure: downtime, repeat defects, cost</li></ul></div>
+  </div>
+  <div class="card" style="margin-top:12px;font-size:17px"><b>🧭 Gate to move to the next phase:</b> evaluation scores stable · no safety incidents · users trust it (adoption) · audit trail complete · regulator/quality team informed.</div>
+</section>
+
+<section class="tab" id="t5">
+  <h2>Clear boundaries: what the AI does and does not do</h2>
+  <div class="two">
+    <div><h3 style="color:var(--ok)">✅ The assistant DOES</h3><div id="yes"></div></div>
+    <div><h3 style="color:var(--bad)">🚫 The assistant does NOT</h3><div id="no"></div></div>
+  </div>
+  <a class="next" href="4_engineer_decisions.html">➡️ Page 4: the decisions an engineer must make to build this safely</a>
+  <div class="disc">Illustrative teaching content. Use cases describe general industry directions, not specific company programmes. Benefits must be validated in your own operation and follow your organisation's approved procedures and the applicable regulatory guidance.</div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===b.dataset.t))});
+const DC={'MRO':'#0f8a7a','Engineering':'#1f5fbf','Flight ops':'#0b2545','Supply chain':'#b7791f','Safety & quality':'#c2410c','Customer':'#7a3fc4','Training':'#5d6778'};
+const MAT={now:['Ready now','#1a8a4a'],near:['1–2 years','#b7791f'],later:['3–5 years','#7a3fc4']};
+const UC=[
+ ['MRO','🔧 Troubleshooting copilot','Technicians lose time searching manuals for fault isolation.','RAG over AMM/TSM + past fixes; agent calls get_aircraft & maintenance history via MCP; suggests steps with citations.','Technician performs, certifying engineer signs off.',['time-to-diagnose ↓','repeat defects ↓'],'now','low'],
+ ['MRO','📝 Work-order & handover drafting','Paperwork eats shift time; handovers miss items.','Agent drafts work orders, shift handovers and defect reports in structured JSON.','Every draft is reviewed and approved.',['admin time ↓','handover quality ↑'],'now','low'],
+ ['Engineering','📈 Predictive maintenance triage','Sensor alerts are noisy; engineers can\'t review them all.','ML risk score + agent gathers history, related SBs/ADs, and proposes inspection priority.','Reliability engineer decides the action.',['unscheduled removals ↓','AOG ↓'],'near','medium'],
+ ['Engineering','📚 SB / AD applicability check','Checking which aircraft a new Service Bulletin or AD affects is slow.','RAG reads the bulletin; MCP compliance server checks effectivity across the fleet.','Engineering approves the applicability decision.',['review time ↓','missed applicability ↓'],'near','medium'],
+ ['Flight ops','🧭 Dispatch & disruption assistant','Disruptions need fast replanning across crew, aircraft and slots.','Multi-agent: weather, crew rules and aircraft status tools propose recovery options.','Ops controller chooses the plan.',['delay minutes ↓','recovery time ↓'],'later','high'],
+ ['Supply chain','📦 Parts & AOG sourcing agent','An AOG part search spans many systems and suppliers.','MCP connectors to inventory, pool partners and suppliers; agent ranks options by ETA and cost.','Buyer approves the purchase.',['AOG hours ↓','expedite cost ↓'],'near','medium'],
+ ['Safety & quality','🛡️ Safety report analysis','Thousands of free-text safety reports are hard to trend.','LLM classifies and clusters reports, links to ATA chapters, highlights emerging themes.','Safety team validates trends and actions.',['trend detection speed ↑'],'now','medium'],
+ ['Safety & quality','✅ Audit & compliance evidence','Audit prep means collecting evidence from many sources.','Agent gathers records via MCP, builds an evidence pack with citations and an audit log.','Quality manager reviews before submission.',['audit prep time ↓'],'near','low'],
+ ['Customer','💬 Passenger & customer service','High volume of rebooking and baggage questions.','GenAI agent with booking tools, policies via RAG, multilingual.','Escalates to an agent for exceptions.',['handling time ↓','CSAT ↑'],'now','medium'],
+ ['Training','🎓 Training & knowledge transfer','Experienced engineers retire; tacit knowledge is lost.','RAG over past fixes and expert notes; scenario-based quiz generation.','Instructors validate content.',['time-to-competence ↓'],'now','low']];
+const PID=["troubleshooting","workorder","predictive","sbad","disruption","aog","safety","audit","customer","training"];
+let dept='All';
+function ucs(){$('depts').innerHTML=['All',...Object.keys(DC)].map(d=>`<button class="chip ${d===dept?'on':''}">${d}</button>`).join('');[...$('depts').children].forEach(b=>b.onclick=()=>{dept=b.textContent;ucs()});
+ $('ucs').innerHTML=UC.filter(u=>dept==='All'||u[0]===dept).map(([d,t,p,how,h,k,m,r])=>`<div class="ucc"><h3>${t}</h3><span class="tag" style="background:${DC[d]}">${d}</span><span class="tag" style="background:${MAT[m][1]}">⏱ ${MAT[m][0]}</span><span class="tag" style="background:${{low:'#1a8a4a',medium:'#b7791f',high:'#c2410c'}[r]}">risk: ${r}</span>
+  <div style="font-size:15px;margin-top:6px">${esc(p)}</div><div class="more"><div class="row"><b>How</b><span>${esc(how)}</span></div><div class="row"><b>Human role</b><span>👷 ${esc(h)}</span></div><div class="row"><b>Moves</b><span>${k.map(x=>`<span class="kpi">${x}</span>`).join('')}</span></div></div><a href="products/${PID[UC.findIndex(u=>u[1]===t)]}.html" onclick="event.stopPropagation()" style="display:inline-block;margin-top:8px;background:#0b2545;color:#fff;text-decoration:none;border-radius:8px;padding:6px 12px;font-size:14px;font-weight:700">▶ Open the product demo</a></div>`).join('');
+ $('ucs').querySelectorAll('.ucc').forEach(c=>c.onclick=()=>c.classList.toggle('open'))}
+ucs();
+/* day in life */
+const ACT=[['🔧 Hands-on maintenance','#1a8a4a',3.5,5.8],['🔍 Searching manuals / info','#c2410c',1.6,.5],['📝 Paperwork & logs','#b7791f',1.5,.7],['🗣️ Handover & coordination','#1f5fbf',.8,.6],['⏳ Waiting for parts / approvals','#7a3fc4',.6,.4]];
+function day(){const a=+$('ad').value/100;$('adV').textContent=Math.round(a*100)+'%';const h=ACT.map(([n,c,b,f])=>b+(f-b)*a);
+ $('tl').innerHTML=ACT.map(([n,c],i)=>`<div style="flex:${h[i]};background:${c}">${h[i]>.7?h[i].toFixed(1)+'h':''}</div>`).join('');$('leg').innerHTML=ACT.map(([n,c],i)=>`<span><b style="color:${c}">■</b> ${n}: ${h[i].toFixed(1)}h</span>`).join('');
+ $('hands').textContent=h[0].toFixed(1)+' h of 8';
+ $('dayTxt').innerHTML=a<.3?'📖 Searching PDFs, calling engineering, handwriting logs. A lot of the day is spent <b>finding</b> information.':a<.8?'🤖 Cited answers in seconds; work orders and handovers are drafted for review. Less searching, more fixing.':'🚀 The agent pre-gathers history, manuals, ADs and parts before the technician arrives at the aircraft. The human focuses on inspection, judgement and sign-off.'}
+$('ad').oninput=day;day();
+/* value */
+function val(){const n=+$('n').value,m=+$('m').value,s=+$('s').value,c=+$('c').value,a=+$('a').value;$('nV').textContent=n;$('mV').textContent=m+' min';$('sV').textContent=s;$('cV').textContent='₹'+c.toLocaleString('en-IN');$('aV').textContent='₹'+a.toLocaleString('en-IN');
+ const hrs=n*m/60*s,gross=hrs*c,run=a*12*n,net=gross-run,fmt=v=>'₹'+(Math.abs(v)>=1e7?(v/1e7).toFixed(2)+' Cr':(v/1e5).toFixed(1)+' L');
+ $('val').innerHTML=`<div>⏱ Hours freed per year</div><div class="big">${Math.round(hrs).toLocaleString('en-IN')}</div><div style="font-size:15px;color:var(--mut)">≈ ${Math.round(hrs/1800)} full-time people's worth of time, redirected to hands-on work</div>
+ <div style="margin-top:10px">💰 Value of time: <b>${fmt(gross)}</b> · AI running cost: <b>${fmt(run)}</b></div><div style="margin-top:6px;font-size:22px">Net (illustrative): <b style="color:${net>0?'var(--ok)':'var(--bad)'}">${fmt(net)}</b> / year</div>
+ <div class="yes" style="margin-top:10px">💡 The bigger wins (less aircraft downtime, fewer repeat defects, faster AOG recovery) are not in this sum. Measure them in a pilot.</div>`}
+['n','m','s','c','a'].forEach(i=>$(i).oninput=val);val();
+/* boundaries */
+$('yes').innerHTML=['Finds and cites the right manual section in seconds','Drafts work orders, handovers and reports for human review','Gathers aircraft history, ADs and parts status through approved connectors','Flags risks, repeat defects and missing information','Keeps an audit trail of every question, tool call and decision'].map(t=>`<div class="yes">✅ ${t}</div>`).join('');
+$('no').innerHTML=['Certify airworthiness or sign a release to service','Approve its own work orders or defer defects','Replace licensed engineers\' judgement','Use unapproved or out-of-date documents as authority','Act on instructions hidden inside documents (prompt injection)'].map(t=>`<div class="no">🚫 ${t}</div>`).join('');
+</script>
+</body>
+</html>

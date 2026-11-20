@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AeroGuard v1</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--teal:#0f8a7a;--pur:#7a3fc4;--or:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f;--st:#ff4b4b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:31px}header p{margin:2px 0 0;opacity:.88}
+nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 20px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:8px 14px;font-size:16px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:18px}
+.tab{display:none}.tab.on{display:block}
+h2{font-size:28px;margin:0 0 4px}
+.def{background:#eef4ff;border-left:6px solid var(--blue);border-radius:10px;padding:10px 14px;font-size:18px;margin-bottom:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:1100px){.two{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.btn{background:var(--navy);color:#fff;border:0;padding:10px 15px;border-radius:10px;cursor:pointer;font-size:16px;font-weight:700;margin:5px 5px 0 0}
+.btn.go{background:var(--ok)}.btn.ghost{background:#e3e9f3;color:var(--navy)}.btn.red{background:var(--bad)}
+.btn:disabled{opacity:.45}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.chip{background:#e8eef9;color:var(--navy);border:2px solid transparent;border-radius:20px;padding:7px 12px;font-size:15px;cursor:pointer}
+.code{background:#0f1729;color:#e5ecff;border-radius:12px;padding:10px 0;font:15px/1.65 ui-monospace,Menlo,monospace;overflow:auto}
+.code div{padding:0 14px;white-space:pre;cursor:pointer;opacity:.35;transition:all .25s}
+.code div.on{opacity:1}.code div.next{opacity:1;background:#f1c40f22;box-shadow:inset 4px 0 #f1c40f}
+.code div.run{background:#1a8a4a55}
+.kw{color:#c792ea}.st{color:#a5e88b}.fn{color:#ffcb6b}.cm{color:#6b7a99}
+/* fake streamlit */
+.stapp{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 24px #0b254518}
+.stbar{background:#f0f2f6;padding:6px 12px;font-size:13px;color:var(--mut);display:flex;justify-content:space-between;align-items:center}
+.stbar .dots span{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.stbody{padding:16px 22px;min-height:420px;display:flex;flex-direction:column;gap:8px}
+.st-title{font-size:30px;font-weight:800;animation:pop .3s}
+.st-cap{color:#808495;font-size:14px;animation:pop .3s}
+.st-msg{display:flex;gap:10px;align-items:flex-start;animation:pop .3s;padding:6px 8px;border-radius:10px}
+.st-msg .av{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.st-msg.user{background:#f0f2f6}.st-msg.user .av{background:#ff6c6c}.st-msg.assistant .av{background:#ffbd45}
+.st-err{background:#ffe9e9;color:#9a1c1c;border-radius:8px;padding:10px 12px;font-size:15px;animation:pop .3s}
+.st-input{margin-top:auto;display:flex;gap:6px;border:1px solid #d6d9e0;border-radius:12px;padding:6px}
+.st-input input{flex:1;border:0;outline:none;font-size:16px;padding:6px}
+.st-input button{border:0;background:var(--st);color:#fff;border-radius:8px;padding:0 12px;font-size:16px;cursor:pointer}
+.running{position:relative}
+.running:after{content:"Running…";position:absolute;top:8px;right:12px;font-size:12px;color:var(--st);animation:blink .6s infinite}
+@keyframes blink{50%{opacity:.2}}
+@keyframes pop{0%{transform:scale(.95);opacity:0}100%{transform:scale(1);opacity:1}}
+.toggle{display:flex;gap:8px;align-items:center;font-weight:700;margin:6px 0;font-size:16px}
+.toggle input{transform:scale(1.4)}
+.out{border-radius:10px;padding:10px 12px;margin-top:8px;font-size:16px;white-space:pre-line}
+.out.ok{background:#e7f6ec;border:1px solid var(--ok)}.out.bad{background:#fdecea;border:1px solid var(--bad)}.out.warn{background:#fff4dc;border:1px solid var(--gold)}
+/* wiring */
+.hops{display:grid;grid-template-columns:1fr 60px 1fr 60px 1fr;align-items:center;gap:6px;margin:10px 0}
+.hop{border:3px solid var(--line);border-radius:14px;padding:12px;text-align:center;background:#fff;transition:all .3s}
+.hop .ic{font-size:36px;display:block}.hop b{font-size:18px}.hop small{display:block;color:var(--mut);font-size:13px}
+.hop.on{border-color:var(--or);box-shadow:0 6px 16px #d9480f33;transform:translateY(-3px)}.hop.down{border-color:var(--bad);background:#fdecea;opacity:.7}
+.wire{height:8px;border-radius:4px;background:#cfd8e6;position:relative}.wire.on{background:var(--or)}
+.svc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.svc label{display:flex;gap:8px;align-items:center;border:2px solid var(--line);border-radius:10px;padding:8px;font-size:15px;background:#fff;cursor:pointer}
+.svc label:has(input:checked){border-color:var(--ok);background:#f2fbf5}
+.svc input{transform:scale(1.3)}
+.mono{font:14px/1.5 ui-monospace,Menlo,monospace;background:#0f1729;color:#e5ecff;border-radius:10px;padding:10px 12px;white-space:pre-wrap;overflow:auto}
+.log div{padding:4px 0;border-bottom:1px solid #22304d;animation:pop .25s}
+.check{display:grid;grid-template-columns:40px 1fr 210px;gap:8px;align-items:center;border:2px solid var(--line);border-radius:10px;padding:8px 10px;margin:5px 0;background:#fff;font-size:16px;cursor:pointer}
+.check.ok{border-color:var(--ok);background:#f2fbf5}
+.check .ic{font-size:22px;text-align:center}
+.check small{color:var(--mut);font-size:13px}
+.prog{height:14px;background:#e6ebf2;border-radius:7px;overflow:hidden;margin:6px 0}.prog i{display:block;height:100%;background:var(--ok);transition:width .3s}
+.outc{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:12px;padding:9px 12px;margin:6px 0;background:#fff;font-size:17px}
+.outc.ok{border-color:var(--ok);background:#f2fbf5}.outc .ic{font-size:24px}
+.disc{font-size:13px;color:var(--mut);margin-top:12px}
+.next{display:block;text-align:center;margin-top:14px;font-size:19px;font-weight:700;color:var(--blue)}
+</style>
+</head>
+<body>
+<header id="hdr"><h1 id="title"></h1><p id="subtitle"></p></header>
+<nav id="nav">
+  <button data-t="t1" class="on">① Streamlit in 5 minutes</button>
+  <button data-t="t2">② Wire it: UI → FastAPI → LLM</button>
+  <button data-t="t3">③ Chatbot v1 live</button>
+  <button data-t="t4">④ 🏁 Milestone 1 checklist</button>
+</nav>
+<main>
+
+<!-- 1 STREAMLIT -->
+<section class="tab on" id="t1">
+  <h2>① Streamlit: a web page from a plain Python script</h2>
+  <div class="def">📖 <b>Streamlit</b> turns a Python script into a web app: each <code>st.something()</code> line draws something on the page. <b>Important:</b> every click or message <b>re-runs the whole script from top to bottom</b>, so anything you want to remember (like chat history) must live in <code>st.session_state</code>.</div>
+  <div class="two">
+    <div><b>🐍 app.py</b> <span style="font-size:14px;color:var(--mut)">(click the highlighted line to add it, one at a time)</span><div class="code" id="code1"></div>
+      <div class="toggle"><input type="checkbox" id="useState" checked> Keep history in <code>st.session_state</code></div>
+      <div id="tip1" class="out warn">👉 Click line 1 to start building the app.</div></div>
+    <div><b>🌐 What the browser shows (localhost:8501)</b><div class="stapp" id="app1"><div class="stbar"><span class="dots"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></span><span>localhost:8501</span></div><div class="stbody" id="body1"></div></div></div>
+  </div>
+</section>
+
+<!-- 2 WIRING -->
+<section class="tab" id="t2">
+  <h2>② 🏁 Milestone 1 wiring: UI → FastAPI /chat → LLM → response</h2>
+  <div class="def">📖 Three pieces talk over HTTP: the <b>Streamlit UI</b> sends <code>POST /chat</code> to <b>FastAPI</b>, which validates the request, adds the system prompt and calls the <b>LLM</b> using the key from <code>.env</code>. The answer travels back the same way.</div>
+  <div class="card">
+    <b>1. Start the pieces</b> (untick one to see what breaks)
+    <div class="svc"><label><input type="checkbox" id="sKey" checked> 🔑 API key in <code>.env</code></label><label><input type="checkbox" id="sApi" checked> ⚡ <code id="uvCmd"></code></label><label><input type="checkbox" id="sUi" checked> 🖥️ <code>streamlit run app.py</code></label></div>
+    <div class="hops"><div class="hop" id="h0"><span class="ic">🖥️</span><b>Streamlit UI</b><small>:8501 · requests.post()</small></div><div class="wire" id="w0"></div><div class="hop" id="h1"><span class="ic">⚡</span><b>FastAPI /chat</b><small id="apiPort"></small></div><div class="wire" id="w1"></div><div class="hop" id="h2"><span class="ic">🤖</span><b>LLM</b><small>provider from .env</small></div></div>
+    <b>2. Send a message</b><div class="chips" id="q2"></div>
+    <div class="two"><div><b>📡 What travels at each hop</b><div class="mono log" id="log2" style="min-height:240px"></div></div><div><b>🖥️ What the user sees</b><div class="stapp"><div class="stbody" id="body2" style="min-height:240px"></div></div><div id="why2"></div></div></div>
+  </div>
+</section>
+
+<!-- 3 LIVE -->
+<section class="tab" id="t3">
+  <h2>③ Chatbot v1: the first working chatbot, end to end</h2>
+  <div class="def">📖 This is what participants have at the end of Day 2: a Streamlit chat page calling their own FastAPI <code>/chat</code>. Type your own question or use the examples. The network panel shows the real call behind each message.</div>
+  <div class="two">
+    <div class="stapp"><div class="stbar"><span class="dots"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></span><span>localhost:8501</span></div><div class="stbody" id="body3" style="min-height:520px"></div></div>
+    <div><b>🔎 Network: UI ⇄ FastAPI</b><div class="mono log" id="net3" style="height:330px"></div><b style="display:block;margin-top:8px">🐍 The FastAPI side</b><div class="mono" id="api3" style="font-size:13px"></div></div>
+  </div>
+</section>
+
+<!-- 4 CHECKLIST -->
+<section class="tab" id="t4">
+  <h2>④ 🏁 Milestone 1 checklist & Day 2 outcomes</h2>
+  <div class="def">📖 Rows tick themselves ✅ when you do them in tabs ①–③; you can also click a row to tick it after checking it on your own laptop.</div>
+  <div class="prog"><i id="prog4"></i></div><div id="chk"></div>
+  <h2 style="font-size:24px;margin-top:14px">🎯 Day 2 outcomes</h2><div id="outs"></div>
+  <a class="next" id="nextLink"></a><div class="disc" id="disc"></div>
+</section>
+</main>
+
+<script>
+/* ======== THEME: the only part that differs between the concept and aviation versions ======== */
+const THEME={
+ bg:"linear-gradient(90deg,#0b2545,#134074)",
+ title:"✈️ Day 2 · Milestone 1: AeroGuard v1 Maintenance Chatbot",
+ subtitle:"Page 7 · Aviation version: Streamlit UI → FastAPI /chat → LLM, exactly like labs 2.4–2.5. Advisory only: a certificated person decides.",
+ appTitle:"✈️ AeroGuard v1 — Maintenance Assistant",caption:"Advisory only: a certificated person decides.",placeholder:"Ask about a maintenance write-up",
+ uv:"uvicorn api.day2:app --reload",port:":8000 · POST /chat",apiUrl:"http://localhost:8000",
+ sysPrompt:"You are AeroGuard, an advisory maintenance assistant. Never decide airworthiness; cite the ATA chapter.",
+ tail:"N123AB",
+ qs:[{q:"Summarise: hydraulic leak at left main gear actuator",a:"Summary: hydraulic fluid leak at the left main landing gear actuator (ATA 32 – Landing Gear; hydraulic supply ATA 29).\nSuggested next steps: identify the leak source and rate, compare with the AMM leak limits, and record the finding.\nAdvisory only: a certificated person decides."},
+  {q:"What does ATA chapter 32 cover?",a:"ATA 32 covers Landing Gear: main and nose gear, extension/retraction, wheels, brakes and steering. Advisory only."},
+  {q:"Write a short handover line for a tyre change on N123AB",a:"N123AB: main-wheel tyre change completed; paperwork to be signed by authorised staff. Advisory only."}],
+ bad:{q:"Is N123AB airworthy?",a:"I can't make airworthiness decisions. That determination must be made by a certificated person under your approved procedures. I can help you find the relevant AMM tasks or summarise the open defects."},
+ fallback:"(In the real AeroGuard v1, the LLM answers any maintenance question here. This demo has answers only for the example questions.)",
+ checks:[["🔑",".env holds the key; it is not in code or notebooks, and .env is git-ignored","key"],["🩺","GET /health returns {\"status\":\"ok\"}","health"],["✈️","GET /aircraft/N123AB returns the aircraft (check in Swagger)","aircraft"],["🚫","GET /aircraft/XYZ → 422, /aircraft/N999ZZ → 404 (check in Swagger)","aircraft404"],["📮","POST /chat returns an LLM answer","chat"],["💬","Chat page answers \"Summarise: hydraulic leak at left main gear actuator\"","ui"],["🛡️","\"Is N123AB airworthy?\" is refused","guard"],["🔌","Stop uvicorn → UI shows \"Cannot reach the backend\", no crash","down"],["🔀","Switch provider (LLM_PROVIDER=ollama) without code changes (optional)","provider"],["📝","Lab 2.2 prompt checklist score recorded","prompt"]],
+ next:["⬅️ Page 6: the concepts version (Study Buddy)","6_streamlit_milestone1_concepts.html"],
+ disc:"Teaching simulation: no real Streamlit, FastAPI or LLM runs here. Commands, routes and checklist rows match the AeroGuard course project (api/day2.py, labs/day2/lab2_4_chat_api.py, lab2_5_streamlit_chat.py, milestone1_checklist.md). Run the real labs to complete the rows marked 'check in Swagger'."
+};
+/* ================================================================== */
+const $=id=>document.getElementById(id);const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+$('hdr').style.background=THEME.bg;$('title').textContent=THEME.title;$('subtitle').textContent=THEME.subtitle;$('nextLink').textContent=THEME.next[0];$('nextLink').href=THEME.next[1];$('disc').textContent=THEME.disc;
+$('uvCmd').textContent=THEME.uv;$('apiPort').textContent=THEME.port;
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===b.dataset.t))});
+const done={};function mark(k){if(done[k])return;done[k]=true;checks()}
+function hl(s){return esc(s).replace(/(#.*)$/,'<span class="cm">$1</span>').replace(/("[^"]*")/g,'<span class="st">$1</span>').replace(/\b(import|if|not|in|for|try|except|else|as)\b/g,'<span class="kw">$1</span>').replace(/\b(st\.\w+(?:\.\w+)?|requests\.post)\b/g,'<span class="fn">$1</span>')}
+function msg(role,text){return `<div class="st-msg ${role}"><div class="av">${role==='user'?'🧑':'🤖'}</div><div style="white-space:pre-line">${esc(text)}</div></div>`}
+function inputBox(id){return `<div class="st-input"><input id="${id}" placeholder="${esc(THEME.placeholder)}"><button id="${id}b">➤</button></div>`}
+
+/* ===== 1 STREAMLIT BUILDER ===== */
+const L1=[['import streamlit as st','imports'],['st.title("'+THEME.appTitle+'")','title'],['st.caption("'+THEME.caption+'")','caption'],['if "history" not in st.session_state:','state'],['    st.session_state.history = []','state2'],['for role, text in st.session_state.history:','loop'],['    st.chat_message(role).write(text)','loop2'],['question = st.chat_input("'+THEME.placeholder+'")','input'],['if question:','if'],['    st.chat_message("user").write(question)','u'],['    answer = call_backend(question)   # Tab ② wires this','call'],['    st.chat_message("assistant").write(answer)','a'],['    st.session_state.history.append(("user", question))','save'],['    st.session_state.history.append(("assistant", answer))','save2']];
+let n1=0,hist1=[];const TIPS={1:'💡 Nothing shows yet: an import only loads the library.',2:'🎉 One line of Python = a big title on the page.',3:'A grey caption appears under it.',5:'🧠 session_state is a dictionary that SURVIVES re-runs. We create an empty history once.',7:'The loop redraws all previous messages on every re-run.',8:'💬 A chat box appears at the bottom. Typing in it re-runs the script.',12:'🤖 The question is shown, the backend is called and the answer is shown.',14:'✅ Done! Now type a message, then untick "Keep history" to see what happens without session_state.'};
+function code1(){$('code1').innerHTML=L1.map(([l],i)=>`<div class="${i<n1?'on':i===n1?'next':''}" data-i="${i}">${hl(l)||' '}</div>`).join('');$('code1').querySelectorAll('div').forEach(d=>d.onclick=()=>{if(+d.dataset.i===n1){n1++;code1();render1();if(TIPS[n1])$('tip1').innerHTML=TIPS[n1];if(n1===L1.length)mark('stbuilt')}})}
+const has=k=>L1.slice(0,n1).some(x=>x[1]===k);
+function render1(extraQ){let h='';if(has('title'))h+=`<div class="st-title">${esc(THEME.appTitle)}</div>`;if(has('caption'))h+=`<div class="st-cap">${esc(THEME.caption)}</div>`;
+ if(has('loop2'))h+=hist1.map(([r,t])=>msg(r,t)).join('');
+ if(extraQ&&has('u'))h+=msg('user',extraQ);
+ if(has('input'))h+=inputBox('in1');$('body1').innerHTML=h||'<div style="color:#aaa">(empty page)</div>';
+ if(has('input')){const go=async()=>{const q=$('in1').value.trim();if(!q)return;await rerun1(q)};$('in1b').onclick=go;$('in1').onkeydown=e=>{if(e.key==='Enter')go()}}}
+async function rerun1(q){const lines=[...$('code1').children];$('app1').classList.add('running');
+ for(let i=0;i<n1;i++){lines.forEach(x=>x.classList.remove('run'));lines[i].classList.add('run');await sleep(110)}lines.forEach(x=>x.classList.remove('run'));$('app1').classList.remove('running');
+ const ans=has('a')?(THEME.qs.find(x=>x.q.toLowerCase()===q.toLowerCase())||{a:'(answer from the backend)'}).a:null;
+ if(!$('useState').checked){hist1=[];render1(q);if(ans)$('body1').querySelector('.st-input').insertAdjacentHTML('beforebegin',msg('assistant',ans));$('tip1').innerHTML='😱 Without <code>st.session_state</code> the script re-ran from scratch, so <b>earlier messages vanished</b>. Only the newest exchange is shown. Tick the box again.';return}
+ if(has('save')){hist1.push(['user',q]);if(ans&&has('save2'))hist1.push(['assistant',ans])}
+ render1(has('save')?null:q);if(ans&&!has('save'))$('body1').querySelector('.st-input').insertAdjacentHTML('beforebegin',msg('assistant',ans));
+ $('tip1').innerHTML=`🔁 The <b>whole script re-ran</b> (watch the green line sweep). History survived because it is in <code>st.session_state</code> (${hist1.length} messages).`;if(hist1.length>=4)mark('state')}
+code1();render1();
+
+/* ===== 2 WIRING ===== */
+const Q2=[...THEME.qs.slice(0,2).map(x=>x.q),...(THEME.bad?[THEME.bad.q]:[]),'   (empty message)'];
+$('q2').innerHTML=Q2.map((q,i)=>`<button class="chip" data-i="${i}">${esc(q)}</button>`).join('');
+function L2(t,c){$('log2').insertAdjacentHTML('beforeend',`<div style="color:${c||'#e5ecff'}">${t}</div>`);$('log2').scrollTop=1e6}
+function hop(i,cls){[0,1,2].forEach(k=>{$('h'+k).classList.remove('on')});if(i!=null)$('h'+i).classList.add(cls||'on')}
+function svcState(){$('h1').classList.toggle('down',!$('sApi').checked);$('h0').classList.toggle('down',!$('sUi').checked);$('h2').classList.toggle('down',!$('sKey').checked)}
+['sKey','sApi','sUi'].forEach(i=>$(i).onchange=svcState);
+$('q2').querySelectorAll('.chip').forEach(b=>b.onclick=async()=>{const q=Q2[+b.dataset.i],empty=q.includes('(empty');$('log2').innerHTML='';$('why2').innerHTML='';$('w0').classList.remove('on');$('w1').classList.remove('on');
+ const W=(c,t)=>$('why2').innerHTML=`<div class="out ${c}">${t}</div>`;const body=$('body2');
+ if(!$('sUi').checked){body.innerHTML='<div class="st-err">🌐 This site can\'t be reached: localhost:8501</div>';W('bad','The Streamlit app isn\'t running. Start it with <code>streamlit run app.py</code>.');return}
+ body.innerHTML=empty?'':msg('user',q);hop(0);const req={message:empty?'':q};if(THEME.tail)req.tail_number=THEME.tail;
+ L2(`🖥️ UI → requests.post("${THEME.apiUrl}/chat", json=${esc(JSON.stringify(req))})`,'#ffcb6b');await sleep(500);
+ if(!$('sApi').checked){L2('❌ requests.ConnectionError: connection refused','#ff8a80');body.innerHTML+='<div class="st-err">Cannot reach the backend at '+THEME.apiUrl+'. Is uvicorn running?</div>';W('bad','FastAPI is not running. The UI catches <code>ConnectionError</code> and shows a friendly message instead of crashing (checklist row).');mark('down');return}
+ $('w0').classList.add('on');hop(1);await sleep(400);
+ if(empty){L2('⚡ FastAPI: Pydantic ChatRequest → message: String should have at least 1 character','#ff8a80');L2('← 422 Unprocessable Entity','#ff8a80');body.innerHTML+='<div class="st-err">The backend returned an error: 422. Please type a question.</div>';W('warn','Validation stopped a bad request before it reached (and cost money at) the LLM.');mark('val');return}
+ L2('⚡ FastAPI: ChatRequest valid ✓ → build messages [system prompt, user]','#9ff0b5');
+ if(THEME.bad&&q===THEME.bad.q){await sleep(400);L2('🛡️ safety.asks_for_decision(message) = True → refuse without calling the LLM','#ffcb6b');L2(`← 200 {"answer":"${esc(THEME.bad.a.slice(0,50))}…","model":"guardrail"}`,'#9ff0b5');body.innerHTML+=msg('assistant',THEME.bad.a);W('ok','🛡️ The guardrail answered directly, so the LLM was never asked to decide airworthiness.');mark('guard');return}
+ if(!$('sKey').checked){L2('❌ LLM call failed: AuthenticationError (no API key)','#ff8a80');L2('← 500 {"detail":"LLM provider error"}','#ff8a80');body.innerHTML+='<div class="st-err">The backend returned an error: 500 Server Error</div>';W('bad','The API key is missing from <code>.env</code>. Add it (never in code!) and restart uvicorn.');return}
+ $('w1').classList.add('on');hop(2);L2(`🤖 LLM ← system: "${esc(THEME.sysPrompt.slice(0,60))}…" + user message`,'#7fc8ff');await sleep(700);
+ const a=THEME.qs.find(x=>x.q===q).a;hop(1);L2('🤖 LLM → answer text (≈ 120 tokens)','#7fc8ff');await sleep(300);hop(0);L2(`← 200 {"answer":"${esc(a.slice(0,45))}…","model":"<chat_model>"}`,'#9ff0b5');
+ body.innerHTML+=msg('assistant',a);hop(null);W('ok','✅ UI → FastAPI → LLM → FastAPI → UI. Your first end-to-end chatbot!');mark('key');mark('health');mark('chat');mark('ui')});
+svcState();
+
+/* ===== 3 LIVE ===== */
+let h3=[];
+function body3(){$('body3').innerHTML=`<div class="st-title">${esc(THEME.appTitle)}</div><div class="st-cap">${esc(THEME.caption)}</div>`+h3.map(([r,t])=>msg(r,t)).join('')+`<div class="chips">${[...THEME.qs.map(x=>x.q),...(THEME.bad?[THEME.bad.q]:[])].map(q=>`<button class="chip">${esc(q)}</button>`).join('')}</div>`+inputBox('in3');
+ $('body3').querySelectorAll('.chip').forEach(b=>b.onclick=()=>ask3(b.textContent));const go=()=>{const v=$('in3').value.trim();if(v)ask3(v)};$('in3b').onclick=go;$('in3').onkeydown=e=>{if(e.key==='Enter')go()}}
+async function ask3(q){h3.push(['user',q]);body3();const req={message:q};if(THEME.tail)req.tail_number=THEME.tail;
+ $('net3').insertAdjacentHTML('beforeend',`<div style="color:#ffcb6b">→ POST /chat ${esc(JSON.stringify(req))}</div>`);await sleep(700);
+ const hit=THEME.qs.find(x=>x.q.toLowerCase()===q.toLowerCase());const isBad=THEME.bad&&q===THEME.bad.q;
+ const a=isBad?THEME.bad.a:hit?hit.a:THEME.fallback||'(In the real app, the LLM answers anything here. This demo has answers only for the example questions.)';
+ $('net3').insertAdjacentHTML('beforeend',`<div style="color:#9ff0b5">← 200 {"answer":"${esc(a.slice(0,40))}…","model":"${isBad?'guardrail':'<chat_model>'}"} · ${isBad?'5':'1,240'} ms</div>`);$('net3').scrollTop=1e6;
+ h3.push(['assistant',a]);body3();if(h3.length>=4)mark('state')}
+$('api3').textContent=`@router.post("/chat", response_model=ChatResponse)
+def chat(req: ChatRequest) -> ChatResponse:
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": req.message},
+    ]${THEME.tail?`
+    if safety.asks_for_decision(req.message):
+        return ChatResponse(answer=safety.REFUSAL, model="guardrail")`:''}
+    answer = llm.chat(messages, model=settings.chat_model)
+    return ChatResponse(answer=answer, model=settings.chat_model)`;
+body3();
+
+/* ===== 4 CHECKLIST ===== */
+const manual={};
+function checks(){const C=THEME.checks;let n=0;$('chk').innerHTML=C.map(([ic,t,k],i)=>{const ok=done[k]||manual[i];if(ok)n++;return `<div class="check ${ok?'ok':''}" data-i="${i}"><span class="ic">${ok?'✅':ic}</span><span>${esc(t)}</span><small>${done[k]?'proved in this page':manual[i]?'ticked by you':'do it in tabs ①–③ or click'}</small></div>`}).join('');
+ $('prog4').style.width=n/C.length*100+'%';$('chk').querySelectorAll('.check').forEach(c=>c.onclick=()=>{manual[+c.dataset.i]=!manual[+c.dataset.i];checks()});
+ const O=[['🧠','Understand how LLMs work and how to prompt them reliably','Pages 1–3 of Day 2',true],['⚡','Can stand up a FastAPI service and call it from a simple UI',['stbuilt','chat'],null],['💬','Working chatbot v1: UI → FastAPI → LLM → response',['chat','ui','state'],null]];
+ $('outs').innerHTML=O.map(([ic,t,need,pre])=>{const ok=pre||need.every(k=>done[k]);return `<div class="outc ${ok?'ok':''}"><span class="ic">${ok?'✅':ic}</span><span><b>${t}</b><br><small style="color:var(--mut)">${pre?'Covered by '+need:ok?'Proven!':'Complete: '+need.filter(k=>done[k]).length+'/'+need.length}</small></span></div>`}).join('')}
+checks();
+</script>
+</body>
+</html>

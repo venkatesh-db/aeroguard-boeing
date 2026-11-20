@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Engineer Decisions</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f;--pur:#7a3fc4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#1b2333,#7a3fc4);color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:31px}header p{margin:2px 0 0;opacity:.85}
+main{max-width:1600px;margin:0 auto;padding:18px;display:grid;grid-template-columns:1fr 440px;gap:16px}
+@media(max-width:1150px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.dec{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.dec.flag{border-color:var(--bad)}.dec.good{border-color:var(--ok)}
+.dec h3{margin:0;font-size:20px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dec .q{color:var(--mut);font-size:15px;margin:2px 0 6px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px}
+.opt{border:2px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;font-size:15px;background:#f9fafc}
+.opt:hover{border-color:var(--blue)}
+.opt.on{border-color:var(--navy);background:#e8eef9;font-weight:700}
+.opt small{display:block;font-weight:400;color:var(--mut)}
+.think{display:none;margin-top:8px;background:#f6f3fc;border-left:5px solid var(--pur);border-radius:8px;padding:8px 12px;font-size:15px}
+.dec.open .think{display:block}
+.why{border-radius:8px;padding:6px 10px;margin-top:6px;font-size:15px}
+.why.bad{background:#fdecea}.why.ok{background:#e7f6ec}.why.mid{background:#fff4dc}
+.tbtn{border:0;background:#f3ecff;color:var(--pur);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.side{position:sticky;top:12px;align-self:start}
+svg{width:100%;height:auto;display:block}
+.flag{color:var(--bad)}
+.verdict{font-size:22px;font-weight:800;text-align:center;border-radius:12px;padding:10px;margin:8px 0}
+.btn{background:var(--navy);color:#fff;border:0;padding:9px 14px;border-radius:10px;cursor:pointer;font-size:15px;font-weight:700;margin:4px 4px 0 0}
+.btn.ghost{background:#e3e9f3;color:var(--navy)}
+.prog{height:12px;background:#e6ebf2;border-radius:6px;overflow:hidden}.prog i{display:block;height:100%;background:var(--pur);transition:width .3s}
+.flaglist div{font-size:14px;padding:4px 0;border-bottom:1px solid var(--line)}
+.intro{grid-column:1/-1;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;font-size:18px}
+.disc{font-size:13px;color:var(--mut);margin-top:10px}
+.cat{font-size:13px;font-weight:800;color:#fff;border-radius:6px;padding:1px 8px}
+</style>
+</head>
+<body>
+<header><h1>🧠 Think Like an AI Engineer: 14 Decisions Behind AeroGuard</h1><p>Page 4 of 4 · Every production GenAI system is a chain of trade-offs. Pick an option for each decision and watch your design's scorecard change.</p></header>
+<main>
+  <div class="intro">🎯 <b>How to use:</b> for each decision, choose the option <b>you</b> would ship for an <b>aviation maintenance assistant</b>. Click <b>🤔 Deep thinking</b> to see the questions a senior engineer asks. The scorecard on the right shows your design's <b>Safety · Quality · Cost efficiency · Speed · Simplicity</b>, plus red flags. Then compare with the recommended design.
+    <div style="margin-top:8px"><button class="btn" id="rec">✨ Show recommended aviation design</button><button class="btn ghost" id="risky">⚡ Show a "move fast" design</button><button class="btn ghost" id="clr">↺ Clear</button></div></div>
+  <div id="decs"></div>
+  <div class="side"><div class="card">
+    <b>📊 Your design scorecard</b><div class="prog" style="margin:6px 0"><i id="prog"></i></div><div id="progT" style="font-size:14px;color:var(--mut)"></div>
+    <svg id="radar" viewBox="0 0 400 360"></svg>
+    <div class="verdict" id="verdict">Make your choices…</div>
+    <b>🚩 Red flags</b><div class="flaglist" id="flags"><div style="color:var(--mut)">None yet</div></div>
+    <div class="disc">Scores are a teaching heuristic (1–5) to make trade-offs visible, not a formal assessment. Real projects follow your organisation's safety, security and regulatory processes.</div>
+  </div></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+const DIM=['Safety','Quality','Cost eff.','Speed','Simplicity'];
+const CAT={Architecture:'#1f5fbf',Model:'#7a3fc4',Safety:'#c2410c',Data:'#0f8a7a',Operations:'#b7791f',Delivery:'#0b2545'};
+// options: [label, sub, [safety,quality,cost,speed,simplicity], verdict-class, note]
+const D=[
+ ['Architecture','Agent or fixed workflow?','Should the LLM decide the steps, or should you hard-code them?',[
+  ['Fully autonomous agent','LLM decides every step freely',[1,4,2,3,3],'bad','Unpredictable paths are hard to certify, test or explain in a regulated domain.'],
+  ['Graph with routed steps (LangGraph)','Fixed nodes, LLM picks among allowed routes',[5,4,4,4,3],'ok','Best of both: flexibility inside guardrails, testable paths, checkpoints.'],
+  ['Fixed pipeline only','No decisions by the LLM',[5,2,5,5,5],'mid','Safe and simple, but can\'t handle varied technician questions.']],1,
+  'Can I draw every path the system may take? · Which steps must never be skipped? · Do I need loops, memory or human approval? If yes → a graph. · Start with the simplest thing that works; add autonomy only where it adds value.'],
+ ['Model','Which model size?','Big models reason better; small ones are cheaper and faster.',[
+  ['Largest model for everything','',[4,5,1,2,5],'mid','Great quality, but cost and latency explode with agent loops (4–10 calls per request).'],
+  ['Small model for everything','',[3,2,5,5,5],'mid','Cheap, but weak on multi-step diagnosis, so there is a risk of plausible-but-wrong advice.'],
+  ['Route: small for simple, large for hard','plus evaluation per route',[4,4,4,4,3],'ok','Typical production pattern. Requires a router and evaluation of each path.']],2,
+  'What is the hardest task it must do well? · What latency will a technician tolerate on the hangar floor? · What is the monthly budget at expected volume? · Can I evaluate the small model on my golden set before routing to it?'],
+ ['Safety','Tool permissions','What may the agent change in real systems?',[
+  ['Autonomous write access','Agent creates and closes work orders itself',[1,3,4,5,4],'bad','🚩 An AI must not finalise maintenance records or releases. A regulatory and safety red line.'],
+  ['Write = draft + human approval','interrupt() before any write',[5,4,4,3,3],'ok','Drafts save time; a certifying human stays accountable.'],
+  ['Read-only','No write tools at all',[5,3,4,4,5],'mid','Safest start (crawl phase), but less value.']],1,
+  'Which actions are irreversible or safety-relevant? · Who is legally accountable for each record? · Does the MCP server enforce role-based permissions, not just the prompt? · Is every write logged with who approved it?'],
+ ['Safety','Stop criteria','How does the agent know when to stop?',[
+  ['None, it stops when it\'s done','',[1,3,1,2,5],'bad','🚩 Loops can run forever, burning tokens or repeating tool calls.'],
+  ['Max steps only','',[3,3,3,3,4],'mid','Prevents infinite loops, but not slow or expensive runs.'],
+  ['Max steps + timeout + token budget + goal check','',[5,4,4,4,3],'ok','Bounded in time, cost and steps; ends with a clear status.']],2,
+  'What is the worst case if it loops? · What should the user see when a limit hits (partial answer and next step)? · Are the limits configurable per route?'],
+ ['Architecture','State & persistence','Where does the agent\'s memory live?',[
+  ['In memory only','Lost on restart',[2,3,5,5,5],'mid','Fine for a demo; restarts lose conversations and pending approvals.'],
+  ['SQLite checkpoints','LangGraph SqliteSaver',[4,4,5,4,4],'ok','Resumable, simple. Good for a single instance and the course project.'],
+  ['Postgres checkpoints + retention policy','',[5,4,4,4,2],'ok','Production scale, multiple instances, data-retention rules.']],1,
+  'Must a paused approval survive a restart? (yes in MRO) · How long may conversations be kept, and who can read them? · How many API instances will run?'],
+ ['Data','Retrieval design','How does the agent find the right manual page?',[
+  ['Vector search only','',[2,3,4,4,5],'mid','Misses exact codes (E-204, P/N, task numbers), which are critical in aviation.'],
+  ['Hybrid BM25 + vectors','',[4,4,4,4,4],'ok','Catches meaning and exact identifiers.'],
+  ['Hybrid + rerank + effectivity/revision filters','',[5,5,3,3,2],'ok','Filters the wrong aircraft type and superseded revisions. Highest accuracy.']],2,
+  'Can it return a superseded SB revision? · Does it know which aircraft type and tail the user means? · What is my retrieval hit rate on a golden question set? · Do answers always cite the source?'],
+ ['Architecture','Integration with enterprise systems','How does the agent reach MRO, parts and compliance systems?',[
+  ['Direct API calls in agent code','',[2,3,4,4,3],'mid','Fast to start; credentials and logic spread across apps, hard to govern.'],
+  ['MCP servers','',[4,4,4,4,4],'ok','One standard connector, reusable by many AI apps, discoverable tools/resources.'],
+  ['MCP + gateway with RBAC & audit','',[5,4,3,3,2],'ok','Central auth, rate limits and audit across all AI clients.']],1,
+  'How many AI apps will need the same system? · Where are credentials stored and rotated? · Who owns each connector? · Can I revoke a tool for one client without redeploying the others?'],
+ ['Safety','Guardrails','How do you prevent unsafe or manipulated output?',[
+  ['A line in the system prompt','"Please be safe"',[1,3,5,5,5],'bad','🚩 Prompts alone are easily bypassed (prompt injection, jailbreaks).'],
+  ['Input + output filters','PII redaction, injection detection, banned phrases',[4,4,4,4,3],'ok','Catches common attacks and unsafe claims such as "airworthy".'],
+  ['Layered: filters + airworthiness boundary + red-team tests','',[5,4,3,3,2],'ok','Defence in depth, tested against attacks before each release.']],2,
+  'What must it never say? (airworthy, safe to fly, deferred) · What if a document contains instructions? · Is PII removed before indexing and before logging? · Have we red-teamed it?'],
+ ['Operations','Observability','How will you know what happened and why?',[
+  ['print() statements','',[1,2,5,5,5],'bad','🚩 No way to investigate an incident or prove what the AI did.'],
+  ['Structured logs','',[3,3,5,5,4],'mid','Searchable, but no step-by-step view of agent decisions.'],
+  ['Tracing + metrics + evals + audit log','',[5,5,4,4,2],'ok','Reconstructs every decision; required for governance.']],2,
+  'If a technician acted on a wrong answer, can I replay exactly what the agent saw and did? · Which metrics alert on-call (latency, errors, cost, groundedness)? · Are logs free of PII?'],
+ ['Data','Hosting & data protection','Where do prompts and documents go?',[
+  ['Public consumer chatbot','No enterprise agreement',[1,4,5,4,5],'bad','🚩 Proprietary manuals and aircraft data may leave your control.'],
+  ['Enterprise API with data-processing terms','no training on your data, regional hosting',[4,5,4,4,4],'ok','Common choice; check contracts, region and retention.'],
+  ['Self-hosted / private model','',[5,3,2,3,1],'mid','Maximum control, but more ops effort and possibly lower quality.']],1,
+  'Is any data export-controlled or confidential? · Where is it processed and stored? · What retention does the provider apply? · Has security and legal approved it?'],
+ ['Operations','Cost controls','How do you stop the bill from surprising you?',[
+  ['None','',[3,4,1,3,5],'bad','Agents multiply calls, and costs can spike with volume or loops.'],
+  ['Caching','',[3,4,3,4,4],'mid','Helps for repeated questions; invalidate when documents change.'],
+  ['Routing + caching + budgets + alerts','',[4,4,5,4,2],'ok','Predictable spend with per-user and per-day limits.']],2,
+  'Cost per request today, and at 10× volume? · Which answers are safe to cache? · What happens when a budget is hit: degrade or block?'],
+ ['Delivery','Evaluation before release','How do you know it is good enough?',[
+  ['Vibe check: "looks good"','',[1,2,5,5,5],'bad','🚩 No evidence; regressions go unnoticed.'],
+  ['Golden question set','',[4,4,4,4,4],'ok','Repeatable accuracy, groundedness and citation checks.'],
+  ['Golden set + domain-expert review + CI regression','',[5,5,3,3,2],'ok','Experts sign off; every change is re-tested automatically.']],2,
+  'Who are the domain experts who define "correct"? · What pass threshold blocks a release? · Do we test refusals (no-answer, unsafe asks) too?'],
+ ['Delivery','Deployment','How does it get to users?',[
+  ['Run on a laptop manually','',[2,3,5,4,4],'mid','OK for a demo, not for users.'],
+  ['docker compose (API + UI + MCP)','health checks',[4,4,4,4,4],'ok','Reproducible one-command stack, as in Milestone 4.'],
+  ['CI/CD + staging + rollback + secrets manager','',[5,4,3,4,2],'ok','Production path: tested, versioned, reversible.']],1,
+  'Can I roll back in minutes? · Where are secrets kept? · Is there a staging environment with realistic data? · Who approves a release?'],
+ ['Operations','Failure fallback','What happens when the AI or a tool fails?',[
+  ['Show an error page','',[2,2,5,5,5],'mid','The technician is stuck mid-task.'],
+  ['Retry with backoff','',[3,3,4,3,4],'mid','Handles blips, not outages.'],
+  ['Retry + degrade to the manual process + clear message','',[5,4,4,4,3],'ok','Work continues safely: "Use AMM directly; reference req-91ab".']],2,
+  'If the AI is down for an hour, can the hangar still work? · Does the user know what to do next? · Is the failure logged and alerted?']];
+const pick=new Array(D.length).fill(null);
+function render(){$('decs').innerHTML=D.map(([cat,t,q,opts,rec,think],i)=>{const p=pick[i],o=p!=null?opts[p]:null;
+ return `<div class="dec ${o?(o[3]==='bad'?'flag':o[3]==='ok'?'good':''):''}" id="d${i}"><h3><span>${i+1}. ${t} <span class="cat" style="background:${CAT[cat]}">${cat}</span></span><button class="tbtn" data-t="${i}">🤔 Deep thinking</button></h3><div class="q">${esc(q)}</div>
+ <div class="opts">${opts.map(([l,s],k)=>`<div class="opt ${p===k?'on':''}" data-i="${i}" data-k="${k}">${esc(l)}${s?`<small>${esc(s)}</small>`:''}</div>`).join('')}</div>
+ ${o?`<div class="why ${o[3]}">${o[3]==='ok'?'✅':o[3]==='bad'?'🚩':'⚖️'} ${esc(o[4])}${p!==rec?`<br><small>Recommended for aviation: <b>${esc(opts[rec][0])}</b></small>`:''}</div>`:''}
+ <div class="think">🧠 <b>Questions a senior engineer asks:</b><ul style="margin:4px 0 0;padding-left:18px">${think.split(' · ').map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div>`}).join('');
+ document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{pick[+o.dataset.i]=+o.dataset.k;const y=window.scrollY;render();score();window.scrollTo(0,y)});
+ document.querySelectorAll('.tbtn').forEach(b=>b.onclick=()=>$('d'+b.dataset.t).classList.toggle('open'))}
+function score(){const chosen=pick.map((p,i)=>p==null?null:D[i][3][p]).filter(Boolean);$('prog').style.width=chosen.length/D.length*100+'%';$('progT').textContent=`${chosen.length} of ${D.length} decisions made`;
+ const avg=DIM.map((_,d)=>chosen.length?chosen.reduce((a,o)=>a+o[2][d],0)/chosen.length:0);
+ const s=$('radar');s.innerHTML='';const cx=200,cy=185,R=130,ang=k=>-Math.PI/2+k*2*Math.PI/5,P=(v,k)=>[cx+Math.cos(ang(k))*R*v/5,cy+Math.sin(ang(k))*R*v/5];
+ const ns='http://www.w3.org/2000/svg',e=(t,a,x)=>{const n=document.createElementNS(ns,t);for(const k in a)n.setAttribute(k,a[k]);if(x!=null)n.textContent=x;s.appendChild(n);return n};
+ [1,2,3,4,5].forEach(r=>e('polygon',{points:DIM.map((_,k)=>P(r,k).join(',')).join(' '),fill:'none',stroke:'#dde2ea'}));
+ DIM.forEach((d,k)=>{const [x,y]=P(5.9,k);e('text',{x,y:y+5,'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#1b2333'},d+(chosen.length?' '+avg[k].toFixed(1):''))});
+ if(chosen.length)e('polygon',{points:avg.map((v,k)=>P(v,k).join(',')).join(' '),fill:avg[0]<3?'#c2410c55':'#7a3fc455',stroke:avg[0]<3?'#c2410c':'#7a3fc4','stroke-width':3});
+ const flags=pick.map((p,i)=>p!=null&&D[i][3][p][3]==='bad'?`🚩 ${i+1}. ${D[i][1]}: ${D[i][3][p][0]}`:null).filter(Boolean);
+ $('flags').innerHTML=flags.length?flags.map(f=>`<div class="flag">${esc(f)}</div>`).join(''):'<div style="color:var(--ok)">✅ No red flags</div>';
+ const v=$('verdict');if(!chosen.length){v.textContent='Make your choices…';v.style.background='#f6f8fc';v.style.color='#1b2333';return}
+ if(flags.length){v.textContent=`⛔ Not ready for aviation: ${flags.length} red flag${flags.length>1?'s':''}`;v.style.background='#fdecea';v.style.color='#c2410c'}
+ else if(chosen.length<D.length){v.textContent='🟡 Looking good, keep deciding';v.style.background='#fff4dc';v.style.color='#b7791f'}
+ else{v.textContent=avg[4]<2.8?'✅ Safe & production-grade (complex: plan the team effort)':'✅ Safe, balanced design: ready for a pilot';v.style.background='#e7f6ec';v.style.color='#1a8a4a'}}
+$('rec').onclick=()=>{D.forEach((d,i)=>pick[i]=d[4]);render();score()};
+$('risky').onclick=()=>{D.forEach((d,i)=>{const b=d[3].findIndex(o=>o[3]==='bad');pick[i]=b>=0?b:0});render();score()};
+$('clr').onclick=()=>{pick.fill(null);render();score()};
+render();score();
+</script>
+</body>
+</html>

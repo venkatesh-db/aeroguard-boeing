@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Big Picture</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#1d3b6a;
+--ai:#1f5fbf;--ml:#0f8a7a;--dl:#7a3fc4;--gen:#d9480f;--ok:#1a8a4a;--bad:#c2410c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--navy);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header h1{font-size:20px;margin:0}
+.tabs{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.tabs button{border:1px solid #fff6;background:transparent;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:14px}
+.tabs button.on{background:#fff;color:var(--navy);font-weight:600}
+main{max-width:1250px;margin:0 auto;padding:18px 16px}
+.q{font-size:22px;font-weight:600;margin:4px 0}
+.qsub{color:var(--mut);margin-bottom:14px}
+.grid{display:grid;grid-template-columns:1fr 1.15fr;gap:16px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+svg{width:100%;max-width:460px;margin:0 auto;height:auto;display:block}
+.ring{cursor:pointer;transition:opacity .2s}
+.ring:hover{opacity:.85}
+.tag{display:inline-block;color:#fff;border-radius:6px;padding:3px 10px;font-weight:700;font-size:13px}
+.def{font-size:18px;margin:10px 0 6px;font-weight:600}
+.analogy{background:#f6f8fc;border-left:4px solid var(--c,#1f5fbf);padding:10px 12px;border-radius:6px;margin:10px 0}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:10px}
+.ex{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+.ex b{display:block;margin-bottom:2px}
+.ex small{color:var(--mut)}
+.how{font-size:14px;color:var(--mut);margin-top:10px}
+.hint{color:var(--mut);font-size:13px;text-align:center;margin-top:6px}
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px}
+@media(max-width:900px){.pipe{grid-template-columns:1fr 1fr}}
+.stage{border-radius:12px;padding:14px;color:#fff;min-height:250px}
+.stage h4{margin:0 0 4px;font-size:17px}
+.stage .who{opacity:.9;font-size:13px;margin-bottom:10px}
+.box{background:#ffffff26;border-radius:8px;padding:8px 10px;font-size:14px;margin-top:8px}
+.box code{background:#0003;padding:1px 5px;border-radius:4px;font-size:12px}
+.scen{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.scen button{background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:14px}
+.scen button.on{border-color:var(--navy);background:var(--navy);color:#fff}
+/* quiz */
+.qcard{font-size:20px;font-weight:600;margin:14px 0;min-height:60px}
+.opts{display:flex;gap:10px;flex-wrap:wrap}
+.opts button{border:0;color:#fff;padding:12px 18px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer}
+.fb{margin-top:14px;padding:12px;border-radius:8px;display:none}
+.fb.ok{display:block;background:#e7f6ec;border:1px solid var(--ok)}
+.fb.no{display:block;background:#fdecea;border:1px solid var(--bad)}
+.btn{background:var(--navy);color:#fff;border:0;padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600;margin-top:12px}
+.prog{color:var(--mut);font-size:14px}
+/* presentation-size "One problem, four ways" */
+main:has(#same:not([style*="none"])){max-width:1700px}
+#same .q{font-size:38px}
+#same .qsub{font-size:22px;margin-bottom:20px}
+#same .scen button{font-size:22px;padding:12px 24px;border-radius:30px}
+#same .pipe{gap:20px}
+#same .stage{padding:24px;border-radius:16px;min-height:480px}
+#same .stage h4{font-size:30px}
+#same .stage .who{font-size:20px;margin-bottom:16px}
+#same .box{font-size:22px;line-height:1.4;padding:14px 16px;margin-top:14px;border-radius:10px}
+#same .box code{font-size:19px}
+#same .box:last-child{font-weight:700;background:#ffffff40}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧠 AI: The Big Picture</h1>
+  <div class="tabs">
+    <button data-t="map" class="on">① The Map</button>
+    <button data-t="same">② One Problem, Four Ways</button>
+    <button data-t="quiz">③ Which One Is It?</button>
+  </div>
+</header>
+<main>
+
+<!-- MAP -->
+<section id="map">
+  <div class="q">AI ⊃ ML ⊃ DL ⊃ GenAI</div>
+  <div class="qsub">Each one sits <b>inside</b> the one before it. Click a ring to explore it.</div>
+  <div class="grid">
+    <div class="card">
+      <svg viewBox="0 0 500 500" id="rings">
+        <g class="ring" data-k="ai"><circle cx="250" cy="250" r="240" fill="#1f5fbf"/><text x="250" y="48" text-anchor="middle" fill="#fff" font-size="22" font-weight="800">Artificial Intelligence</text></g>
+        <g class="ring" data-k="ml"><circle cx="250" cy="275" r="185" fill="#0f8a7a"/><text x="250" y="130" text-anchor="middle" fill="#fff" font-size="21" font-weight="800">Machine Learning</text></g>
+        <g class="ring" data-k="dl"><circle cx="250" cy="305" r="130" fill="#7a3fc4"/><text x="250" y="218" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">Deep Learning</text></g>
+        <g class="ring" data-k="gen"><circle cx="250" cy="340" r="75" fill="#d9480f"/><text x="250" y="335" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">GenAI</text><text x="250" y="358" text-anchor="middle" fill="#fff" font-size="12">creates new content</text></g>
+      </svg>
+      <div class="hint">Every GenAI system is Deep Learning, every DL system is ML, and every ML system is AI. It doesn't work the other way round.</div>
+    </div>
+    <div class="card" id="detail"></div>
+  </div>
+</section>
+
+<!-- SAME PROBLEM -->
+<section id="same" style="display:none">
+  <div class="q">One problem, solved four ways</div>
+  <div class="qsub">Pick a scenario and watch how each approach tackles the <b>same</b> job.</div>
+  <div class="scen" id="scen"></div>
+  <div class="pipe" id="pipe"></div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz" style="display:none">
+  <div class="q">Which one is it?</div>
+  <div class="qsub">Pick the <b>most specific</b> label that fits. A chatbot is technically AI too, but GenAI is the best answer.</div>
+  <div class="card">
+    <div class="prog" id="prog"></div>
+    <div class="qcard" id="qtext"></div>
+    <div class="opts" id="opts"></div>
+    <div class="fb" id="fb"></div>
+    <button class="btn" id="next" style="display:none">Next →</button>
+  </div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const COL={ai:'#1f5fbf',ml:'#0f8a7a',dl:'#7a3fc4',gen:'#d9480f'};
+const NAME={ai:'Artificial Intelligence',ml:'Machine Learning',dl:'Deep Learning',gen:'Generative AI'};
+
+const INFO={
+ ai:{def:'Any technique that makes a machine act smart: decide, plan or solve problems.',
+  analogy:'🧭 <b>Analogy:</b> the whole field of "making computers think". It includes plain hand-written rules, with no learning at all.',
+  how:'<b>How it works:</b> humans can write the rules ("IF fuel &lt; 10% THEN alert"), or the machine can learn them (that part is ML).',
+  ex:[['✈️ Autopilot rules','Fly on fixed control rules and logic'],['♟️ Chess engine (classic)','Searches millions of moves using rules'],['🚦 Smart traffic signal','Rule-based timing by time of day'],['🤖 Google Maps routing','Finds the shortest path with algorithms']]},
+ ml:{def:'AI that <b>learns patterns from data</b> instead of being given every rule.',
+  analogy:'📚 <b>Analogy:</b> a student who studies 10,000 past exam answers and spots the pattern on their own.',
+  how:'<b>How it works:</b> give it past examples with answers, and it learns a formula. This is where <b>Regression</b> (predict a number) and <b>Classification</b> (pick a category) live.',
+  ex:[['🚆 Train delay prediction','Regression: minutes late'],['🎫 Waitlist confirmation','Classification: yes or no'],['💳 UPI / card fraud alert','Flags unusual transactions'],['🛠️ Predictive maintenance','Will this engine part fail soon?'],['🏠 House price estimate','Predicts ₹ value from features']]},
+ dl:{def:'ML that uses <b>neural networks with many layers</b>. It works best on images, sound and text.',
+  analogy:'👁️ <b>Analogy:</b> loosely inspired by the brain. Layer 1 sees edges, layer 2 shapes, layer 3 "that\'s a crack on a turbine blade".',
+  how:'<b>How it works:</b> it needs a lot of data and GPUs, but it figures out the important features by itself.',
+  ex:[['📱 Face unlock','Recognises your face'],['🔍 Engine borescope inspection','Spots cracks in camera images'],['🗣️ Alexa / Siri speech','Turns voice into text'],['🚗 Self-driving vision','Detects cars, people and lanes'],['🩻 X-ray screening','Highlights possible disease']]},
+ gen:{def:'Deep Learning that <b>creates new content</b>: text, images, code, audio and video.',
+  analogy:'🎨 <b>Analogy:</b> earlier models answer "which one?" or "how much?". GenAI answers "write / draw / build me one".',
+  how:'<b>How it works:</b> large models (LLMs such as Claude, GPT and Gemini) trained on huge amounts of text predict the next word, over and over.',
+  ex:[['💬 ChatGPT / Claude','Answers questions and writes emails'],['🖼️ Image generators','Pictures from a text prompt'],['👩‍💻 Coding assistants','Write and fix code'],['📄 Manual summariser','Summarises a 300-page maintenance manual'],['🌐 Live translation','Hindi ↔ English conversation']]}
+};
+
+function showDetail(k){
+  const d=INFO[k];
+  $('detail').style.setProperty('--c',COL[k]);
+  $('detail').innerHTML=`<span class="tag" style="background:${COL[k]}">${NAME[k]}</span>
+  <div class="def">${d.def}</div>
+  <div class="analogy" style="--c:${COL[k]}">${d.analogy}</div>
+  <div class="how">${d.how}</div>
+  <div class="exgrid">${d.ex.map(([t,s])=>`<div class="ex" style="border-top:4px solid ${COL[k]}"><b>${t}</b><small>${s}</small></div>`).join('')}</div>`;
+  document.querySelectorAll('.ring circle').forEach(c=>c.setAttribute('stroke','none'));
+  document.querySelector(`.ring[data-k="${k}"] circle`).setAttribute('stroke','#ffd43b');
+  document.querySelector(`.ring[data-k="${k}"] circle`).setAttribute('stroke-width','6');
+}
+document.querySelectorAll('.ring').forEach(g=>g.addEventListener('click',e=>{e.stopPropagation();showDetail(g.dataset.k)}));
+showDetail('ai');
+
+// tabs
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  ['map','same','quiz'].forEach(id=>$(id).style.display=id===b.dataset.t?'':'none');
+});
+
+// one problem, four ways
+const SCEN={
+ 'Spam email':{
+  ai:['Rule list written by a person','<code>IF subject has "lottery" → spam</code>','❌ Spammers write "l0ttery" and get through'],
+  ml:['Learns from 1 lakh emails labelled spam / not spam','Learns which words and senders matter','✅ Adapts to new tricks when retrained'],
+  dl:['Neural network reads the whole email','Understands meaning, even in images and odd spellings','✅ Catches cleverly disguised phishing'],
+  gen:['LLM that writes and explains','"Explain why this email looks like phishing" or "Draft a polite reply"','✨ Creates new text, not only a label']},
+ 'Aircraft engine health':{
+  ai:['Engineer-written thresholds','<code>IF temp &gt; 900°C → warning</code>','❌ Misses slow, subtle wear'],
+  ml:['Learns from years of sensor logs and past failures','Predicts "fails within 200 flight hours?" (classification)','✅ Maintenance before breakdown'],
+  dl:['Neural network on borescope images','Spots hairline cracks a tired eye may miss','✅ Image-level inspection'],
+  gen:['LLM copilot for technicians','"Summarise the fault history and the manual steps for this part"','✨ Writes the work-order draft']},
+ 'Train travel':{
+  ai:['Fixed timetable logic','<code>IF train late &gt; 30 min → SMS</code>','❌ Only reacts after the delay'],
+  ml:['Learns from past trips, weather and season','Predicts "47 min late" (regression)','✅ Warns you before you leave home'],
+  dl:['Neural network on CCTV and track cameras','Counts crowds and detects obstacles on the track','✅ Understands video'],
+  gen:['Chat assistant','"Find me a confirmed seat to Delhi this Friday and explain the options"','✨ Conversational help']},
+ 'Online shopping':{
+  ai:['Hand-coded rules','<code>Show the top 10 bestsellers to everyone</code>','❌ Same for every user'],
+  ml:['Learns from your clicks and purchases','"People like you also bought…"','✅ Personal recommendations'],
+  dl:['Visual search','Snap a photo of shoes and find similar ones','✅ Understands images'],
+  gen:['Shopping assistant','"Write a product description" or "Compare these 3 phones for me"','✨ Generates text and images']}
+};
+let cur='Spam email';
+function renderPipe(){
+  $('scen').innerHTML=Object.keys(SCEN).map(s=>`<button class="${s===cur?'on':''}">${s}</button>`).join('');
+  [...$('scen').children].forEach(b=>b.onclick=()=>{cur=b.textContent;renderPipe()});
+  const s=SCEN[cur];
+  $('pipe').innerHTML=['ai','ml','dl','gen'].map(k=>`<div class="stage" style="background:${COL[k]}">
+   <h4>${NAME[k]}</h4><div class="who">${k==='ai'?'Classic rule-based AI':k==='ml'?'Learns from data':k==='dl'?'Neural networks':'Creates new content'}</div>
+   <div class="box"><b>Approach:</b> ${s[k][0]}</div><div class="box"><b>Does:</b> ${s[k][1]}</div><div class="box">${s[k][2]}</div></div>`).join('');
+}
+renderPipe();
+
+// quiz
+const Q=[
+ ['A chatbot that drafts your leave application email','gen','It creates new text, so it\'s GenAI.'],
+ ['A bank app flags a ₹50,000 transaction as possible fraud, learned from past fraud cases','ml','It learns from labelled past data to pick a category: classic ML classification.'],
+ ['Your phone unlocks when it sees your face','dl','Recognising images needs deep neural networks.'],
+ ['A thermostat turns on AC when temperature > 28°C','ai','It\'s a fixed human-written rule with no learning. That\'s simple rule-based AI (some would call it plain automation).'],
+ ['Predicting how many minutes late a flight will land, from past weather and traffic data','ml','It predicts a number from data: ML regression.'],
+ ['A tool that turns a text prompt into a poster image','gen','It generates a brand-new image.'],
+ ['Detecting cracks in turbine blades from inspection camera photos','dl','Image understanding uses deep learning.'],
+ ['A chess program that searches all moves using rules written by programmers','ai','It searches with rules but learns nothing from data, so it\'s classic AI.']
+];
+let qi=0,score=0;
+function renderQ(){
+  if(qi>=Q.length){$('prog').textContent='';$('qtext').innerHTML=`🎉 Done! Score: ${score} / ${Q.length}`;$('opts').innerHTML='';$('fb').className='fb';$('next').style.display='';$('next').textContent='Play again';return}
+  $('next').textContent='Next →';
+  $('prog').textContent=`Question ${qi+1} of ${Q.length} · Score ${score}`;
+  $('qtext').textContent=Q[qi][0];$('fb').className='fb';$('next').style.display='none';
+  $('opts').innerHTML=['ai','ml','dl','gen'].map(k=>`<button data-k="${k}" style="background:${COL[k]}">${NAME[k]}</button>`).join('');
+  [...$('opts').children].forEach(b=>b.onclick=()=>{
+    const ok=b.dataset.k===Q[qi][1];if(ok)score++;
+    $('fb').className='fb '+(ok?'ok':'no');
+    $('fb').innerHTML=(ok?'✅ Correct! ':`❌ Best answer: <b>${NAME[Q[qi][1]]}</b>. `)+Q[qi][2];
+    [...$('opts').children].forEach(x=>x.disabled=true);$('next').style.display='';
+  });
+}
+$('next').onclick=()=>{if(qi>=Q.length){qi=0;score=0}else qi++;renderQ()};
+renderQ();
+</script>
+</body>
+</html>

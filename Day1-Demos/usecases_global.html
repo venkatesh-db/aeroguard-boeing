@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Global AI Live</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--ai:#1f5fbf;--ml:#0f8a7a;--dl:#7a3fc4;--gen:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--warn:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#134074);color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:30px}
+header p{margin:2px 0 0;opacity:.85}
+nav{display:flex;gap:10px;flex-wrap:wrap;padding:14px 26px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:10px 18px;font-size:18px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:20px}
+.case{display:none}.case.on{display:block}
+.top{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-bottom:18px}
+@media(max-width:1000px){.top{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+h2{margin:0 0 6px;font-size:30px}
+.badge{display:inline-block;color:#fff;border-radius:6px;padding:3px 10px;font-size:15px;font-weight:700;margin-right:6px}
+.real{font-size:19px}.real b{color:var(--navy)}
+.try{background:#fff8e6;border:1px solid #f1d38a;border-radius:12px;padding:14px 16px;font-size:18px}
+.try ol{margin:6px 0 0;padding-left:22px}
+.sim{display:grid;grid-template-columns:340px 1fr;gap:18px}
+@media(max-width:1000px){.sim{grid-template-columns:1fr}}
+label{display:block;font-weight:600;margin:12px 0 4px}
+label span{float:right;color:var(--ai)}
+input[type=range]{width:100%}
+select,textarea{width:100%;padding:8px;font-size:17px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
+.btn{background:var(--navy);color:#fff;border:0;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:17px;font-weight:700;margin:8px 6px 0 0}
+.btn.ghost{background:#e3e9f3;color:var(--navy)}
+svg{width:100%;height:auto;display:block}
+.big{font-size:56px;font-weight:800;line-height:1.1}
+.alert{border-radius:10px;padding:12px 14px;margin-top:10px;font-size:18px}
+.alert.ok{background:#e7f6ec;border:1px solid var(--ok)}
+.alert.warn{background:#fff4dc;border:1px solid var(--warn)}
+.alert.bad{background:#fdecea;border:1px solid var(--bad)}
+.movies{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.mv{border:3px solid var(--line);border-radius:12px;padding:10px;text-align:center;cursor:pointer;background:#fff;transition:all .2s}
+.mv .p{font-size:40px}
+.mv b{display:block;font-size:16px}
+.mv small{color:var(--mut);font-size:13px}
+.mv.liked{border-color:var(--ok);background:#e7f6ec}
+.recs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px}
+.rec{background:#f6f8fc;border-left:6px solid var(--ml);border-radius:10px;padding:10px 12px}
+.rec b{font-size:18px}.rec small{display:block;color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.kpi{background:#f6f8fc;border-radius:10px;padding:12px;text-align:center}
+.kpi b{display:block;font-size:32px}
+.out{background:#f6f8fc;border:1px solid var(--line);border-radius:12px;padding:16px;min-height:300px;white-space:pre-wrap;font-size:18px}
+.out.code{font-family:ui-monospace,Menlo,monospace;font-size:16px;background:#0f1729;color:#d6e2ff}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.chip{background:#e8eef9;color:var(--navy);border:0;border-radius:20px;padding:8px 14px;font-size:16px;cursor:pointer}
+.chip.on{background:var(--navy);color:#fff}
+.disc{font-size:14px;color:var(--mut);margin-top:16px}
+</style>
+</head>
+<body>
+<header><h1>🌍 AI Around the World: Live Use Cases</h1><p>Famous, fully deployed AI systems, rebuilt as simple simulations you can play with</p></header>
+<nav id="nav">
+  <button data-c="maps" class="on">① Maps arrival time</button>
+  <button data-c="reco">② Recommendations</button>
+  <button data-c="cool">③ Data-centre cooling</button>
+  <button data-c="car">④ Self-driving vision</button>
+  <button data-c="copilot">⑤ GenAI copilot</button>
+</nav>
+<main>
+
+<!-- 1 Maps -->
+<section class="case on" id="maps">
+  <div class="top">
+    <div class="card"><h2>How long will the drive take?</h2><span class="badge" style="background:var(--dl)">Deep Learning · Regression</span>
+      <p class="real"><b>In real life:</b> Google Maps predicts arrival times using live traffic plus historical patterns. Google and DeepMind have described using graph neural networks to improve these predictions.</p></div>
+    <div class="try"><b>👉 Try it:</b><ol><li>Change the departure time.</li><li>Add rain or a cricket match near the stadium.</li><li>Watch each road segment and the arrival time change.</li></ol></div>
+  </div>
+  <div class="sim">
+    <div class="card">
+      <label>Leave at <span id="hV"></span></label><input type="range" id="hr" min="0" max="23" value="9">
+      <label>Weather</label><select id="mRain"><option value="1">☀️ Clear</option><option value="1.3">🌧 Rain</option></select>
+      <label>Event</label><select id="mEvt"><option value="0">None</option><option value="1">🏏 Cricket match at stadium</option></select>
+      <button class="btn" id="mGo">🚗 Start drive</button>
+    </div>
+    <div class="card"><div style="display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap"><div><div style="color:var(--mut)">Predicted arrival</div><div class="big"><span id="mMin">0</span> <span style="font-size:24px">min</span></div></div><div id="mArr" style="font-size:22px"></div></div>
+      <svg id="mMap" viewBox="0 0 700 300"></svg></div>
+  </div>
+</section>
+
+<!-- 2 Reco -->
+<section class="case" id="reco">
+  <div class="top">
+    <div class="card"><h2>"Because you watched…"</h2><span class="badge" style="background:var(--ml)">ML</span>
+      <p class="real"><b>In real life:</b> Netflix, YouTube and Amazon learn from what millions of people watch and buy to suggest what <b>you</b> will probably like next. Netflix has said most of what members watch comes from recommendations.</p></div>
+    <div class="try"><b>👉 Try it:</b><ol><li>Click 2–3 titles you like.</li><li>Watch the recommendations update instantly.</li><li>Like something very different and see them shift.</li></ol></div>
+  </div>
+  <div class="card"><b>Tap what you like:</b><div class="movies" id="mvs" style="margin-top:10px"></div>
+    <div style="margin-top:16px;font-size:22px;font-weight:700">🎯 Recommended for you</div><div class="recs" id="recs"></div></div>
+</section>
+
+<!-- 3 Cooling -->
+<section class="case" id="cool">
+  <div class="top">
+    <div class="card"><h2>AI that cools a data centre</h2><span class="badge" style="background:var(--ml)">ML · Control</span>
+      <p class="real"><b>In real life:</b> DeepMind's ML system controlled cooling in Google data centres. Google reported up to <b>40% less energy used for cooling</b>. It predicts heat in advance instead of reacting after servers get hot.</p></div>
+    <div class="try"><b>👉 Try it:</b><ol><li>Press <b>Run 24 hours</b>.</li><li>Compare the rule-based thermostat with the ML controller.</li><li>Try a heatwave day.</li></ol></div>
+  </div>
+  <div class="sim">
+    <div class="card">
+      <label>Outside weather</label><select id="cW"><option value="0">Mild day</option><option value="8">🔥 Heatwave</option></select>
+      <label>Server workload</label><select id="cL"><option value="1">Normal</option><option value="1.4">Big event (sale / cricket final streaming)</option></select>
+      <button class="btn" id="cGo">▶ Run 24 hours</button>
+      <div id="cOut" class="alert ok">Press run to compare.</div>
+    </div>
+    <div class="card"><svg id="cChart" viewBox="0 0 700 300"></svg>
+      <div style="font-size:15px;color:var(--mut)">Grey = server load · Red = rule-based cooling energy · Green = ML cooling energy</div>
+      <div class="kpis"><div class="kpi"><b id="kR">–</b>Rule-based energy (MWh)</div><div class="kpi"><b id="kM">–</b>ML energy (MWh)</div><div class="kpi"><b id="kS" style="color:var(--ok)">–</b>Energy saved</div></div></div>
+  </div>
+</section>
+
+<!-- 4 Car -->
+<section class="case" id="car">
+  <div class="top">
+    <div class="card"><h2>What a self-driving car sees</h2><span class="badge" style="background:var(--dl)">Deep Learning · Vision</span>
+      <p class="real"><b>In real life:</b> Waymo runs driverless taxis for paying riders in several US cities. Deep neural networks turn camera, lidar and radar data into labelled objects, many times every second, then decide how to drive.</p></div>
+    <div class="try"><b>👉 Try it:</b><ol><li>Turn on <b>AI vision</b> to see the detected objects.</li><li>Make the pedestrian step into the road.</li><li>Change the light or turn on night mode.</li></ol></div>
+  </div>
+  <div class="sim">
+    <div class="card">
+      <label><input type="checkbox" id="vOn" checked> Show AI vision</label>
+      <label>Traffic light</label><select id="vL"><option value="g">🟢 Green</option><option value="r">🔴 Red</option></select>
+      <label>Conditions</label><select id="vN"><option value="0">Daytime</option><option value="1">🌙 Night</option></select>
+      <button class="btn" id="vPed">🚶 Pedestrian steps out</button><button class="btn ghost" id="vReset">Reset</button>
+      <div id="vOut" class="alert ok"></div>
+    </div>
+    <div class="card"><svg id="scene" viewBox="0 0 700 380"></svg></div>
+  </div>
+</section>
+
+<!-- 5 Copilot -->
+<section class="case" id="copilot">
+  <div class="top">
+    <div class="card"><h2>GenAI copilot at work</h2><span class="badge" style="background:var(--gen)">GenAI</span>
+      <p class="real"><b>In real life:</b> millions of people use GitHub Copilot, ChatGPT and Claude every day to write code, emails and summaries. A human reviews and edits the result. The AI drafts; you decide.</p></div>
+    <div class="try"><b>👉 Try it:</b><ol><li>Pick a task.</li><li>Edit the prompt if you like.</li><li>Click <b>Generate</b> and watch it write.</li></ol></div>
+  </div>
+  <div class="sim">
+    <div class="card"><b>Task</b><div class="chips" id="tasks"></div>
+      <label>Your prompt</label><textarea id="prompt" rows="5"></textarea>
+      <button class="btn" id="gen">✨ Generate</button>
+      <div class="alert warn">⚠️ Always review AI output. It can sound confident and still be wrong.</div></div>
+    <div class="card"><div class="out" id="out"></div></div>
+  </div>
+</section>
+<div class="disc">Simplified teaching simulations. Company names refer to publicly reported real-world systems; numbers, screens and logic here are illustrative, not those companies' actual systems.</div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);const NS='http://www.w3.org/2000/svg';
+function el(t,a,p,txt){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p.appendChild(e);return e}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.case').forEach(c=>c.classList.toggle('on',c.id===b.dataset.c))});
+
+// 1 Maps
+const SEG=[{n:'Home → Ring Road',km:4,pts:[[40,240],[180,240]]},{n:'Ring Road → Flyover',km:6,pts:[[180,240],[330,120]]},{n:'Stadium Road',km:3,pts:[[330,120],[480,120]],stad:1},{n:'MG Road → Office',km:5,pts:[[480,120],[660,60]]}];
+let carT=null,carU=0;
+function rush(h){return 1+1.1*Math.exp(-((h-9)**2)/3)+1.3*Math.exp(-((h-18.5)**2)/3)}
+function segMin(s){const h=+$('hr').value;let f=rush(h)*(+$('mRain').value);if(s.stad&&+$('mEvt').value)f*=2.2;return s.km/40*60*f}
+function maps(){const h=+$('hr').value;$('hV').textContent=(h%12||12)+(h<12?' am':' pm');
+  const tot=SEG.reduce((a,s)=>a+segMin(s),0);$('mMin').textContent=Math.round(tot);
+  const arr=new Date(2026,0,1,h,0);arr.setMinutes(arr.getMinutes()+tot);$('mArr').innerHTML='Arrive at <b>'+arr.toTimeString().slice(0,5)+'</b>';
+  const s=$('mMap');s.innerHTML='';el('rect',{x:0,y:0,width:700,height:300,fill:'#eef3ea',rx:12},s);
+  SEG.forEach(g=>{const m=segMin(g),sp=g.km/m*60,c=sp>30?'#1a8a4a':sp>18?'#e0b300':'#c2410c';const [a,b]=g.pts;
+    el('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:c,'stroke-width':12,'stroke-linecap':'round'},s);
+    el('text',{x:(a[0]+b[0])/2,y:(a[1]+b[1])/2-14,'text-anchor':'middle','font-size':13,fill:'#1b2333'},s,`${g.n} · ${Math.round(m)} min`)});
+  if(+$('mEvt').value)el('text',{x:405,y:165,'text-anchor':'middle','font-size':24},s,'🏟️');
+  el('text',{x:40,y:275,'text-anchor':'middle','font-size':24},s,'🏠');el('text',{x:660,y:45,'text-anchor':'middle','font-size':24},s,'🏢');
+  const all=SEG.flatMap(g=>[g.pts]);const k=Math.min(3,Math.floor(carU*4)),f=carU*4-k,[a,b]=SEG[k].pts;
+  el('text',{x:a[0]+(b[0]-a[0])*f,y:a[1]+(b[1]-a[1])*f+8,'text-anchor':'middle','font-size':26},s,'🚗');}
+['hr','mRain','mEvt'].forEach(id=>$(id).oninput=maps);
+$('mGo').onclick=()=>{clearInterval(carT);carU=0;carT=setInterval(()=>{carU=Math.min(.999,carU+.01);maps();if(carU>=.999)clearInterval(carT)},60)};maps();
+
+// 2 Reco
+const MV=[['🚀','Space Odyssey','sci-fi,space,drama'],['🤖','Robot Rebellion','sci-fi,action,ai'],['🦖','Dino Island','adventure,action,family'],['🕵️','The Silent Witness','thriller,crime,mystery'],['🏏','Last Over','sports,drama,india'],['💃','Wedding Season','romance,comedy,india'],['👻','Haunted Haveli','horror,mystery,india'],['🧙','Wizard School','fantasy,family,adventure'],['✈️','Mayday 9','thriller,aviation,drama'],['🛸','First Contact','sci-fi,space,mystery'],['😂','Office Chaos','comedy,workplace'],['🏎️','Pit Stop','sports,action'],['🧪','The Lab Leak','thriller,science,drama'],['🐉','Dragon Valley','fantasy,adventure,action'],['🎓','Campus Days','comedy,romance,india'],['🛩️','Test Pilot','aviation,drama,action']];
+const liked=new Set();
+function reco(){
+  $('mvs').innerHTML=MV.slice(0,10).map((m,i)=>`<div class="mv ${liked.has(i)?'liked':''}" data-i="${i}"><div class="p">${m[0]}</div><b>${m[1]}</b><small>${m[2].replace(/,/g,' · ')}</small></div>`).join('');
+  [...$('mvs').children].forEach(d=>d.onclick=()=>{const i=+d.dataset.i;liked.has(i)?liked.delete(i):liked.add(i);reco()});
+  if(!liked.size){$('recs').innerHTML='<div style="color:var(--mut)">Like something above to get recommendations. Right now you only see what\'s popular.</div>';return}
+  const prof={};liked.forEach(i=>MV[i][2].split(',').forEach(t=>prof[t]=(prof[t]||0)+1));
+  const sc=MV.map((m,i)=>{if(liked.has(i))return null;const tags=m[2].split(',');let s=0,why=null,best=0;tags.forEach(t=>s+=prof[t]||0);
+    liked.forEach(j=>{const o=MV[j][2].split(',').filter(t=>tags.includes(t)).length;if(o>best){best=o;why=MV[j][1]}});return{m,s,why}}).filter(x=>x&&x.s>0).sort((a,b)=>b.s-a.s).slice(0,4);
+  const max=sc[0]?sc[0].s:1;
+  $('recs').innerHTML=sc.map(x=>`<div class="rec"><b>${x.m[0]} ${x.m[1]}</b><small>Because you liked <b>${x.why}</b></small><small>Match: ${Math.round(60+x.s/max*38)}%</small></div>`).join('')||'<div>Try liking a few more titles.</div>';}
+reco();
+
+// 3 Cooling
+function cool(){const w=+$('cW').value,L=+$('cL').value,s=$('cChart');s.innerHTML='';
+  const load=[...Array(24)].map((_,h)=>(40+35*Math.exp(-((h-20)**2)/10)+18*Math.exp(-((h-13)**2)/8))*L);
+  const temp=load.map((l,h)=>l*.5+w+8*Math.sin((h-9)/24*2*Math.PI));
+  // rule: reacts after temp is high, overcools in steps; ML: tracks predicted need smoothly
+  let prev=30;const rule=temp.map(t=>{const need=t*1.05+6;const r=Math.max(need,prev*0.97)+(t>48?8:3);prev=r;return r});
+  const ml=temp.map((t,h)=>{const nxt=temp[Math.min(23,h+1)];return Math.max(t,nxt)*0.85+4});
+  const X=h=>40+h*27,Y=v=>270-v/160*250;
+  [0,40,80,120,160].forEach(v=>{el('line',{x1:40,x2:680,y1:Y(v),y2:Y(v),stroke:'#eef1f5'},s)});
+  [0,6,12,18,23].forEach(h=>el('text',{x:X(h),y:292,'text-anchor':'middle','font-size':12,fill:'#5d6778'},s,h+':00'));
+  return{load,rule,ml,X,Y,s}}
+let cT=null;
+$('cGo').onclick=()=>{clearInterval(cT);const {load,rule,ml,X,Y,s}=cool();let h=0;$('cOut').className='alert warn';$('cOut').textContent='Simulating the day…';
+  const draw=(arr,c,w)=>el('polyline',{points:arr.slice(0,h+1).map((v,i)=>X(i)+','+Y(v)).join(' '),fill:'none',stroke:c,'stroke-width':w},s);
+  let lines=[];cT=setInterval(()=>{lines.forEach(l=>l.remove());lines=[draw(load,'#9aa6b8',3),draw(rule,'#c2410c',4),draw(ml,'#1a8a4a',4)];
+    const R=rule.slice(0,h+1).reduce((a,b)=>a+b,0)/10,M=ml.slice(0,h+1).reduce((a,b)=>a+b,0)/10;
+    $('kR').textContent=R.toFixed(0);$('kM').textContent=M.toFixed(0);$('kS').textContent=Math.round((1-M/R)*100)+'%';
+    if(++h>23){clearInterval(cT);$('cOut').className='alert ok';$('cOut').innerHTML=`✅ The ML controller used <b>${Math.round((1-M/R)*100)}% less cooling energy</b>. It turns cooling up <i>before</i> the load peak, and avoids over-cooling.`}},150)};
+['cW','cL'].forEach(id=>$(id).oninput=()=>{clearInterval(cT);cool();$('cOut').className='alert ok';$('cOut').textContent='Press run to compare.'});cool();
+
+// 4 Car
+let pedX=600;let pedT=null;
+function scene(){const s=$('scene');s.innerHTML='';const night=+$('vN').value,vis=$('vOn').checked,light=$('vL').value;
+  el('rect',{x:0,y:0,width:700,height:380,fill:night?'#1b2333':'#cfe6ff'},s);
+  el('polygon',{points:'250,150 450,150 700,380 0,380',fill:night?'#2f3542':'#6b7280'},s);
+  el('rect',{x:0,y:130,width:700,height:24,fill:night?'#273042':'#9cc68b'},s);
+  [0,1,2,3].forEach(i=>el('rect',{x:345,y:170+i*55,width:10,height:30,fill:'#fff',opacity:.8},s));
+  [0,1,2,3,4,5].forEach(i=>el('rect',{x:150+i*70,y:300,width:40,height:14,fill:'#fff',opacity:.85},s));
+  const objs=[];
+  const put=(emo,x,y,size,label,conf,col)=>{el('text',{x,y,'text-anchor':'middle','font-size':size},s,emo);objs.push({x:x-size*.6,y:y-size*.95,w:size*1.2,h:size*1.15,label,conf,col})};
+  put('🚙',420,215,60,'Car',night?91:98,'#1f5fbf');
+  put('🚲',170,250,56,'Cyclist',night?84:95,'#7a3fc4');
+  put('🚶',pedX,300,62,'Pedestrian',night?88:97,'#c2410c');
+  el('rect',{x:560,y:40,width:30,height:70,rx:6,fill:'#111'},s);el('circle',{cx:575,cy:58,r:10,fill:light==='r'?'#ff3b30':'#3a1010'},s);el('circle',{cx:575,cy:90,r:10,fill:light==='g'?'#30d158':'#0f2a12'},s);
+  objs.push({x:555,y:35,w:40,h:80,label:'Light: '+(light==='r'?'RED':'GREEN'),conf:99,col:'#b7791f'});
+  if(vis)objs.forEach(o=>{el('rect',{x:o.x,y:o.y,width:o.w,height:o.h,fill:'none',stroke:o.col,'stroke-width':3},s);
+    el('rect',{x:o.x,y:o.y-22,width:Math.max(o.w,o.label.length*8+40),height:22,fill:o.col},s);el('text',{x:o.x+4,y:o.y-6,'font-size':14,fill:'#fff','font-weight':700},s,`${o.label} ${o.conf}%`)});
+  const inRoad=pedX<470&&pedX>230;let msg,c;
+  if(inRoad){msg='🛑 <b>BRAKE.</b> Pedestrian in the crosswalk ahead.';c='bad'}else if(light==='r'){msg='🛑 <b>Stop at the line.</b> Red light detected.';c='bad'}else{msg='✅ <b>Continue at 40 km/h.</b> Keeping a safe gap from the car ahead and the cyclist.';c='ok'}
+  $('vOut').className='alert '+c;$('vOut').innerHTML=msg+(night?'<br><small>🌙 Night: confidence is lower, so the car drives more cautiously.</small>':'');}
+['vOn','vL','vN'].forEach(id=>$(id).oninput=scene);
+$('vPed').onclick=()=>{clearInterval(pedT);pedT=setInterval(()=>{pedX-=6;scene();if(pedX<=350)clearInterval(pedT)},40)};
+$('vReset').onclick=()=>{clearInterval(pedT);pedX=600;scene()};scene();
+
+// 5 Copilot
+const TASKS={
+ 'Email':['Write a polite email to the supplier saying the hydraulic pump delivery is 6 days late and asking for a new date.',`Subject: Revised delivery date: hydraulic pump order
+
+Dear Supplier Team,
+
+I hope you are well. We have noticed that the hydraulic pump shipment on our current order is running about 6 days behind the agreed date.
+
+Because this part feeds directly into our assembly schedule, could you please share:
+  1. A confirmed new delivery date
+  2. The reason for the delay
+  3. Any options to expedite part of the shipment
+
+We value our partnership and would appreciate your update by end of day tomorrow.
+
+Kind regards,
+Planning Team`,0],
+ 'Code':['Write a Python function that flags engine vibration readings above the normal range.',`def flag_high_vibration(readings, limit=3.8):
+    """Return the readings that are above the normal limit.
+
+    readings: list of vibration values (floats)
+    limit:    upper bound of the normal range
+    """
+    alerts = []
+    for i, value in enumerate(readings):
+        if value > limit:
+            alerts.append((i, value))
+    return alerts
+
+
+# Example
+data = [3.1, 3.4, 3.9, 4.2, 3.0]
+print(flag_high_vibration(data))
+# -> [(2, 3.9), (3, 4.2)]`,1],
+ 'Summary':['Summarise this shift report in 3 bullet points for the manager: (long technician notes about a brake inspection, one delayed part and a training session).',`📋 Shift summary for the manager
+
+• Brake inspection on aircraft VT-SKC completed. Wear is within limits; next check is due in 400 flight hours.
+• ⚠️ Replacement bleed-air valve for VT-SKD is delayed by 2 days. The aircraft can keep flying under the approved deferral, but it needs follow-up.
+• 4 technicians completed the new borescope camera training. Two more sessions are planned for next week.`,0],
+ 'Translate':['Translate the safety instruction into Hindi: "Wear safety goggles before using the drill."',`हिंदी अनुवाद:
+
+"ड्रिल का उपयोग करने से पहले सुरक्षा चश्मा पहनें।"
+
+(Pronunciation: Drill ka upyog karne se pehle suraksha chashma pehnein.)`,0]};
+let cur='Email',gT=null;
+$('tasks').innerHTML=Object.keys(TASKS).map(k=>`<button class="chip ${k===cur?'on':''}">${k}</button>`).join('');
+[...$('tasks').children].forEach(b=>b.onclick=()=>{cur=b.textContent;[...$('tasks').children].forEach(x=>x.classList.toggle('on',x===b));$('prompt').value=TASKS[cur][0];$('out').textContent='';$('out').className='out'});
+$('prompt').value=TASKS[cur][0];
+$('gen').onclick=()=>{clearInterval(gT);const [_,t,code]=TASKS[cur];$('out').className='out'+(code?' code':'');$('out').textContent='';let i=0;
+  setTimeout(()=>{gT=setInterval(()=>{$('out').textContent=t.slice(0,i+=4);if(i>=t.length)clearInterval(gT)},20)},400)};
+</script>
+</body>
+</html>

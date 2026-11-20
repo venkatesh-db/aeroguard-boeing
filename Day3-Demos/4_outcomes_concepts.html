@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 3 Outcomes</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--teal:#0f8a7a;--pur:#7a3fc4;--or:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:32px}header p{margin:2px 0 0;opacity:.85}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 26px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:10px 16px;font-size:17px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:20px}
+.tab{display:none}.tab.on{display:block}
+h2{font-size:30px;margin:0 0 6px}
+.goal{display:flex;gap:12px;align-items:center;background:#fff;border:2px solid var(--ok);border-radius:14px;padding:12px 16px;margin-bottom:14px;font-size:19px}
+.goal .ic{font-size:34px}
+.goal .proof{margin-left:auto;font-weight:800;font-size:22px;color:var(--mut);white-space:nowrap}
+.goal .proof.pass{color:var(--ok)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:1100px){.two{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.btn{background:var(--navy);color:#fff;border:0;padding:11px 16px;border-radius:10px;cursor:pointer;font-size:17px;font-weight:700;margin:6px 6px 0 0}
+.btn.go{background:var(--ok)}.btn.ghost{background:#e3e9f3;color:var(--navy)}
+.btn:disabled{opacity:.45}
+.cells{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin:10px 0}
+.cell{aspect-ratio:1;border-radius:8px;background:#e6ebf2;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:transform .15s}
+.cell:hover{transform:scale(1.1)}
+.cell.ok{background:#c8ecd5}.cell.bad{background:#f8cfc7}.cell.retry{background:#ffe3a8}.cell.safe{background:#d9dee8}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#f6f8fc;border-radius:10px;padding:10px;text-align:center;font-size:15px}
+.stat b{display:block;font-size:30px}
+.mono{font:15px/1.5 ui-monospace,Menlo,monospace;background:#0f1729;color:#e5ecff;border-radius:10px;padding:10px 12px;white-space:pre-wrap;min-height:60px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:15px;color:var(--mut)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{background:#e8eef9;color:var(--navy);border:2px solid transparent;border-radius:20px;padding:8px 13px;font-size:16px;cursor:pointer}
+.chip.on{background:var(--navy);color:#fff}
+.chat{background:#f6f8fc;border-radius:12px;padding:10px;height:360px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.msg{max-width:85%;padding:8px 12px;border-radius:12px;font-size:16px;white-space:pre-line;animation:pop .3s}
+.msg.u{align-self:flex-end;background:var(--navy);color:#fff}.msg.a{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+.msg.q{border:2px solid var(--pur)}
+@keyframes pop{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
+.window{display:flex;gap:4px;flex-wrap:wrap;min-height:44px;background:#f6f8fc;border:2px dashed var(--line);border-radius:10px;padding:6px}
+.fact{border-radius:8px;padding:4px 10px;font-size:14px;font-weight:700;color:#fff}
+.score{font-size:28px;font-weight:800}
+.qrow{display:grid;grid-template-columns:1fr 70px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:16px}
+/* wiring */
+.wire{position:relative;height:250px;margin:6px 0}
+.node{position:absolute;top:70px;width:16%;min-width:120px;text-align:center;background:#fff;border:3px solid var(--line);border-radius:14px;padding:10px 6px;font-weight:700;font-size:16px}
+.node .ic{font-size:34px;display:block}
+.node small{display:block;font-weight:400;color:var(--mut);font-size:13px}
+.node .cnt{display:block;font:800 18px ui-monospace,Menlo,monospace;color:var(--blue)}
+.link{position:absolute;top:118px;height:10px;border-radius:5px;cursor:pointer;background:repeating-linear-gradient(90deg,#c2410c 0 8px,transparent 8px 14px)}
+.link.on{background:var(--ok)}
+.link span{position:absolute;top:-34px;left:50%;transform:translateX(-50%);font-size:13px;white-space:nowrap;background:#fff;border:1px solid var(--line);border-radius:8px;padding:2px 6px}
+.dot{position:absolute;top:114px;width:18px;height:18px;border-radius:50%;background:var(--or);box-shadow:0 0 8px var(--or);pointer-events:none}
+.toggles label{display:flex;gap:8px;align-items:center;border:2px solid var(--line);border-radius:10px;padding:6px 10px;margin:5px 0;cursor:pointer;font-size:16px}
+.toggles input{transform:scale(1.3)}
+.screen{background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px;min-height:140px;font-size:18px}
+.cursor{display:inline-block;width:8px;height:18px;background:var(--or);vertical-align:middle;animation:blink .8s infinite}
+@keyframes blink{50%{opacity:0}}
+.out{border-radius:10px;padding:10px 12px;margin-top:8px;font-size:17px}
+.out.ok{background:#e7f6ec;border:1px solid var(--ok)}.out.bad{background:#fdecea;border:1px solid var(--bad)}.out.warn{background:#fff4dc;border:1px solid var(--gold)}
+.tip{background:#eef4ff;border-left:6px solid var(--blue);border-radius:10px;padding:12px 16px;margin-top:14px;font-size:18px}
+.disc{font-size:14px;color:var(--mut);margin-top:14px}
+.next{display:block;text-align:center;margin-top:18px;font-size:20px;font-weight:700;color:var(--blue)}
+</style>
+</head>
+<body>
+<header id="hdr"><h1 id="title"></h1><p id="subtitle"></p></header>
+<nav id="nav">
+  <button data-t="t1" class="on">✅ Outcome 1 · Reliable, validated responses</button>
+  <button data-t="t2">🧠 Outcome 2 · Context across turns</button>
+  <button data-t="t3">🔌 Outcome 3 · Wiring streaming end to end</button>
+</nav>
+<main>
+
+<!-- 1 -->
+<section class="tab on" id="t1">
+  <div class="goal"><span class="ic">✅</span><span><b>Outcome:</b> the chatbot <b>reliably</b> returns well-formed, validated responses. <span id="o1desc"></span></span><span class="proof" id="p1">Not proven yet</span></div>
+  <div class="two">
+    <div class="card"><h2 style="font-size:24px">❌ Before: trust the LLM</h2><div style="color:var(--mut)">json.loads(raw) and send it to the UI</div>
+      <div class="cells" id="cA"></div><div class="stats" id="sA"></div></div>
+    <div class="card"><h2 style="font-size:24px">✅ After: validate + retry + safe fallback</h2><div style="color:var(--mut)">Pydantic check · up to 3 attempts · clean error if all fail</div>
+      <div class="cells" id="cB"></div><div class="stats" id="sB"></div></div>
+  </div>
+  <button class="btn go" id="fire">🚀 Fire 20 test requests at both</button>
+  <div class="legend"><span>🟩 well-formed first try</span><span>🟨 fixed by retry</span><span>⬜ safe error message (still well-formed)</span><span>🟥 broken data reached the UI</span><span>👆 click any square to inspect it</span></div>
+  <div class="two" style="margin-top:10px"><div><b>Raw LLM output</b><div class="mono" id="inRaw">Click a square.</div></div><div><b>What the UI received</b><div class="mono" id="inUI"></div></div></div>
+</section>
+
+<!-- 2 -->
+<section class="tab" id="t2">
+  <div class="goal"><span class="ic">🧠</span><span><b>Outcome:</b> the chatbot holds <b>context across a conversation</b>, not just single turns. <span id="o2desc"></span></span><span class="proof" id="p2">Not proven yet</span></div>
+  <div class="chips" id="modes"><button class="chip on" data-m="single">1️⃣ Single-turn (no memory)</button><button class="chip" data-m="trim">✂️ Memory: last 2 messages only</button><button class="chip" data-m="full">🧠 Memory: full session history</button></div>
+  <div class="two">
+    <div class="card"><b>Conversation</b><div class="chat" id="chat"></div><button class="btn go" id="talk">▶ Play the conversation, then the memory quiz</button></div>
+    <div class="card"><b>What's inside the context window when the quiz runs</b><div class="window" id="win"></div>
+      <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center"><b>📝 Memory quiz</b><span class="score" id="qs">–</span></div><div id="quiz"></div></div>
+  </div>
+  <div class="tip">💡 Full history gives the best recall but costs more tokens every turn. In real systems: full history for short chats, plus a <b>summary</b> of older turns for long ones. Trimming blindly forgets important early facts.</div>
+</section>
+
+<!-- 3 -->
+<section class="tab" id="t3">
+  <div class="goal"><span class="ic">🔌</span><span><b>Outcome:</b> hands-on experience <b>wiring streaming</b> from backend to frontend. Click the 4 red wires to connect them, then run.</span><span class="proof" id="p3">Not proven yet</span></div>
+  <div class="card">
+    <div class="wire" id="wire"></div>
+    <div class="two">
+      <div><div class="toggles"><b>Common real-world bugs (switch on to see them)</b>
+        <label><input type="checkbox" id="bMedia"> Forgot <code>media_type="text/event-stream"</code></label>
+        <label><input type="checkbox" id="bProxy"> A proxy / load balancer buffers responses</label>
+        <label><input type="checkbox" id="bSplit"> Frontend doesn't handle chunks split mid-event</label></div>
+        <button class="btn go" id="run3">▶ Stream a response</button><div id="msg3"></div></div>
+      <div><b>📱 What the user sees</b><div class="screen" id="scr"></div><div style="font-size:15px;color:var(--mut);margin-top:4px" id="ttft"></div></div>
+    </div>
+  </div>
+  <div class="tip">💡 The 4 wires you must build: <b>①</b> call the LLM with <code>stream=True</code> · <b>②</b> a FastAPI <b>generator</b> that <code>yield</code>s each token as an SSE event · <b>③</b> <code>StreamingResponse(..., media_type="text/event-stream")</code> · <b>④</b> the browser reads <code>response.body.getReader()</code> and appends text to the page.</div>
+  <a class="next" id="nextLink"></a>
+  <div class="disc">Teaching simulation: no real LLM or server. Reliability rates are illustrative.</div>
+</section>
+</main>
+
+<script>
+/* ======== THEME (the only part that differs between the concept and aviation versions) ======== */
+const THEME={
+ bg:'linear-gradient(90deg,#0b2545,#0f5a6b)',
+ title:'🎯 Day 3 Outcomes: Prove Your Chatbot Works',
+ subtitle:'Page 4 · Concepts version · Everyday examples. Page 5 repeats every test on the aviation MRO Copilot.',
+ o1:'Example: a café order bot must always return <code>{"item","size","quantity"}</code>.',
+ inputs:['2 large lattes','one small tea pls','3 cappuccinos, medium','a big mocha','two flat whites','1 espresso','four teas, large','small cold coffee','2 medium hot chocolates','one large americano','three chai, small','a latte','2 mochas large','green tea x2','iced latte, medium','1 cappuccino small','five espressos','medium chai','2 small lattes','one large tea'],
+ good:i=>({item:['latte','tea','cappuccino','mocha','flat white','espresso','tea','cold coffee','hot chocolate','americano','chai','latte','mocha','green tea','iced latte','cappuccino','espresso','chai','latte','tea'][i],size:['L','S','M','L','M','M','L','S','M','L','S','M','L','M','M','S','M','M','S','L'][i],quantity:[2,1,3,1,2,1,4,1,2,1,3,1,2,2,1,1,5,1,2,1][i]}),
+ badRaw:['Sure! You ordered two large lattes ☕','{"item": "tea", "size": "small", "quantity": "one"}','```json\n{"item": "mocha", "size": "L"}\n```','{"item": "chai", "quantity": 3, "size": "S"'],
+ o2:'Example: planning a trip with a travel bot.',
+ turns:[['Hi, I\'m Priya.','Hi Priya! How can I help?'],['I want to visit Goa.','Goa is great! When?'],['In December, with 2 friends.','December is peak season, so book early.'],['Budget is about ₹20,000 each.','That works well for a 4-night trip.'],['We prefer beaches over nightlife.','Then North Goa\'s quieter beaches, like Ashwem, suit you.']],
+ facts:[['👤 name: Priya','#1f5fbf',0],['📍 Goa','#0f8a7a',1],['📅 Dec · 3 people','#7a3fc4',2],['💰 ₹20k each','#b7791f',3],['🏖️ beaches','#d9480f',4]],
+ quiz:[['What is my name?',0,'Priya'],['Where am I going?',1,'Goa'],['How many people are travelling?',2,'3 (you + 2 friends)'],['What is my budget?',3,'₹20,000 each'],['Beaches or nightlife?',4,'Beaches']],
+ streamText:'Here is a simple plan: Day 1, arrive and relax at Ashwem beach. Day 2, take a boat trip to see dolphins. Day 3, visit an old Portuguese fort. Day 4, enjoy local seafood and a sunset walk before heading home.',
+ nodes:[['🤖','LLM','generates tokens'],['🐍','FastAPI','generator yields'],['🌐','HTTP / SSE','text/event-stream'],['🧭','Browser JS','getReader()'],['📱','Screen','user reads']],
+ next:['4','➡️ Page 5: the same three proofs on the aviation MRO Copilot','5_outcomes_aviation.html']
+};
+/* ================================================================== */
+const $=id=>document.getElementById(id);const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+$('hdr').style.background=THEME.bg;$('title').innerHTML=THEME.title;$('subtitle').innerHTML=THEME.subtitle;$('o1desc').innerHTML=THEME.o1;$('o2desc').innerHTML=THEME.o2;
+$('nextLink').textContent=THEME.next[1];$('nextLink').href=THEME.next[2];
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===b.dataset.t))});
+function rng(s){return()=>{s=(s*16807)%2147483647;return(s-1)/2147483646}}
+function proof(id,ok,txt){$(id).textContent=txt;$(id).classList.toggle('pass',ok)}
+
+/* ===== 1 reliability ===== */
+const N=THEME.inputs.length;let runs=[];
+function plan(){const r=rng(11);return THEME.inputs.map((inp,i)=>{const bad=r()<0.3;const fixAt=bad?(r()<0.85?2:(r()<0.5?3:0)):1;return{inp,i,bad,fixAt,raw:bad?THEME.badRaw[Math.floor(r()*THEME.badRaw.length)]:JSON.stringify(THEME.good(i))}})}
+function cellsInit(){['cA','cB'].forEach(c=>$(c).innerHTML=THEME.inputs.map((_,i)=>`<div class="cell" data-c="${c}" data-i="${i}"></div>`).join(''));stats('sA',null);stats('sB',null)}
+function stats(id,s){$(id).innerHTML=s?`<div class="stat"><b style="color:${s.pct===100?'var(--ok)':'var(--bad)'}">${s.pct}%</b>well-formed to UI</div><div class="stat"><b>${s.crash}</b>${id==='sA'?'UI errors / crashes':'safe fallbacks'}</div><div class="stat"><b>${s.avg}</b>avg LLM calls</div>`:'<div class="stat"><b>–</b>well-formed to UI</div><div class="stat"><b>–</b>errors</div><div class="stat"><b>–</b>avg calls</div>'}
+$('fire').onclick=async()=>{$('fire').disabled=true;cellsInit();runs=plan();let okA=0,okB=0,calls=0,safe=0;
+ for(const r of runs){const a=$('cA').children[r.i],b=$('cB').children[r.i];
+  if(r.bad){a.className='cell bad';a.textContent='🟥'}else{a.className='cell ok';a.textContent='✓';okA++}
+  if(!r.bad){b.className='cell ok';b.textContent='✓';calls+=1}else if(r.fixAt){b.className='cell retry';b.textContent='🔁';calls+=r.fixAt}else{b.className='cell safe';b.textContent='🛟';calls+=3;safe++}okB++;
+  stats('sA',{pct:Math.round(okA/(r.i+1)*100),crash:r.i+1-okA,avg:'1.0'});stats('sB',{pct:Math.round(okB/(r.i+1)*100),crash:safe,avg:(calls/(r.i+1)).toFixed(2)});await sleep(110)}
+ proof('p1',true,'✅ Proven: 100% well-formed');$('fire').disabled=false};
+document.addEventListener('click',e=>{const c=e.target.closest('.cell');if(!c||!runs.length)return;const r=runs[+c.dataset.i],after=c.dataset.c==='cB';
+ $('inRaw').textContent=`Input: "${r.inp}"\n\nAttempt 1 →\n${r.raw}`+(after&&r.bad?(r.fixAt?`\n\n❌ ValidationError → retry with the error message\nAttempt ${r.fixAt} →\n${JSON.stringify(THEME.good(r.i))}`:'\n\n❌ Attempts 2 and 3 also invalid → give up safely'):'');
+ $('inUI').textContent=!r.bad?JSON.stringify(THEME.good(r.i),null,2):after?(r.fixAt?JSON.stringify(THEME.good(r.i),null,2)+'\n\n✅ validated (needed '+r.fixAt+' calls)':'{"error": {"code": "AI_BAD_OUTPUT",\n  "message": "Sorry, please try again or use the manual form."}}\n\n✅ still a well-formed, predictable response'):(r.raw.startsWith('{"')&&r.raw.endsWith('}')?r.raw+'\n\n🟥 Wrong types / missing fields reach the UI':'💥 JSONDecodeError → 500 Internal Server Error\nThe user sees a crash.')});
+cellsInit();
+
+/* ===== 2 memory ===== */
+let mode='single';
+[...$('modes').children].forEach(b=>b.onclick=()=>{mode=b.dataset.m;[...$('modes').children].forEach(x=>x.classList.toggle('on',x===b));$('chat').innerHTML='';$('quiz').innerHTML='';$('win').innerHTML='';$('qs').textContent='–'});
+function add(r,t,q){$('chat').insertAdjacentHTML('beforeend',`<div class="msg ${r}${q?' q':''}">${esc(t)}</div>`);$('chat').scrollTop=1e6}
+$('talk').onclick=async()=>{$('talk').disabled=true;$('chat').innerHTML='';$('quiz').innerHTML='';$('qs').textContent='…';
+ for(const [u,a] of THEME.turns){add('u',u);await sleep(350);add('a',a);await sleep(250)}
+ const total=THEME.turns.length,inCtx=i=>mode==='full'||(mode==='trim'&&i>=total-1);
+ $('win').innerHTML=THEME.facts.map(([t,c,turn])=>inCtx(turn)?`<span class="fact" style="background:${c}">${t}</span>`:'').join('')||'<span style="color:var(--mut);font-size:15px">empty: only the quiz question itself</span>';
+ let score=0;for(const [q,turn,ans] of THEME.quiz){add('u',q,true);await sleep(350);const ok=inCtx(turn);if(ok)score++;add('a',ok?ans:'❓ Sorry, I don\'t know. You haven\'t told me that.');
+  $('quiz').insertAdjacentHTML('beforeend',`<div class="qrow"><span>${esc(q)}</span><b style="color:${ok?'var(--ok)':'var(--bad)'}">${ok?'✅':'❌'}</b></div>`);$('qs').textContent=`${score} / ${THEME.quiz.length}`;await sleep(250)}
+ if(mode==='full')proof('p2',true,'✅ Proven: 5 / 5 recalled');$('talk').disabled=false};
+
+/* ===== 3 wiring ===== */
+const LINKS=['① llm.stream()','② yield SSE events','③ StreamingResponse','④ reader + append'];const conn=[false,false,false,false];
+function drawWire(){const W=$('wire').clientWidth,n=THEME.nodes.length,step=W/n;
+ $('wire').innerHTML=THEME.nodes.map(([ic,t,s],i)=>`<div class="node" style="left:${i*step+step*0.04}px;width:${step*0.82}px"><span class="ic">${ic}</span>${t}<small>${s}</small><span class="cnt" id="c${i}">0</span></div>`).join('')+
+  LINKS.map((l,i)=>`<div class="link ${conn[i]?'on':''}" data-l="${i}" style="left:${i*step+step*0.86}px;width:${step*0.18}px"><span>${conn[i]?'✅':'🔴'} ${l}</span></div>`).join('');
+ $('wire').querySelectorAll('.link').forEach(l=>l.onclick=()=>{conn[+l.dataset.l]=!conn[+l.dataset.l];drawWire()})}
+window.addEventListener('resize',drawWire);
+$('run3').onclick=async()=>{$('run3').disabled=true;drawWire();$('msg3').innerHTML='';$('scr').innerHTML='';$('ttft').textContent='';const W=$('wire').clientWidth,step=W/THEME.nodes.length,cnt=[0,0,0,0,0];
+ const broken=conn.indexOf(false),words=THEME.streamText.split(' '),media=$('bMedia').checked,proxy=$('bProxy').checked,split=$('bSplit').checked;
+ const reach=broken===-1?4:broken;const t0=performance.now();let shown='',buffer=[];
+ for(let k=0;k<words.length;k++){const w=words[k];
+  const d=document.createElement('div');d.className='dot';$('wire').appendChild(d);
+  for(let s=0;s<=reach;s++){cnt[s]++;$('c'+s).textContent=cnt[s];d.style.left=(s*step+step/2-9)+'px';await sleep(14)}d.remove();
+  if(reach<4)continue;
+  if(media||proxy){buffer.push(w);if(proxy&&!media&&buffer.length>=12){shown+=buffer.join(' ')+' ';buffer=[];$('scr').innerHTML=esc(shown)+'<span class="cursor"></span>';if(!$('ttft').textContent)$('ttft').textContent='first words after '+((performance.now()-t0)/1000).toFixed(1)+'s (in big lumps)'}continue}
+  let piece=w;if(split&&k%5===3)piece='da'+'ta: {"t":'+'⟂';
+  shown+=piece+' ';$('scr').innerHTML=esc(shown)+'<span class="cursor"></span>';if(!$('ttft').textContent)$('ttft').textContent='⚡ first words after '+((performance.now()-t0)/1000).toFixed(1)+'s'}
+ if(reach===4&&buffer.length){shown+=buffer.join(' ');$('ttft').textContent=media?'⏳ nothing for '+((performance.now()-t0)/1000).toFixed(1)+'s, then everything at once':$('ttft').textContent}
+ $('scr').innerHTML=reach<4?'<span style="color:var(--mut)">(nothing arrives)</span>':esc(shown);
+ const R=(c,t)=>$('msg3').innerHTML=`<div class="out ${c}">${t}</div>`;
+ if(reach<4)R('bad',`🔴 Wire ${LINKS[broken]} is not connected: tokens stop at <b>${THEME.nodes[broken][1]}</b>. Click it to connect.`);
+ else if(media)R('bad','🐌 Without <code>text/event-stream</code> the browser treats the response as one file and waits until it ends. Streaming is lost.');
+ else if(proxy)R('warn','📦 A proxy (e.g. nginx) collected chunks before forwarding, so text arrives in lumps. Fix: turn off proxy buffering for this route (e.g. the <code>X-Accel-Buffering: no</code> header).');
+ else if(split)R('warn','🧩 Network chunks don\'t always end on an event boundary, so raw fragments leaked onto the screen. Fix: buffer the text and only parse complete <code>data: …\\n\\n</code> events.');
+ else{R('ok','✅ All 4 wires connected: words flow from the LLM to the screen in real time.');proof('p3',true,'✅ Proven: streaming end to end')}
+ $('run3').disabled=false};
+drawWire();
+</script>
+</body>
+</html>

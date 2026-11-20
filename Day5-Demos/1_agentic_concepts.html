@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agentic Concepts</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--teal:#0f8a7a;--pur:#7a3fc4;--or:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:31px}header p{margin:2px 0 0;opacity:.85}
+nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 20px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:8px 13px;font-size:15px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:18px}
+.tab{display:none}.tab.on{display:block}
+h2{font-size:28px;margin:0 0 4px}
+.def{background:#eef4ff;border-left:6px solid var(--blue);border-radius:10px;padding:10px 14px;font-size:18px;margin-bottom:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.wide{display:grid;grid-template-columns:430px 1fr;gap:16px}
+@media(max-width:1100px){.two,.wide{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.btn{background:var(--navy);color:#fff;border:0;padding:10px 15px;border-radius:10px;cursor:pointer;font-size:16px;font-weight:700;margin:5px 5px 0 0}
+.btn.go{background:var(--ok)}.btn.ghost{background:#e3e9f3;color:var(--navy)}.btn.red{background:var(--bad)}
+.btn:disabled{opacity:.45}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.chip{background:#e8eef9;color:var(--navy);border:2px solid transparent;border-radius:20px;padding:7px 12px;font-size:15px;cursor:pointer}
+.chip.on{background:var(--navy);color:#fff}
+.mono{font:14px/1.5 ui-monospace,Menlo,monospace;background:#0f1729;color:#e5ecff;border-radius:10px;padding:10px 12px;white-space:pre-wrap;overflow:auto}
+.log div{padding:5px 8px;border-bottom:1px solid #22304d;animation:pop .3s}
+@keyframes pop{0%{transform:scale(.95);opacity:0}100%{transform:scale(1);opacity:1}}
+.out{border-radius:10px;padding:10px 12px;margin-top:8px;font-size:16px;white-space:pre-line}
+.out.ok{background:#e7f6ec;border:1px solid var(--ok)}.out.bad{background:#fdecea;border:1px solid var(--bad)}.out.warn{background:#fff4dc;border:1px solid var(--gold)}
+.toggle{display:flex;gap:8px;align-items:center;font-weight:700;margin:6px 0;font-size:16px}
+.toggle input{transform:scale(1.4)}
+label.s{display:block;font-weight:700;margin:8px 0 2px}label.s span{float:right;color:var(--or)}
+input[type=range]{width:100%}
+.tool{border:2px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0;background:#fff;font-size:15px}
+.tool.hot{border-color:var(--or);background:#fff4ec}
+.tool code{font-weight:700;color:var(--pur)}
+.wr{display:inline-block;background:var(--bad);color:#fff;border-radius:6px;padding:0 6px;font-size:12px;font-weight:800;margin-left:4px}
+.steps{display:flex;flex-direction:column;gap:6px}
+.step{display:flex;gap:8px;align-items:center;border:2px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff;font-size:15px;transition:all .3s}
+.step.run{border-color:var(--gold);background:#fff8e6}.step.ok{border-color:var(--ok);background:#f2fbf5}.step.block{border-color:var(--bad);background:#fdecea}
+.state{font:13px/1.45 ui-monospace,Menlo,monospace;background:#f6f8fc;border:1px solid var(--line);border-radius:10px;padding:8px 10px;white-space:pre-wrap;min-height:120px}
+svg{width:100%;height:auto;display:block}
+.layer{border-radius:12px;padding:10px 14px;margin:6px 0;color:#fff;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:17px;transition:transform .2s}
+.layer:hover{transform:translateX(6px)}
+.layer.on{outline:4px solid #ffd54f}
+.layer small{opacity:.85;font-size:14px}
+.trace{font-size:14px}
+.span{display:grid;grid-template-columns:200px 1fr 120px;gap:8px;align-items:center;margin:3px 0}
+.span .b{height:18px;border-radius:4px;position:relative;background:#eef1f5}
+.span .b i{position:absolute;top:0;bottom:0;border-radius:4px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kpi{background:#f6f8fc;border-radius:10px;padding:8px;text-align:center;font-size:14px}
+.kpi b{display:block;font-size:24px}
+.costbar{display:grid;grid-template-columns:180px 1fr 110px;gap:8px;align-items:center;margin:8px 0;font-size:16px}
+.costbar .t{height:28px;background:#eef1f5;border-radius:6px;overflow:hidden}.costbar .t i{display:block;height:100%;transition:width .4s}
+.svc{border:3px solid var(--line);border-radius:12px;padding:10px;background:#fff;text-align:center;font-size:15px;transition:all .3s}
+.svc .ic{font-size:30px;display:block}.svc.up{border-color:var(--ok);background:#f2fbf5}.svc.starting{border-color:var(--gold);background:#fff8e6}
+.svcs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:900px){.svcs{grid-template-columns:1fr 1fr}}
+.term{background:#0b0f19;color:#d6e2ff;border-radius:10px;padding:10px 12px;font:14px/1.5 ui-monospace,Menlo,monospace;height:220px;overflow:auto;white-space:pre-wrap}
+.outc{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:12px;padding:9px 12px;margin:6px 0;background:#fff;font-size:16px}
+.outc.ok{border-color:var(--ok);background:#f2fbf5}.outc .ic{font-size:24px}
+.disc{font-size:13px;color:var(--mut);margin-top:12px}
+.next{display:block;text-align:center;margin-top:14px;font-size:19px;font-weight:700;color:var(--blue)}
+.hitl{border:3px solid var(--gold);background:#fff8e6;border-radius:12px;padding:10px;margin-top:8px;animation:pop .3s}
+</style>
+</head>
+<body>
+<header id="hdr"><h1 id="title"></h1><p id="subtitle"></p></header>
+<nav id="nav">
+  <button data-t="t1" class="on">① Tool calling</button>
+  <button data-t="t2">② Planner–executor</button>
+  <button data-t="t3">③ LangGraph</button>
+  <button data-t="t4">④ Where things fit</button>
+  <button data-t="t5">⑤ MCP</button>
+  <button data-t="t6">⑥ Observability & governance</button>
+  <button data-t="t7">⑦ Cost optimisation</button>
+  <button data-t="t8">⑧ Deploy · 🏁 Milestone 4</button>
+</nav>
+<main>
+
+<!-- 1 TOOL CALLING -->
+<section class="tab on" id="t1">
+  <h2>① Function & tool calling</h2>
+  <div class="def">📖 The LLM can't do things itself. We describe <b>tools</b> with a JSON <b>schema</b>; the LLM replies with a structured <b>tool call</b> (name + arguments). <b>Our code validates and runs it</b>, then gives the result back to the LLM so it can answer.</div>
+  <div class="wide">
+    <div class="card"><b>🧰 Tools available (schemas)</b><div id="tools1"></div></div>
+    <div class="card"><b>Ask the assistant</b><div class="chips" id="q1"></div><div class="mono log" id="log1" style="min-height:300px"></div><div id="ans1"></div></div>
+  </div>
+</section>
+
+<!-- 2 PLANNER EXECUTOR -->
+<section class="tab" id="t2">
+  <h2>② Agent patterns: planner–executor, stop criteria, safe mode</h2>
+  <div class="def">📖 A <b>planner</b> breaks a goal into steps; an <b>executor</b> runs them one at a time and updates the <b>state</b>. <b>Stop criteria</b> (goal met, max steps, budget) prevent endless loops. <b>Safe mode</b> blocks or asks approval for risky "write" actions.</div>
+  <div class="wide">
+    <div class="card"><b>🎯 Goal</b><div class="chips" id="goals"></div>
+      <label class="s">Max steps (stop criterion) <span id="msV"></span></label><input type="range" id="ms" min="2" max="10" value="6">
+      <div class="toggle"><input type="checkbox" id="safe" checked> 🛡️ Safe mode (write actions need approval)</div>
+      <button class="btn go" id="run2">▶ Plan & execute</button><div id="hitl2"></div><div id="res2"></div></div>
+    <div class="card"><div class="two"><div><b>🗺️ Plan</b><div class="steps" id="plan2"></div></div><div><b>🧠 Agent state</b><div class="state" id="state2"></div></div></div></div>
+  </div>
+</section>
+
+<!-- 3 LANGGRAPH -->
+<section class="tab" id="t3">
+  <h2>③ LangGraph: stateful agents as a graph</h2>
+  <div class="def">📖 <b>LangGraph</b> models an agent as a <b>graph</b>: <b>nodes</b> do work, <b>edges</b> decide what happens next (<b>conditional routing</b>). A shared <b>state</b> flows through it, <b>checkpoints</b> make it resumable, <b>interrupts</b> pause for a human, and several agents can be orchestrated.</div>
+  <div class="chips" id="q3"></div>
+  <div class="toggle"><input type="checkbox" id="multi"> 👥 Multi-agent mode (supervisor + specialist agents)</div>
+  <div class="two">
+    <div class="card"><svg id="g3" viewBox="0 0 700 430"></svg><div id="hitl3"></div></div>
+    <div class="card"><b>🧠 State (persisted at each step)</b><div class="state" id="state3" style="min-height:200px"></div>
+      <b style="display:block;margin-top:8px">💾 Checkpoints</b><div class="mono" id="ck3" style="min-height:70px;font-size:13px"></div>
+      <button class="btn red" id="crash3">💥 Simulate a crash mid-run</button><button class="btn ghost" id="resume3" disabled>↻ Resume from checkpoint</button>
+      <b style="display:block;margin-top:8px">🐍 The graph in code</b><div class="mono" id="code3" style="font-size:13px"></div></div>
+  </div>
+</section>
+
+<!-- 4 ARCHITECTURE -->
+<section class="tab" id="t4">
+  <h2>④ Where LangChain, LangGraph and MCP fit</h2>
+  <div class="def">📖 Think of a modern GenAI app as layers. Click each layer to see what it does and when to use it. <b>LangChain = components</b>, <b>LangGraph = orchestration</b>, <b>MCP = a standard plug for external tools and data</b>.</div>
+  <div class="two"><div id="layers"></div><div class="card" id="layerInfo" style="font-size:17px">👈 Click a layer.</div></div>
+</section>
+
+<!-- 5 MCP -->
+<section class="tab" id="t5">
+  <h2>⑤ Model Context Protocol (MCP)</h2>
+  <div class="def">📖 <b>MCP</b> is an open standard ("USB-C for AI") for connecting AI apps to tools and data. An <b>MCP server</b> exposes <b>tools</b> (actions), <b>resources</b> (read-only data) and <b>prompts</b>. The <b>host</b> app (your agent) uses an <b>MCP client</b> to discover and call them. Build a connector once, reuse it everywhere.</div>
+  <div class="two">
+    <div class="card"><svg id="mcpSvg" viewBox="0 0 700 380"></svg>
+      <div class="chips" id="mcpAct"><button class="chip" data-a="init">1. Connect & initialize</button><button class="chip" data-a="list">2. tools/list + resources/list</button><button class="chip" data-a="call">3. tools/call</button><button class="chip" data-a="read">4. resources/read</button></div></div>
+    <div class="card"><b>📡 JSON-RPC messages (client ⇄ server)</b><div class="mono log" id="mcpLog" style="min-height:330px"></div></div>
+  </div>
+  <div class="card" style="margin-top:12px"><b>🏢 Enterprise use cases</b><div id="mcpUse" style="font-size:16px"></div></div>
+</section>
+
+<!-- 6 OBSERVABILITY -->
+<section class="tab" id="t6">
+  <h2>⑥ Observability, security, evaluation & governance</h2>
+  <div class="def">📖 In production you must <b>see</b> every step (<b>tracing</b>), <b>watch</b> health (<b>monitoring</b>), <b>block</b> attacks (<b>security</b>), <b>measure</b> quality (<b>evaluation</b>) and <b>prove</b> who did what (<b>governance / audit</b>).</div>
+  <div class="card">
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center"><button class="btn go" id="run6">▶ Send a request & trace it</button>
+      <label class="toggle"><input type="checkbox" id="i1"> 🐢 Slow tool</label><label class="toggle"><input type="checkbox" id="i2"> 📈 Token blow-up</label><label class="toggle"><input type="checkbox" id="i3"> 🕵️ Injection attempt</label></div>
+    <div class="kpis" style="margin-top:8px"><div class="kpi"><b id="kLat">–</b>latency</div><div class="kpi"><b id="kTok">–</b>tokens</div><div class="kpi"><b id="kCost">–</b>cost</div><div class="kpi"><b id="kEval">–</b>groundedness eval</div></div>
+    <div class="two" style="margin-top:8px"><div><b>🔭 Trace (spans)</b><div class="trace" id="trace6"></div></div><div><b>🚨 Monitoring alerts</b><div id="alerts6"></div><b style="display:block;margin-top:8px">📜 Audit log (governance)</b><div class="mono" id="audit6" style="min-height:110px;font-size:13px"></div></div></div>
+  </div>
+</section>
+
+<!-- 7 COST -->
+<section class="tab" id="t7">
+  <h2>⑦ Cost optimisation: routing, caching, batching, token trimming</h2>
+  <div class="def">📖 Agents call the LLM many times per request, so costs multiply. Four levers: <b>route</b> easy work to small models, <b>cache</b> repeated answers, <b>batch</b> non-urgent jobs (often cheaper), and <b>trim tokens</b> (shorter prompts and context).</div>
+  <div class="wide">
+    <div class="card">
+      <label class="s">Requests per day <span id="vV"></span></label><input type="range" id="vol" min="1000" max="200000" step="1000" value="20000">
+      <label class="s">🔀 Routed to the small model <span id="rV"></span></label><input type="range" id="route" min="0" max="90" step="5" value="0">
+      <label class="s">💾 Cache hit rate <span id="cV"></span></label><input type="range" id="cache" min="0" max="60" step="5" value="0">
+      <label class="s">📦 Share sent as batch jobs <span id="bV"></span></label><input type="range" id="batch" min="0" max="50" step="5" value="0">
+      <label class="s">✂️ Prompt/context trimmed <span id="tV"></span></label><input type="range" id="trim" min="0" max="50" step="5" value="0">
+      <button class="btn ghost" id="preset7">⚡ Apply a sensible preset</button></div>
+    <div class="card"><div id="cost7"></div><div id="note7"></div></div>
+  </div>
+</section>
+
+<!-- 8 DEPLOY -->
+<section class="tab" id="t8">
+  <h2>⑧ Full-stack deployment · 🏁 Project Milestone 4</h2>
+  <div class="def">📖 <b>Package</b> everything in containers and start the whole stack with <b>one command</b>: FastAPI backend + UI + RAG index + LangGraph agent + MCP server. Then run one end-to-end test that touches every part.</div>
+  <div class="svcs" id="svcs"></div>
+  <div class="two" style="margin-top:10px">
+    <div><button class="btn go" id="up8">▶ docker compose up --build</button><button class="btn" id="e2e8" disabled>🧪 Run end-to-end test</button><div class="term" id="term8"></div></div>
+    <div class="card"><b>🧪 End-to-end checklist</b><div id="e2e"></div></div>
+  </div>
+  <h2 style="font-size:24px;margin-top:14px">🎯 Day 5 outcomes</h2><div id="outs"></div>
+  <a class="next" id="nextLink"></a><div class="disc" id="disc"></div>
+</section>
+</main>
+
+<script>
+/* ======== THEME: the only part that differs between the concept and aviation versions ======== */
+const THEME={
+ bg:"linear-gradient(90deg,#0b2545,#3b1f6b)",
+ title:"🤖 Day 5 · Agentic AI, LangGraph & MCP: Concepts",
+ subtitle:"Page 1 of 4 · Everyday example: a smart office assistant. Page 2 = aviation · Page 3 = industry impact · Page 4 = engineer decisions",
+ tools:[{name:"get_weather",desc:"Current weather for a city",args:{city:"string (required)"},write:false},
+  {name:"search_policies",desc:"RAG search over the HR handbook",args:{query:"string (required)"},write:false},
+  {name:"book_meeting_room",desc:"Book a room",args:{room:"string",date:"YYYY-MM-DD",time:"HH:MM"},write:true}],
+ calls:[{q:"Do I need an umbrella in Pune today?",tool:"get_weather",args:{city:"Pune"},result:{city:"Pune",forecast:"rain",chance:80},answer:"Yes, take an umbrella ☔: there's an 80% chance of rain in Pune today."},
+  {q:"How many leave days can I carry over?",tool:"search_policies",args:{query:"leave carry over"},result:{hits:[{source:"leave.pdf",text:"Up to 10 unused days can be carried over."}]},answer:"You can carry over up to 10 unused leave days [leave.pdf]."},
+  {q:"Book room Ganga tomorrow at 3pm",tool:"book_meeting_room",args:{room:"Ganga",date:"tomorrow",time:"3pm"},bad:true,fixed:{room:"Ganga",date:"2026-11-21",time:"15:00"},badMsg:"date \"tomorrow\" is not YYYY-MM-DD; time \"3pm\" is not HH:MM",result:{status:"booked",id:"BK-118"},answer:"Done ✅ Room Ganga is booked for 21 Nov at 15:00 (ref BK-118)."},
+  {q:"What's 2 + 2?",tool:null,answer:"4. No tool needed, so I answered directly."}],
+ goals:[{g:"Plan a team offsite next Friday",steps:[["search_policies","Check the offsite budget policy",false],["get_weather","Check Friday's weather",false],["book_meeting_room","Book the venue",true],["draft_email","Draft the invite to the team",false]]},
+  {g:"Find a free room (it never finds one)",loop:true,steps:[["check_rooms","Look for a free room",false]]}],
+ graphQ:[{q:"What's the weather in Delhi?",path:["router","tool","answer"],route:"needs a live fact → call a tool"},
+  {q:"What does the travel policy say about hotels?",path:["router","retrieve","answer"],route:"knowledge question → retrieve docs"},
+  {q:"Hi! What can you do?",path:["router","answer"],route:"simple → answer directly"},
+  {q:"Book room Ganga for Friday 3pm",path:["router","tool","approval","answer"],route:"write action → tool + human approval"}],
+ agents:["🔎 Research agent","✍️ Writer agent"],
+ mcp:{host:"🤖 Office Assistant (host)",servers:[{n:"📅 Calendar server",tools:["list_events","create_event"],res:["calendar://today"]},{n:"📁 Files server",tools:["search_files"],res:["files://handbook.pdf"]},{n:"👥 HR server",tools:["get_leave_balance"],res:["hr://org-chart"]}],
+  call:{tool:"get_leave_balance",args:{employee_id:"E-1042"},result:{balance:14,carried_over:4}},read:{uri:"calendar://today",text:"10:00 Stand-up · 14:00 Design review · 16:30 1:1"}},
+ uses:["📅 One calendar connector reused by the chatbot, the IDE assistant and the email bot","🔐 Central permissions: the server decides what each client may do","🧩 Plug in Jira, Slack, Google Drive or databases via ready-made MCP servers","🏢 IT owns the connectors; app teams just use them"],
+ svcs:[["⚡","api","FastAPI :8000"],["🖥️","ui","Streamlit :8501"],["🗄️","index","FAISS + BM25 volume"],["🔌","mcp","MCP server"]],
+ e2e:["UI loads at localhost:8501","/health returns 200","Chat answers (LLM ok)","RAG answer has a citation","Agent routes to a tool","MCP tool call succeeds","Trace & log written"],
+ next:["➡️ Page 2: the same concepts in aviation (AeroGuard)","2_agentic_aviation.html"],
+ disc:"Teaching simulation: no real LLM, LangGraph, MCP server or Docker runs here. Costs, prices and latencies are illustrative."
+};
+/* ================================================================== */
+const $=id=>document.getElementById(id);const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const NS='http://www.w3.org/2000/svg';function el(t,a,p,x){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;p.appendChild(e);return e}
+const J=o=>JSON.stringify(o);
+$('hdr').style.background=THEME.bg;$('title').textContent=THEME.title;$('subtitle').textContent=THEME.subtitle;$('nextLink').textContent=THEME.next[0];$('nextLink').href=THEME.next[1];$('disc').textContent=THEME.disc;
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===b.dataset.t))});
+const done={};function mark(k){done[k]=true;outs()}
+function chipRow(id,items,cb){$(id).innerHTML=items.map((t,i)=>`<button class="chip" data-i="${i}">${esc(t)}</button>`).join('');[...$(id).children].forEach(b=>b.onclick=()=>{[...$(id).children].forEach(x=>x.classList.toggle('on',x===b));cb(+b.dataset.i)})}
+function L(id,t,c){$(id).insertAdjacentHTML('beforeend',`<div style="color:${c||'#e5ecff'}">${t}</div>`);$(id).scrollTop=1e6}
+
+/* 1 TOOL CALLING */
+$('tools1').innerHTML=THEME.tools.map(t=>`<div class="tool" id="tl_${t.name}"><code>${t.name}</code>${t.write?'<span class="wr">WRITE</span>':''}<br><small>${esc(t.desc)}</small><div style="font:13px ui-monospace,Menlo,monospace;color:var(--mut)">${esc(J({type:'object',properties:t.args}))}</div></div>`).join('');
+let busy1=false;
+chipRow('q1',THEME.calls.map(c=>c.q),async i=>{if(busy1)return;busy1=true;const c=THEME.calls[i];$('log1').innerHTML='';$('ans1').innerHTML='';document.querySelectorAll('.tool').forEach(t=>t.classList.remove('hot'));
+ L('log1','👤 user: '+esc(c.q));await sleep(400);L('log1','📤 send to LLM: messages + '+THEME.tools.length+' tool schemas','#9aa6b8');await sleep(600);
+ if(!c.tool){L('log1','🤖 LLM: no tool call, it answers directly','#9ff0b5');$('ans1').innerHTML=`<div class="out ok">🤖 ${esc(c.answer)}</div>`;busy1=false;mark('tool');return}
+ $('tl_'+c.tool).classList.add('hot');L('log1',`🤖 LLM tool_call → <b>${c.tool}</b>(${esc(J(c.args))})`,'#ffcb6b');await sleep(600);
+ if(c.bad){L('log1','🔍 validate args with Pydantic… ❌ '+esc(c.badMsg)+'','#ff8a80');await sleep(700);L('log1','🔁 send the validation error back to the LLM → it fixes the arguments','#ffcb6b');await sleep(600);L('log1',`🤖 LLM tool_call → ${c.tool}(${esc(J(c.fixed))})`,'#ffcb6b');await sleep(500)}
+ L('log1','🔍 validate args… ✅ valid','#9ff0b5');await sleep(400);L('log1',`⚙️ our code runs ${c.tool}() → ${esc(J(c.result))}`,'#7fc8ff');await sleep(600);L('log1','📤 tool result sent back to the LLM','#9aa6b8');await sleep(500);
+ $('ans1').innerHTML=`<div class="out ok">🤖 ${esc(c.answer)}</div>`;busy1=false;mark('tool')});
+
+/* 2 PLANNER EXECUTOR */
+let gi=0;chipRow('goals',THEME.goals.map(g=>g.g),i=>gi=i);$('goals').children[0].classList.add('on');
+$('ms').oninput=()=>$('msV').textContent=$('ms').value;$('msV').textContent=6;
+function st2(o){$('state2').textContent=J(o).replace(/,"/g,',\n "').replace(/^\{/,'{\n ').replace(/\}$/,'\n}')}
+$('run2').onclick=async()=>{$('run2').disabled=true;$('res2').innerHTML='';$('hitl2').innerHTML='';const G=THEME.goals[gi],max=+$('ms').value,safe=$('safe').checked;
+ const steps=G.loop?[...Array(12)].map(()=>G.steps[0]):G.steps;
+ $('plan2').innerHTML=(G.loop?[G.steps[0]]:steps).map(([t,d,w],k)=>`<div class="step" id="ps${k}">${k+1}. <code>${t}</code> · ${esc(d)}${w?'<span class="wr">WRITE</span>':''}</div>`).join('');
+ const state={goal:G.g,step:0,done:[],status:'planning'};st2(state);await sleep(700);state.status='executing';
+ for(let k=0;k<steps.length;k++){if(state.step>=max){state.status='stopped: max steps';st2(state);$('res2').innerHTML=`<div class="out warn">🛑 Stop criterion hit: <b>max ${max} steps</b>. ${G.loop?'Without it this agent would loop forever, burning tokens.':'The goal is not finished. Raise the limit or re-plan.'}</div>`;break}
+  const [t,d,w]=steps[k],row=$('ps'+(G.loop?0:k));row.className='step run';state.step++;st2(state);await sleep(650);
+  if(w&&safe){row.className='step block';state.status='waiting for human approval';st2(state);
+   $('hitl2').innerHTML=`<div class="hitl">✋ <b>Safe mode:</b> <code>${t}</code> is a WRITE action. Approve?<br><button class="btn go" id="ap2">✅ Approve</button><button class="btn red" id="rj2">❌ Reject</button></div>`;
+   const ok=await new Promise(r=>{$('ap2').onclick=()=>r(true);$('rj2').onclick=()=>r(false)});$('hitl2').innerHTML='';if(!ok){state.status='stopped: rejected by human';st2(state);$('res2').innerHTML='<div class="out warn">🛑 The human rejected the action, so the agent stopped safely.</div>';$('run2').disabled=false;return}state.status='executing'}
+  row.className='step ok';state.done.push(t);st2(state);
+  if(G.loop){row.className='step run';row.innerHTML=`1. <code>${t}</code> · attempt ${state.step}: still no free room 🔁`}
+  if(!G.loop&&k===steps.length-1){state.status='done: goal reached ✅';st2(state);$('res2').innerHTML=`<div class="out ok">✅ Stop criterion: <b>goal reached</b> in ${state.step} steps.${safe?'':' ⚠️ Safe mode was OFF: the write action ran without any human check!'}</div>`;mark('plan')}}
+ $('run2').disabled=false};
+
+/* 3 LANGGRAPH */
+const N3={start:[60,215,'▶ START'],router:[200,215,'🧭 router'],retrieve:[380,90,'📚 retrieve'],tool:[380,215,'🛠️ tool'],answer:[560,215,'💬 answer'],approval:[470,340,'✋ approval'],end:[650,330,'⏹ END']};
+const E3=[['start','router'],['router','retrieve'],['router','tool'],['router','answer'],['retrieve','answer'],['tool','answer'],['tool','approval'],['approval','answer'],['answer','end']];
+let cur3=[],crashed=null,q3i=0;
+function draw3(active,visited){const s=$('g3');s.innerHTML='';const multi=$('multi').checked;
+ E3.forEach(([a,b])=>{const [x1,y1]=N3[a],[x2,y2]=N3[b],on=visited.includes(a)&&visited.includes(b)&&visited.indexOf(b)===visited.indexOf(a)+1;el('line',{x1,y1,x2,y2,stroke:on?'#d9480f':'#cfd8e6','stroke-width':on?5:3,'stroke-dasharray':a==='router'?'7 5':''},s)});
+ el('text',{x:270,y:140,'font-size':13,fill:'#5d6778'},s,'conditional edges');
+ Object.entries(N3).forEach(([k,[x,y,t]])=>{const a=k===active,v=visited.includes(k);el('rect',{x:x-62,y:y-24,width:124,height:48,rx:12,fill:a?'#d9480f':v?'#1a8a4a':'#fff',stroke:a?'#d9480f':v?'#1a8a4a':'#9aa6b8','stroke-width':3},s);el('text',{x,y:y+6,'text-anchor':'middle','font-size':15,'font-weight':700,fill:a||v?'#fff':'#1b2333'},s,t)});
+ if(multi){el('rect',{x:300,y:10,width:340,height:42,rx:10,fill:'#f3ecff',stroke:'#7a3fc4'},s);el('text',{x:470,y:37,'text-anchor':'middle','font-size':14,fill:'#7a3fc4','font-weight':700},s,'👑 supervisor → '+THEME.agents.join(' + '))}}
+function code3(){$('code3').textContent=`from langgraph.graph import StateGraph, START, END
+from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.types import interrupt
+
+g = StateGraph(AgentState)
+g.add_node("router", router)
+g.add_node("retrieve", retrieve)
+g.add_node("tool", call_tool)
+g.add_node("approval", approval)   # calls interrupt() → waits for a human
+g.add_node("answer", answer)
+g.add_edge(START, "router")
+g.add_conditional_edges("router", pick_route,
+    {"retrieve": "retrieve", "tool": "tool", "answer": "answer"})
+...
+app = g.compile(checkpointer=SqliteSaver(conn))   # persistence`}
+async function run3(from){const Q=THEME.graphQ[q3i],path=['start',...Q.path,'end'];const multi=$('multi').checked;
+ let vis=from?path.slice(0,from):[];const state={question:Q.q,route:null,context:null,tool_result:null,approved:null,answer:null};
+ if(from){state.route=Q.route;$('ck3').textContent+='↻ resumed from checkpoint '+from+'\n'}else{$('ck3').textContent='';$('hitl3').innerHTML=''}
+ for(let k=from||0;k<path.length;k++){const n=path[k];vis.push(n);draw3(n,vis);
+  if(n==='router')state.route=Q.route;if(n==='retrieve')state.context=multi?'[research agent] 3 chunks':'3 chunks';if(n==='tool')state.tool_result=multi?'[research agent] result ok':'result ok';
+  if(n==='answer')state.answer=multi?'[writer agent] final answer':'final answer';
+  $('state3').textContent=J(state).replace(/,"/g,',\n "');$('ck3').textContent+=`checkpoint ${k} · node=${n} · saved ✓\n`;
+  if(crashed===null&&$('crash3').dataset.armed==='1'&&k===2){crashed=k+1;$('crash3').dataset.armed='0';$('ck3').textContent+='💥 PROCESS CRASHED\n';$('resume3').disabled=false;return}
+  if(n==='approval'){$('hitl3').innerHTML='<div class="hitl">✋ <b>interrupt()</b>: the graph is paused and saved. Approve the write action?<br><button class="btn go" id="ap3">✅ Approve</button><button class="btn red" id="rj3">❌ Reject</button></div>';
+   const ok=await new Promise(r=>{$('ap3').onclick=()=>r(true);$('rj3').onclick=()=>r(false)});state.approved=ok;$('hitl3').innerHTML='';if(!ok){state.answer='Cancelled by human';$('state3').textContent=J(state).replace(/,"/g,',\n "');draw3('end',[...vis,'end']);return}}
+  await sleep(600)}
+ mark('graph')}
+chipRow('q3',THEME.graphQ.map(x=>x.q),i=>{q3i=i;crashed=null;$('resume3').disabled=true;run3(0)});
+$('crash3').onclick=()=>{$('crash3').dataset.armed='1';crashed=null;$('ck3').textContent='';run3(0)};
+$('resume3').onclick=()=>{const f=crashed;crashed=-1;$('resume3').disabled=true;run3(f)};
+$('multi').onchange=()=>draw3(null,[]);draw3(null,[]);code3();
+
+/* 4 ARCHITECTURE */
+const LY=[['🖥️ UI','Streamlit / React','#5d6778','Chat, upload panel, citations, approval buttons. Talks only to the API.'],
+ ['⚡ FastAPI backend','/chat · /upload · /ask · /agent','#0b2545','Validates input (Pydantic), auth, streaming, error handling. The single entry point.'],
+ ['🕸️ LangGraph (orchestration)','stateful graph · routing · checkpoints · HITL','#d9480f','Decides <b>what to do next</b>: retrieve, call a tool, ask a human or answer. Use it when the flow has branches, loops, memory or approvals.'],
+ ['🧱 LangChain (components)','LLM wrappers · loaders · splitters · retrievers · tools','#1a8a4a','Ready-made <b>building blocks</b> so you don\'t rewrite loaders, vector stores or model clients. Use them inside LangGraph nodes.'],
+ ['🔌 MCP (integration standard)','tools · resources · prompts over one protocol','#7a3fc4','A <b>standard plug</b> to external systems. Write a connector once as an MCP server, and any MCP-capable agent can use it with permissions in one place.'],
+ ['🗄️ Data & systems','vector index · databases · enterprise apps','#1f5fbf','The knowledge base (RAG index) plus the business systems your MCP servers wrap.'],
+ ['🔭 Cross-cutting','tracing · monitoring · eval · security · cost','#b7791f','Applies to every layer: trace each step, log decisions, evaluate quality, control cost and access.']];
+$('layers').innerHTML=LY.map(([t,s,c],i)=>`<div class="layer" data-i="${i}" style="background:${c}"><span><b>${t}</b><br><small>${s}</small></span><span>›</span></div>`).join('');
+const seen4=new Set();$('layers').querySelectorAll('.layer').forEach(l=>l.onclick=()=>{$('layers').querySelectorAll('.layer').forEach(x=>x.classList.toggle('on',x===l));const [t,s,c,d]=LY[+l.dataset.i];$('layerInfo').innerHTML=`<h2 style="color:${c}">${t}</h2><div style="color:var(--mut)">${s}</div><p>${d}</p>`;seen4.add(+l.dataset.i);if(seen4.size>=5)mark('arch')});
+
+/* 5 MCP */
+let mcpStep=0;const M=THEME.mcp;
+function mcpDraw(hi){const s=$('mcpSvg');s.innerHTML='';el('rect',{x:20,y:140,width:210,height:100,rx:14,fill:'#0b2545'},s);el('text',{x:125,y:180,'text-anchor':'middle',fill:'#fff','font-size':15,'font-weight':700},s,M.host);el('text',{x:125,y:205,'text-anchor':'middle',fill:'#cfe0ff','font-size':13},s,'+ MCP client');
+ M.servers.forEach((sv,i)=>{const y=30+i*125;const on=mcpStep>0;el('line',{x1:230,y1:190,x2:420,y2:y+50,stroke:on?'#7a3fc4':'#cfd8e6','stroke-width':on?4:2,'stroke-dasharray':on?'':'6 5'},s);
+  el('rect',{x:420,y,width:260,height:100,rx:12,fill:hi===i?'#f3ecff':'#fff',stroke:'#7a3fc4','stroke-width':3},s);el('text',{x:550,y:y+28,'text-anchor':'middle','font-size':15,'font-weight':700},s,sv.n);
+  if(mcpStep>=2){el('text',{x:432,y:y+55,'font-size':12,fill:'#d9480f'},s,'🛠 '+sv.tools.join(', '));el('text',{x:432,y:y+80,'font-size':12,fill:'#0f8a7a'},s,'📄 '+sv.res.join(', '))}});
+ el('text',{x:325,y:375,'text-anchor':'middle','font-size':13,fill:'#5d6778'},s,'JSON-RPC over stdio or HTTP')}
+$('mcpAct').querySelectorAll('.chip').forEach(b=>b.onclick=async()=>{const a=b.dataset.a;
+ if(a==='init'){mcpStep=1;$('mcpLog').innerHTML='';M.servers.forEach((sv,i)=>{L('mcpLog',`→ ${sv.n}: {"method":"initialize","params":{"protocolVersion":"…","clientInfo":{"name":"assistant"}}}`,'#ffcb6b');L('mcpLog','← {"result":{"capabilities":{"tools":{},"resources":{}}}} ✅','#9ff0b5')})}
+ else if(mcpStep<1){L('mcpLog','⚠️ Connect & initialize first','#ff8a80');return}
+ if(a==='list'){mcpStep=2;L('mcpLog','→ {"method":"tools/list"}  +  {"method":"resources/list"}','#ffcb6b');M.servers.forEach(sv=>L('mcpLog',`← ${sv.n}: tools ${J(sv.tools)} · resources ${J(sv.res)}`,'#9ff0b5'));L('mcpLog','💡 The agent now <b>discovers</b> tools at runtime. No hard-coding.','#7fc8ff')}
+ if(a==='call'){if(mcpStep<2){L('mcpLog','⚠️ List the tools first','#ff8a80');return}const si=M.servers.findIndex(s=>s.tools.includes(M.call.tool));mcpDraw(si);L('mcpLog',`→ {"method":"tools/call","params":{"name":"${M.call.tool}","arguments":${esc(J(M.call.args))}}}`,'#ffcb6b');await sleep(500);L('mcpLog',`← {"result":{"content":[{"type":"text","text":${esc(J(J(M.call.result)))}}]}} ✅`,'#9ff0b5');mark('mcp');return}
+ if(a==='read'){if(mcpStep<2){L('mcpLog','⚠️ List the resources first','#ff8a80');return}const si=M.servers.findIndex(s=>s.res.includes(M.read.uri));mcpDraw(si);L('mcpLog',`→ {"method":"resources/read","params":{"uri":"${M.read.uri}"}}`,'#ffcb6b');await sleep(500);L('mcpLog',`← {"contents":[{"uri":"${M.read.uri}","text":"${esc(M.read.text)}"}]} ✅`,'#9ff0b5');return}
+ mcpDraw()});
+mcpDraw();$('mcpUse').innerHTML=THEME.uses.map(u=>`<div style="padding:4px 0">${esc(u)}</div>`).join('');
+
+/* 6 OBSERVABILITY */
+$('run6').onclick=async()=>{const slow=$('i1').checked,blow=$('i2').checked,inj=$('i3').checked;$('alerts6').innerHTML='';
+ const SP=[['POST /agent',0,0,'#0b2545'],['  graph.router',20,90,'#d9480f'],['  retrieve (FAISS+BM25)',110,180,'#0f8a7a'],['  llm.call (plan)',180,blow?2600:700,'#7a3fc4'],['  tool / mcp.call',blow?2600:700,slow?6200:1100,'#b7791f'],['  llm.call (answer)',slow?6200:1100,(slow?6200:1100)+(blow?2200:800),'#7a3fc4']];
+ const total=SP[SP.length-1][2]+40;SP[0][2]=total;
+ $('trace6').innerHTML=SP.map(([n,a,b,c])=>`<div class="span"><span style="font-family:ui-monospace,Menlo,monospace;white-space:pre">${n}</span><div class="b"><i style="left:${a/total*100}%;width:${Math.max(1,(b-a)/total*100)}%;background:${c}"></i></div><span>${b-a} ms</span></div>`).join('');
+ const tok=blow?18400:2100,cost=(tok/1e6*3).toFixed(4);$('kLat').textContent=(total/1000).toFixed(1)+'s';$('kTok').textContent=tok.toLocaleString();$('kCost').textContent='$'+cost;$('kEval').textContent=inj?'0.41':'0.92';
+ const A=[];if(slow)A.push(['bad','🐢 p95 latency > 5s: the tool span is the bottleneck. Add a timeout and cache.']);if(blow)A.push(['bad','📈 Tokens 9× normal: context stuffing. Trim retrieved chunks and cap the history.']);if(inj)A.push(['bad','🕵️ Security: an injection pattern was detected in the input → blocked, flagged, user notified']);if(!A.length)A.push(['ok','✅ All metrics within SLOs']);
+ $('alerts6').innerHTML=A.map(([c,t])=>`<div class="out ${c}">${t}</div>`).join('');
+ const ts=new Date().toISOString().slice(11,19);$('audit6').textContent=`${ts} user=tech-4127 role=technician action=agent.run\n${ts} tools=[search, get_status] write_actions=0\n${ts} pii_redacted=true model=<model> tokens=${tok}\n${ts} eval.groundedness=${inj?'0.41 ⚠️':'0.92'} decision=${inj?'BLOCKED':'answered'}`;mark('obs')};
+
+/* 7 COST */
+function cost(){const v=+$('vol').value,r=+$('route').value/100,c=+$('cache').value/100,b=+$('batch').value/100,t=+$('trim').value/100;
+ $('vV').textContent=v.toLocaleString();$('rV').textContent=Math.round(r*100)+'%';$('cV').textContent=Math.round(c*100)+'%';$('bV').textContent=Math.round(b*100)+'%';$('tV').textContent=Math.round(t*100)+'%';
+ const CALLS=4,TOK=3000,BIG=5,SMALL=0.5; // $ per 1M tokens (illustrative)
+ const base=v*30*CALLS*TOK/1e6*BIG;const after=v*30*(1-c)*CALLS*TOK*(1-t)/1e6*((1-r)*BIG+r*SMALL)*(1-b*0.5);
+ const save=1-after/base;const mx=base;
+ $('cost7').innerHTML=`<div class="costbar"><b>Before</b><div class="t"><i style="width:100%;background:#c2410c"></i></div><b>$${Math.round(base).toLocaleString()}/mo</b></div><div class="costbar"><b>After</b><div class="t"><i style="width:${after/mx*100}%;background:#1a8a4a"></i></div><b>$${Math.round(after).toLocaleString()}/mo</b></div>
+  <div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="kpi"><b style="color:var(--ok)">${Math.round(save*100)}%</b>saved</div><div class="kpi"><b>$${Math.round(base-after).toLocaleString()}</b>saved / month</div><div class="kpi"><b>${CALLS}</b>LLM calls per agent request</div></div>`;
+ $('note7').innerHTML=`<div class="out ${save>.5?'ok':'warn'}">💡 ${r>.6?'⚠️ Routing a lot to the small model: make sure hard tasks (diagnosis, multi-step plans) still reach the big model. ':''}${c>0?'Cache only answers that are safe to reuse; invalidate when documents change. ':''}${b>0?'Batch only non-urgent work (nightly reports, re-indexing). ':''}${save<.2?'Try the preset to see how the levers combine.':''}</div>`;if(save>.5)mark('cost')}
+['vol','route','cache','batch','trim'].forEach(i=>$(i).oninput=cost);$('preset7').onclick=()=>{$('route').value=60;$('cache').value=25;$('batch').value=20;$('trim').value=30;cost()};cost();
+
+/* 8 DEPLOY */
+$('svcs').innerHTML=THEME.svcs.map(([ic,n,d],i)=>`<div class="svc" id="sv${i}"><span class="ic">${ic}</span><b>${n}</b><br><small>${esc(d)}</small><div id="svs${i}" style="font-weight:700;color:var(--mut)">⏹ stopped</div></div>`).join('');
+$('e2e').innerHTML=THEME.e2e.map((t,i)=>`<div class="outc" id="e${i}"><span class="ic">⬜</span>${esc(t)}</div>`).join('');
+function T(t,c){$('term8').insertAdjacentHTML('beforeend',`<span style="color:${c||'#d6e2ff'}">${t}</span>\n`);$('term8').scrollTop=1e6}
+$('up8').onclick=async()=>{$('up8').disabled=true;$('term8').innerHTML='';T('$ docker compose up --build','#7be0cf');T('[+] Building api, ui, mcp …');await sleep(700);T(' ✔ image built (python:3.11-slim + requirements)','#9ff0b5');
+ for(let i=0;i<THEME.svcs.length;i++){$('sv'+i).className='svc starting';$('svs'+i).textContent='⏳ starting';T(` ✔ Container ${THEME.svcs[i][1]}  Started`);await sleep(500)}
+ T('api  | INFO: Application startup complete.');await sleep(400);T('api  | healthcheck /health → 200 ✅ (ui waits for "service_healthy")','#9ff0b5');
+ for(let i=0;i<THEME.svcs.length;i++){$('sv'+i).className='svc up';$('svs'+i).textContent='✅ running'}T('ui   | You can now view your app at http://localhost:8501','#9ff0b5');$('e2e8').disabled=false};
+$('e2e8').onclick=async()=>{$('e2e8').disabled=true;for(let i=0;i<THEME.e2e.length;i++){await sleep(450);$('e'+i).className='outc ok';$('e'+i).querySelector('.ic').textContent='✅';T('test | ✓ '+THEME.e2e[i],'#9ff0b5')}T('🏁 Milestone 4 complete: FastAPI + UI + RAG + LangGraph agent + MCP deployed','#ffcb6b');mark('deploy')};
+function outs(){const O=[['🏗️','A complete end-to-end GenAI app: chatbot + knowledge base + agent + MCP + deployed',['tool','graph','mcp','deploy'],'①③⑤⑧'],['🕸️','Comfortable with LangGraph for stateful agent orchestration',['plan','graph'],'②③'],['🧭','Understand where LangChain, LangGraph and MCP fit',['arch','mcp'],'④⑤'],['🏢','Ready to extend the architecture to a real enterprise use case',['obs','cost','deploy'],'⑥⑦⑧']];
+ $('outs').innerHTML=O.map(([ic,t,need,w])=>{const ok=need.every(k=>done[k]);return `<div class="outc ${ok?'ok':''}"><span class="ic">${ok?'✅':ic}</span><span><b>${t}</b><br><small style="color:var(--mut)">${ok?'Proven!':'Complete tabs '+w+' ('+need.filter(k=>done[k]).length+'/'+need.length+')'}</small></span></div>`}).join('')}
+outs();
+</script>
+</body>
+</html>

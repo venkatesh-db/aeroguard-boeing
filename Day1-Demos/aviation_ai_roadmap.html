@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aviation AI Roadmap</title>
+<style>
+:root{--bg:#f4f6fa;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;
+--ai:#1f5fbf;--ml:#0f8a7a;--dl:#7a3fc4;--gen:#d9480f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#134074);color:#fff;padding:18px 28px}
+header h1{font-size:34px;margin:0}
+header p{margin:4px 0 0;opacity:.85;font-size:20px}
+main{max-width:1700px;margin:0 auto;padding:22px 20px}
+/* timeline */
+.timeline{display:flex;align-items:center;gap:0;margin:6px 0 22px;position:relative}
+.timeline:before{content:"";position:absolute;left:40px;right:40px;top:50%;height:6px;background:#cfd8e6;border-radius:3px;z-index:0}
+.yr{flex:1;display:flex;justify-content:center;z-index:1}
+.yr button{border:4px solid #cfd8e6;background:#fff;color:var(--navy);border-radius:40px;padding:14px 34px;font-size:28px;font-weight:800;cursor:pointer;transition:all .2s}
+.yr button small{display:block;font-size:15px;font-weight:600;color:var(--mut)}
+.yr button.on{background:var(--navy);border-color:var(--navy);color:#fff;transform:scale(1.08)}
+.yr button.on small{color:#cfe0ff}
+.headline{font-size:32px;font-weight:800;margin:4px 0 4px}
+.sub{font-size:21px;color:var(--mut);margin-bottom:18px}
+.pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:1100px){.pipe{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.pipe{grid-template-columns:1fr}}
+.stage{border-radius:16px;padding:24px;color:#fff;min-height:470px;animation:fade .4s}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stage h4{margin:0;font-size:30px}
+.stage .who{font-size:19px;opacity:.9;margin-bottom:14px}
+.big{font-size:23px;font-weight:800;background:#ffffff40;border-radius:10px;padding:14px 16px;margin-bottom:12px;line-height:1.3}
+.box{background:#ffffff26;border-radius:10px;padding:12px 16px;font-size:20px;line-height:1.4;margin-top:12px}
+.meaning{margin-top:22px;background:#fff;border:1px solid var(--line);border-left:8px solid var(--navy);border-radius:12px;padding:18px 22px;font-size:22px}
+.meaning b{color:var(--navy)}
+.ctrl{display:flex;gap:12px;margin-top:18px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--navy);color:#fff;border:0;padding:12px 22px;border-radius:10px;cursor:pointer;font-size:19px;font-weight:700}
+.btn.ghost{background:#e3e9f3;color:var(--navy)}
+.disc{font-size:15px;color:var(--mut)}
+</style>
+</head>
+<body>
+<header>
+  <h1>✈️ Aviation + AI: Today → 2030 → 2036</h1>
+  <p>How airlines and aircraft makers plan to use AI, ML, Deep Learning and GenAI</p>
+</header>
+<main>
+  <div class="timeline" id="timeline"></div>
+  <div class="headline" id="headline"></div>
+  <div class="sub" id="sub"></div>
+  <div class="pipe" id="pipe"></div>
+  <div class="meaning" id="meaning"></div>
+  <div class="ctrl">
+    <button class="btn ghost" id="prev">← Previous</button>
+    <button class="btn" id="next">Next year →</button>
+    <span class="disc">Illustrative vision based on public industry trends. Not an official roadmap of any company.</span>
+  </div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const COL={ai:'#1f5fbf',ml:'#0f8a7a',dl:'#7a3fc4',gen:'#d9480f'};
+const NAME={ai:['Artificial Intelligence','Rules & automation'],ml:['Machine Learning','Learns from data'],dl:['Deep Learning','Sees & hears'],gen:['Generative AI','Creates & assists']};
+
+const YEARS=[
+ {y:'2026',tag:'Today',head:'Today: AI is a helper, humans do most of the work',
+  sub:'Pilots, engineers and technicians use AI tools in pockets. Most decisions are still manual.',
+  ai:['✈️ Autopilot & flight management follow fixed rules',['🔧 Maintenance on a fixed schedule: "check every 500 hours"','🏭 Factory robots repeat programmed moves']],
+  ml:['📊 Early pilots of predictive maintenance',['⛽ Route & fuel optimisation tools','🎫 Forecasting passenger demand and pricing']],
+  dl:['📷 Trials of camera-based inspection',['🔍 AI flags possible cracks in borescope images','🚁 Drones photograph aircraft in hangars']],
+  gen:['💬 Chat copilots for office & engineering work',['📘 Search a 1,000-page manual by asking a question','👩‍💻 Coding assistants for engineers']],
+  meaning:'<b>For you today:</b> learn the basics (Python, data, prompts). AI tools save you time, but you still make every decision.'},
+ {y:'2030',tag:'Near future',head:'2030: AI becomes a standard part of every job',
+  sub:'Companies aim to fix aircraft before they break, build faster, and give every technician an AI copilot.',
+  ai:['🏭 Smarter factories with a "digital twin" of each aircraft',['🤖 Robots drill, fasten and paint with sensor feedback','📦 Automated warehouses and parts logistics']],
+  ml:['🛠️ Predictive maintenance across the whole fleet',['⏱️ Parts replaced before failure, so fewer grounded aircraft','⛽ Every flight\'s fuel plan tuned by ML']],
+  dl:['👁️ Automated visual inspection in minutes',['🚁 Drone scans the whole aircraft after a lightning strike','✅ Camera checks quality on the production line']],
+  gen:['🧑‍🔧 Voice copilot on every technician\'s tablet',['🗣️ "What\'s wrong with engine 2? Show me the steps."','📝 Work orders and reports drafted automatically']],
+  meaning:'<b>For you in 2030:</b> knowing how to work with AI copilots and read data dashboards will be expected in engineering and maintenance roles.'},
+ {y:'2036',tag:'Long term',head:'2036: AI teammates and more autonomous operations',
+  sub:'The industry is researching self-optimising fleets and highly automated flight, always with humans in charge of safety.',
+  ai:['🛫 Higher automation in the cockpit and air traffic',['🧭 AI-assisted air traffic management for busier skies','🔬 Research into reduced-crew operations, still under strict certification']],
+  ml:['🔄 Self-optimising fleets',['📈 Remaining life of every major part tracked in real time','🗓️ Schedules, crews and spares re-planned automatically']],
+  dl:['📡 Real-time sensing on board',['🛬 Vision-assisted taxi and landing support','🔊 Sound and vibration models catch issues mid-flight']],
+  gen:['🤝 AI agents that coordinate whole workflows',['🧩 Agents link maintenance, parts ordering and crew planning','✏️ Generative design of lighter, stronger parts']],
+  meaning:'<b>For you in 2036:</b> humans set goals, check safety and make final calls. AI agents do much of the routine work, so judgement and domain knowledge matter even more.'}
+];
+let i=0;
+function render(){
+  const Y=YEARS[i];
+  $('timeline').innerHTML=YEARS.map((d,k)=>`<div class="yr"><button data-k="${k}" class="${k===i?'on':''}">${d.y}<small>${d.tag}</small></button></div>`).join('');
+  [...$('timeline').querySelectorAll('button')].forEach(b=>b.onclick=()=>{i=+b.dataset.k;render()});
+  $('headline').textContent=Y.head;$('sub').textContent=Y.sub;
+  $('pipe').innerHTML=['ai','ml','dl','gen'].map(k=>`<div class="stage" style="background:${COL[k]}">
+    <h4>${NAME[k][0]}</h4><div class="who">${NAME[k][1]}</div>
+    <div class="big">${Y[k][0]}</div>${Y[k][1].map(t=>`<div class="box">${t}</div>`).join('')}</div>`).join('');
+  $('meaning').innerHTML=Y.meaning;
+  $('prev').disabled=i===0;$('prev').style.opacity=i===0?.4:1;
+  $('next').textContent=i===YEARS.length-1?'↺ Back to today':'Next year →';
+}
+$('next').onclick=()=>{i=(i+1)%YEARS.length;render()};
+$('prev').onclick=()=>{if(i>0){i--;render()}};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')$('next').click();if(e.key==='ArrowLeft')$('prev').click()});
+render();
+</script>
+</body>
+</html>

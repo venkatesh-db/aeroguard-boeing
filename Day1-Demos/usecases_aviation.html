@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aviation AI Live</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--ai:#1f5fbf;--ml:#0f8a7a;--dl:#7a3fc4;--gen:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--warn:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#134074);color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:30px}
+header p{margin:2px 0 0;opacity:.85}
+nav{display:flex;gap:10px;flex-wrap:wrap;padding:14px 26px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:10px 18px;font-size:18px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:20px}
+.case{display:none}.case.on{display:block}
+.top{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-bottom:18px}
+@media(max-width:1000px){.top{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+h2{margin:0 0 6px;font-size:30px}
+.badge{display:inline-block;color:#fff;border-radius:6px;padding:3px 10px;font-size:15px;font-weight:700;margin-right:6px}
+.real{font-size:19px}
+.real b{color:var(--navy)}
+.try{background:#fff8e6;border:1px solid #f1d38a;border-radius:12px;padding:14px 16px;font-size:18px}
+.try ol{margin:6px 0 0;padding-left:22px}
+.sim{display:grid;grid-template-columns:340px 1fr;gap:18px}
+@media(max-width:1000px){.sim{grid-template-columns:1fr}}
+label{display:block;font-weight:600;margin:12px 0 4px}
+label span{float:right;color:var(--ai)}
+input[type=range]{width:100%}
+select,input[type=text]{width:100%;padding:8px;font-size:17px;border:1px solid var(--line);border-radius:8px}
+.btn{background:var(--navy);color:#fff;border:0;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:17px;font-weight:700;margin:6px 6px 0 0}
+.btn.red{background:var(--bad)}.btn.ghost{background:#e3e9f3;color:var(--navy)}
+svg{width:100%;height:auto;display:block}
+.big{font-size:52px;font-weight:800;line-height:1.1}
+.alert{border-radius:10px;padding:12px 14px;margin-top:10px;font-size:18px}
+.alert.ok{background:#e7f6ec;border:1px solid var(--ok)}
+.alert.warn{background:#fff4dc;border:1px solid var(--warn)}
+.alert.bad{background:#fdecea;border:1px solid var(--bad)}
+.log{max-height:230px;overflow:auto;font-size:16px;margin-top:8px}
+.log div{padding:6px 8px;border-bottom:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:17px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+.lifebar{height:14px;background:#e6ebf2;border-radius:7px;overflow:hidden}
+.lifebar i{display:block;height:100%}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.kpi{background:#f6f8fc;border-radius:10px;padding:12px;text-align:center}
+.kpi b{display:block;font-size:34px}
+.chat{height:420px;overflow:auto;background:#f6f8fc;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:78%;padding:10px 14px;border-radius:14px;font-size:18px;white-space:pre-line}
+.msg.u{align-self:flex-end;background:var(--navy);color:#fff;border-bottom-right-radius:4px}
+.msg.b{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.chip{background:#e8eef9;color:var(--navy);border:0;border-radius:20px;padding:8px 14px;font-size:16px;cursor:pointer}
+.row{display:flex;gap:8px}
+.disc{font-size:14px;color:var(--mut);margin-top:16px}
+</style>
+</head>
+<body>
+<header><h1>✈️ Aviation AI: Live Use Cases</h1><p>Real-world examples you can try yourself. Each one is a simplified simulation of how the real system works.</p></header>
+<nav id="nav">
+  <button data-c="ahm" class="on">① Live aircraft health</button>
+  <button data-c="pdm">② Fleet predictive maintenance</button>
+  <button data-c="route">③ AI flight routing</button>
+  <button data-c="agent">④ GenAI customer agent</button>
+</nav>
+<main>
+
+<!-- 1 AHM -->
+<section class="case on" id="ahm">
+  <div class="top">
+    <div class="card"><h2>Live aircraft health monitoring</h2>
+      <span class="badge" style="background:var(--ml)">ML</span><span class="badge" style="background:var(--ai)">Rules</span>
+      <p class="real"><b>In real life:</b> services such as Boeing Airplane Health Management, Rolls-Royce engine health monitoring and GE Aerospace engine analytics stream sensor data from aircraft in flight. Engineers on the ground can see a problem <b>before the aircraft lands</b> and have the part and team ready.</p></div>
+    <div class="try"><b>👉 Try it:</b><ol><li>Watch the normal sensor readings.</li><li>Click <b>Inject bearing wear</b>. It starts small and grows.</li><li>See when ML spots it, compared with a simple fixed-limit rule.</li></ol></div>
+  </div>
+  <div class="sim">
+    <div class="card">
+      <b>Flight SK 417 · BLR → DEL</b>
+      <svg viewBox="0 0 300 50"><line x1="15" y1="25" x2="285" y2="25" stroke="#cfd8e6" stroke-width="4" stroke-dasharray="6 6"/><text x="5" y="48" font-size="11">BLR</text><text x="268" y="48" font-size="11">DEL</text><text id="plane" x="15" y="31" font-size="20">✈️</text></svg>
+      <div>Time to landing: <b id="ttl">120 min</b></div>
+      <button class="btn red" id="wear">Inject bearing wear</button>
+      <button class="btn red" id="spike">Bird strike spike</button>
+      <button class="btn ghost" id="ahmReset">Reset</button>
+      <div id="ahmStatus" class="alert ok">✅ All systems normal</div>
+    </div>
+    <div class="card">
+      <b>Engine #2 vibration (live)</b>
+      <svg id="ahmChart" viewBox="0 0 700 260"></svg>
+      <div style="font-size:15px;color:var(--mut)">Grey band = normal range the ML model learned from thousands of past flights · Red dashed = fixed rule limit</div>
+      <div class="log" id="ahmLog"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 PdM -->
+<section class="case" id="pdm">
+  <div class="top">
+    <div class="card"><h2>Fleet predictive maintenance</h2>
+      <span class="badge" style="background:var(--ml)">ML · Regression</span>
+      <p class="real"><b>In real life:</b> platforms such as Airbus Skywise and Lufthansa Technik AVIATAR predict the <b>remaining useful life</b> of parts across a whole fleet. Parts are swapped at a planned stop, before they fail, instead of on a fixed calendar.</p></div>
+    <div class="try"><b>👉 Try it:</b><ol><li>Move the planning window slider.</li><li>Switch between <b>Fixed schedule</b> and <b>ML prediction</b>.</li><li>Compare failures and wasted parts.</li></ol></div>
+  </div>
+  <div class="sim">
+    <div class="card">
+      <label>Planning window <span id="winV"></span></label>
+      <input type="range" id="win" min="50" max="600" step="50" value="200">
+      <label>Strategy</label>
+      <select id="strat"><option value="ml">🤖 ML prediction (replace when predicted life is low)</option><option value="fixed">📅 Fixed schedule (replace every 3,000 hrs)</option></select>
+      <div class="alert warn" style="margin-top:14px" id="pdmNote"></div>
+    </div>
+    <div class="card">
+      <div class="kpis"><div class="kpi"><b id="kFail">0</b>Surprise failures (aircraft grounded)</div><div class="kpi"><b id="kSwap">0</b>Parts replaced this window</div><div class="kpi"><b id="kWaste">0</b>Good parts thrown away early</div></div>
+      <table id="pdmTbl"></table>
+    </div>
+  </div>
+</section>
+
+<!-- 3 Route -->
+<section class="case" id="route">
+  <div class="top">
+    <div class="card"><h2>AI flight routing</h2>
+      <span class="badge" style="background:var(--ml)">ML + optimisation</span>
+      <p class="real"><b>In real life:</b> Alaska Airlines worked with Airspace Intelligence ("Flyways") to suggest better routes to dispatchers using weather, winds and traffic. The result was less fuel and fewer delays. <b>A human dispatcher still approves every route.</b></p></div>
+    <div class="try"><b>👉 Try it:</b><ol><li>Move the storm and change the wind.</li><li>Watch the AI pick the cheapest safe route.</li><li>Compare its fuel with the straight route.</li></ol></div>
+  </div>
+  <div class="sim">
+    <div class="card">
+      <label>Storm position <span id="stormV"></span></label>
+      <input type="range" id="storm" min="15" max="85" value="50">
+      <label>Storm size</label>
+      <select id="ssize"><option value="0">None</option><option value="60">Small</option><option value="95" selected>Large</option></select>
+      <label>Jet-stream wind</label>
+      <select id="wind"><option value="0">Calm</option><option value="1" selected>Strong tailwind on northern route</option><option value="-1">Strong headwind on northern route</option></select>
+      <button class="btn" id="approve">✅ Dispatcher approves AI route</button>
+      <div id="routeOut" class="alert ok"></div>
+    </div>
+    <div class="card"><svg id="map" viewBox="0 0 700 380"></svg>
+      <div style="font-size:15px;color:var(--mut)">Grey = straight route · Blue dashed = other options considered · Green = AI's choice</div></div>
+  </div>
+</section>
+
+<!-- 4 Agent -->
+<section class="case" id="agent">
+  <div class="top">
+    <div class="card"><h2>GenAI customer agent</h2>
+      <span class="badge" style="background:var(--gen)">GenAI</span>
+      <p class="real"><b>In real life:</b> Air India launched "AI.g", a generative-AI virtual agent that answers customer questions in several languages, any time of day. Airlines use agents like this for baggage, rebooking and flight-status questions.</p></div>
+    <div class="try"><b>👉 Try it:</b><ol><li>Tap a question, or type your own.</li><li>Try asking in Hindi.</li><li>Note how it understands the meaning, not exact keywords.</li></ol></div>
+  </div>
+  <div class="card">
+    <div class="chat" id="chat"></div>
+    <div class="chips" id="chips"></div>
+    <div class="row"><input type="text" id="cin" placeholder="Ask about your flight…"><button class="btn" id="csend" style="margin:0">Send</button></div>
+  </div>
+</section>
+<div class="disc">Simplified teaching simulations. Company names refer to publicly reported real-world programmes; numbers and screens here are illustrative, not those companies' actual systems or data.</div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);const NS='http://www.w3.org/2000/svg';
+function el(t,a,p,txt){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p.appendChild(e);return e}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.case').forEach(c=>c.classList.toggle('on',c.id===b.dataset.c))});
+const clock=()=>{const d=new Date();return d.toTimeString().slice(0,8)};
+
+// ===== 1 AHM =====
+let data=[],t=0,drift=0,wearOn=false,spike=0,mlAlert=false,ruleAlert=false,progress=0;
+const BASE=3.0,RULE=6.0,LIMIT_HI=3.8;
+function log(m,c){const d=document.createElement('div');d.innerHTML=`<b>${clock()}</b> · ${m}`;if(c)d.style.color=c;$('ahmLog').prepend(d)}
+function ahmReset(){data=[];drift=0;wearOn=false;spike=0;mlAlert=false;ruleAlert=false;progress=0;$('ahmLog').innerHTML='';status('ok','✅ All systems normal');log('Monitoring started. Data streaming to ground station.')}
+function status(c,m){$('ahmStatus').className='alert '+c;$('ahmStatus').innerHTML=m}
+function ahmTick(){
+  t++;progress=Math.min(1,progress+1/400);
+  if(wearOn)drift+=0.035;
+  let v=BASE+Math.sin(t/3)*0.25+(Math.random()-.5)*0.35+drift;
+  if(spike>0){v+=spike;spike*=0.6;if(spike<.05)spike=0}
+  data.push(v);if(data.length>100)data.shift();
+  // ML: rolling avg above learned band
+  const recent=data.slice(-8),avg=recent.reduce((a,b)=>a+b,0)/recent.length;
+  if(!mlAlert&&avg>LIMIT_HI){mlAlert=true;const m=Math.round((1-progress)*120);
+    status('warn',`⚠️ <b>ML early warning:</b> vibration trending above normal pattern.<br>Maintenance team at DEL notified · bearing kit reserved · ${m} min before landing`);log(`🤖 ML detected abnormal trend (avg ${avg.toFixed(2)}). Ground team alerted.`,'#b7791f')}
+  if(!ruleAlert&&v>RULE){ruleAlert=true;status('bad',`🚨 <b>Rule limit exceeded</b> (vibration &gt; ${RULE}).<br>The fixed rule only fires now. ML warned ${mlAlert?'much earlier':'—'}.`);log('📏 Fixed rule limit crossed.','#c2410c')}
+  if(t%25===0&&!mlAlert)log('Normal. Vibration within learned range.');
+  drawAhm();
+  $('plane').setAttribute('x',15+progress*255);$('ttl').textContent=Math.round((1-progress)*120)+' min';
+}
+function drawAhm(){
+  const s=$('ahmChart');s.innerHTML='';const X=i=>40+i*6.5,Y=v=>240-v/8*220;
+  [0,2,4,6,8].forEach(v=>{el('line',{x1:40,x2:690,y1:Y(v),y2:Y(v),stroke:'#eef1f5'},s);el('text',{x:30,y:Y(v)+4,'text-anchor':'end','font-size':12,fill:'#5d6778'},s,v)});
+  el('rect',{x:40,y:Y(LIMIT_HI),width:650,height:Y(2.2)-Y(LIMIT_HI),fill:'#e6ebf2'},s);
+  el('line',{x1:40,x2:690,y1:Y(RULE),y2:Y(RULE),stroke:'#c2410c','stroke-dasharray':'6 5','stroke-width':2},s);
+  el('text',{x:688,y:Y(RULE)-6,'text-anchor':'end','font-size':13,fill:'#c2410c'},s,'Fixed rule limit');
+  el('polyline',{points:data.map((v,i)=>X(i)+','+Y(Math.min(v,8))).join(' '),fill:'none',stroke:mlAlert?'#c2410c':'#0f8a7a','stroke-width':3},s);
+}
+$('wear').onclick=()=>{wearOn=true;log('🔧 Simulated: bearing starts to wear (slow change).')};
+$('spike').onclick=()=>{spike=4;log('🐦 Simulated: sudden bird-strike spike.')};
+$('ahmReset').onclick=ahmReset;ahmReset();setInterval(ahmTick,250);
+
+// ===== 2 PdM =====
+const PARTS=[['VT-SKA','Engine #1 fuel pump',2600,240],['VT-SKA','Landing gear actuator',900,2100],['VT-SKB','APU starter',2900,120],['VT-SKB','Brake assembly',1500,1450],['VT-SKC','Engine #2 bearing',2200,380],['VT-SKC','Hydraulic pump',2950,1600],['VT-SKD','Bleed-air valve',1800,90],['VT-SKD','Cabin pressure valve',2400,2200],['VT-SKE','Fuel control unit',2700,700],['VT-SKE','Starter generator',600,180]];
+// [aircraft, part, hours since replaced, ML predicted remaining life]
+function pdm(){
+  const w=+$('win').value,ml=$('strat').value==='ml';$('winV').textContent='next '+w+' flight hrs';
+  let fail=0,swap=0,waste=0;
+  const rows=PARTS.map(([ac,p,used,rul])=>{
+    let action,col;
+    const willFail=rul<=w;
+    if(ml){if(willFail){action='🔧 Replace at next planned stop';col='#c2410c';swap++}else{action='✅ OK, keep flying';col='#1a8a4a'}}
+    else{const due=used+w>=3000;
+      if(due){swap++;action='📅 Scheduled swap';col='#1f5fbf';if(!willFail)waste++}
+      else if(willFail){fail++;action='💥 Fails before schedule';col='#c2410c'}
+      else{action='—';col='#5d6778'}}
+    const pct=Math.max(4,Math.min(100,rul/2500*100));
+    return `<tr><td><b>${ac}</b></td><td>${p}</td><td style="width:180px"><div class="lifebar"><i style="width:${pct}%;background:${rul<=w?'#c2410c':rul<800?'#e0b300':'#1a8a4a'}"></i></div><small>${rul} hrs left (predicted)</small></td><td style="color:${col};font-weight:700">${action}</td></tr>`});
+  $('pdmTbl').innerHTML='<tr><th>Aircraft</th><th>Part</th><th>Remaining life</th><th>Decision</th></tr>'+rows.join('');
+  $('kFail').textContent=fail;$('kSwap').textContent=swap;$('kWaste').textContent=waste;
+  $('kFail').style.color=fail?'#c2410c':'#1a8a4a';
+  $('pdmNote').innerHTML=ml?'🤖 <b>ML:</b> each part gets its own prediction, so only the parts that are really wearing out get replaced.':'📅 <b>Fixed schedule:</b> parts are replaced by the calendar, so some fail early and some good parts are thrown away.';
+}
+['win','strat'].forEach(id=>$(id).oninput=pdm);pdm();
+
+// ===== 3 Route =====
+let best=null;
+function route(){
+  const sx=+$('storm').value/100*700,sr=+$('ssize').value,wind=+$('wind').value;$('stormV').textContent=$('storm').value+'%';
+  const s=$('map');s.innerHTML='';
+  el('rect',{x:0,y:0,width:700,height:380,fill:'#eaf2fb',rx:12},s);
+  const A=[60,200],B=[640,200];
+  const cands=[{n:'Straight',cy:200},{n:'North',cy:40},{n:'Slight north',cy:120},{n:'Slight south',cy:280},{n:'South',cy:360}];
+  const pt=(c,u)=>{const x=(1-u)*(1-u)*A[0]+2*(1-u)*u*350+u*u*B[0],y=(1-u)*(1-u)*A[1]+2*(1-u)*u*c.cy+u*u*B[1];return[x,y]};
+  cands.forEach(c=>{let len=0,hit=false,p=pt(c,0);for(let u=.02;u<=1.001;u+=.02){const q=pt(c,u);len+=Math.hypot(q[0]-p[0],q[1]-p[1]);if(sr&&Math.hypot(q[0]-sx,q[1]-190)<sr+12)hit=true;p=q}
+    const windAdj=c.cy<200?-wind*(200-c.cy)/160*0.12:0;
+    c.fuel=Math.round(len*14*(1+windAdj));c.hit=hit;c.cost=c.fuel+(hit?100000:0)});
+  if(sr){el('circle',{cx:sx,cy:190,r:sr,fill:'#7a8597',opacity:.55},s);el('text',{x:sx,y:195,'text-anchor':'middle','font-size':26},s,'⛈️')}
+  if(wind){el('text',{x:350,y:28,'text-anchor':'middle','font-size':15,fill:wind>0?'#1a8a4a':'#c2410c'},s,wind>0?'➡➡ tailwind ➡➡':'⬅⬅ headwind ⬅⬅')}
+  best=cands.filter(c=>c.n!=='Straight').reduce((a,b)=>a.cost<b.cost?a:b);
+  const straight=cands[0];if(!straight.hit&&straight.cost<=best.cost)best=straight;
+  cands.forEach(c=>{const d=`M${A} Q350,${c.cy} ${B}`;el('path',{d,fill:'none',stroke:c===best?'#1a8a4a':c.n==='Straight'?'#9aa6b8':'#1f5fbf','stroke-width':c===best?6:2.5,'stroke-dasharray':c===best||c.n==='Straight'?'':'6 6',opacity:c===best?1:.6},s)});
+  el('text',{x:A[0],y:A[1]+30,'text-anchor':'middle','font-size':16,'font-weight':700},s,'🛫 BOM');el('text',{x:B[0],y:B[1]+30,'text-anchor':'middle','font-size':16,'font-weight':700},s,'🛬 DXB');
+  const st=straight.hit?'goes through the storm and needs a last-minute detour (about +900 kg)':straight.fuel+' kg';
+  const stFuel=straight.hit?straight.fuel+900:straight.fuel;
+  $('routeOut').innerHTML=`🤖 AI route: <b>${best.n}</b>, <b>${best.fuel.toLocaleString()} kg</b> fuel<br>Straight route: ${st}<br><b>Saving: ${Math.max(0,stFuel-best.fuel).toLocaleString()} kg fuel</b>${best.hit?'':' · avoids the storm'}`;
+}
+['storm','ssize','wind'].forEach(id=>$(id).oninput=route);
+$('approve').onclick=()=>{$('routeOut').innerHTML+=`<br>✅ Approved by dispatcher at ${clock()}. Flight plan sent to the cockpit.`};
+route();
+
+// ===== 4 Agent =====
+const INTENTS=[
+ {k:['delay','late','rebook','miss','connection','cancel'],a:'I\'m sorry about the delay. ✈️ Flight SK 417 is now expected to depart at 18:40 (45 min late).\n\nYour connection to London is still safe. You\'ll have 1 h 20 min.\n\nShould I keep a backup seat on the 21:10 flight just in case? (No charge.)'},
+ {k:['bag','baggage','luggage','kg','suitcase'],a:'For your Economy ticket you can bring:\n🧳 Check-in: 25 kg (1 piece)\n🎒 Cabin: 7 kg + a small personal item\n\nWould you like to add 5 kg extra for ₹1,500? That\'s cheaper than paying at the airport.'},
+ {k:['status','where','gate','time','स्टेटस','फ्लाइट','कब'],a:null},
+ {k:['meal','food','veg','jain','khana','खाना'],a:'I can add a special meal for you. 🍛 Options: Vegetarian, Jain, Diabetic, Child meal.\nWhich one would you like? It must be added at least 24 hours before departure.'},
+ {k:['wheelchair','assist','elderly','senior','help'],a:'Of course. ♿ I\'ve requested wheelchair assistance from check-in to the aircraft door for your booking.\nA staff member will meet you at Counter 7. Anything else I can do?'}
+];
+const STATUS_EN='Flight SK 417 · BOM → DXB 🛫\nGate: 32B · Boarding: 18:05\nStatus: On time ✅',STATUS_HI='फ्लाइट SK 417 · मुंबई → दुबई 🛫\nगेट: 32B · बोर्डिंग: 18:05\nस्थिति: समय पर ✅';
+function bot(q){const l=q.toLowerCase();const hi=/[ऀ-ॿ]/.test(q);
+  for(const it of INTENTS)if(it.k.some(k=>l.includes(k)))return it.a||(hi?STATUS_HI:STATUS_EN);
+  return hi?'माफ़ कीजिए, मैं समझ नहीं पाया। क्या आप अपनी बुकिंग, बैगेज या फ्लाइट स्टेटस के बारे में पूछ रहे हैं?':'I can help with flight status, delays and rebooking, baggage, meals and special assistance. What would you like to do?'}
+function say(t,who){const d=document.createElement('div');d.className='msg '+who;$('chat').appendChild(d);
+  if(who==='u'){d.textContent=t}else{let i=0;const iv=setInterval(()=>{d.textContent=t.slice(0,i+=3);$('chat').scrollTop=1e6;if(i>=t.length)clearInterval(iv)},18)}
+  $('chat').scrollTop=1e6}
+function ask(q){if(!q.trim())return;say(q,'u');const typing=document.createElement('div');typing.className='msg b';typing.textContent='typing…';$('chat').appendChild(typing);setTimeout(()=>{typing.remove();say(bot(q),'b')},700)}
+['My flight is late, will I miss my connection?','How much baggage can I carry?','मेरी फ्लाइट का स्टेटस क्या है?','I need a Jain meal','My mother needs wheelchair help'].forEach(q=>{const b=document.createElement('button');b.className='chip';b.textContent=q;b.onclick=()=>ask(q);$('chips').appendChild(b)});
+$('csend').onclick=()=>{ask($('cin').value);$('cin').value=''};$('cin').onkeydown=e=>{if(e.key==='Enter')$('csend').click()};
+say('Namaste! 🙏 I\'m your virtual travel assistant. Ask me anything about your trip, in English or Hindi.','b');
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AeroGuard Design Studio</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f;--or:#d9480f;--pur:#7a3fc4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#1b2333,#7a3fc4);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header h1{margin:0;font-size:28px}header p{margin:2px 0 0;opacity:.85;font-size:15px}
+header a{color:#fff;border:2px solid #fff8;border-radius:20px;padding:6px 12px;text-decoration:none;font-weight:700;font-size:14px}
+header .r{margin-left:auto;display:flex;gap:8px}
+main{max-width:1500px;margin:0 auto;padding:14px}
+.stages{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.stg{flex:1;min-width:130px;border-radius:12px;padding:9px 10px;background:#fff;border:2px solid var(--line);font-weight:700;font-size:15px;text-align:center;cursor:pointer;color:var(--mut)}
+.stg small{display:block;font-weight:400;font-size:12px}
+.stg.on{border-color:var(--pur);background:#f3ecff;color:var(--ink)}.stg.done{border-color:#b9e3c7;color:var(--ok)}.stg.lock{opacity:.45;cursor:not-allowed}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+h2{margin:0 0 6px;font-size:26px}
+.lead{color:var(--mut);font-size:17px;margin-bottom:10px}
+.briefs{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.brief{border:2px solid var(--line);border-radius:14px;padding:14px;background:#fff;cursor:pointer;transition:all .2s}
+.brief:hover{border-color:var(--pur);transform:translateY(-3px)}
+.brief .ic{font-size:38px}.brief h3{margin:4px 0;font-size:20px}
+.best{font-size:13px;color:var(--ok);font-weight:700;margin-top:6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:1000px){.two{grid-template-columns:1fr}}
+.quote{font-size:19px;font-style:italic;border-left:5px solid var(--pur);padding:8px 12px;background:#f6f3fc;border-radius:8px}
+.tl div{padding:6px 10px;border-left:3px solid var(--line);margin-left:6px;font-size:15px}
+.opt{display:block;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;margin:6px 0;font-size:16px;cursor:pointer}
+.opt:hover{border-color:var(--blue)}
+.opt.r{border-color:var(--ok);background:#e7f6ec}.opt.w{border-color:var(--bad);background:#fdecea}.opt.m{border-color:var(--gold);background:#fff4dc}
+.fb{border-radius:10px;padding:10px 12px;margin-top:8px;font-size:15px}
+.fb.ok{background:#e7f6ec}.fb.bad{background:#fdecea}.fb.mid{background:#fff4dc}
+.btn{background:var(--navy);color:#fff;border:0;padding:10px 15px;border-radius:10px;cursor:pointer;font-size:15px;font-weight:700;margin:6px 6px 0 0}
+.btn.go{background:var(--pur)}.btn.ghost{background:#e3e9f3;color:var(--navy)}.btn:disabled{opacity:.45;cursor:default}
+.mentor{background:#1b2333;color:#e5ecff;border-radius:12px;padding:12px 14px;font-size:15px;margin-top:12px}
+.mentor b{color:#ffcb6b}
+.daycol{margin-bottom:8px}
+.daycol h4{margin:6px 0 4px;font-size:14px}
+.cgrid{display:flex;flex-wrap:wrap;gap:5px}
+.cc{border:2px solid var(--line);background:#fff;border-radius:18px;padding:5px 10px;font-size:14px;cursor:pointer;display:flex;gap:4px;align-items:center}
+.cc.on{background:#0b2545;color:#fff;border-color:#0b2545}
+.cc .q{font-size:11px;background:#e8eef9;color:var(--navy);border-radius:50%;width:17px;height:17px;display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+.cc.on .q{background:#fff}
+.lanes{display:flex;flex-direction:column;gap:6px}
+.lane{display:grid;grid-template-columns:190px 1fr;gap:8px;align-items:center;border-radius:10px;padding:6px 8px;background:#f6f8fc;min-height:44px}
+.lane .ln{font-weight:800;font-size:14px;color:#fff;border-radius:8px;padding:6px 8px;text-align:center}
+.lane .items{display:flex;flex-wrap:wrap;gap:5px}
+.it{background:#fff;border:1px solid var(--line);border-radius:14px;padding:3px 9px;font-size:13px}
+.rule{display:flex;gap:8px;align-items:flex-start;border-radius:10px;padding:8px 10px;margin:5px 0;font-size:15px}
+.rule.s0{background:#fdecea}.rule.s1{background:#fff4dc}.rule.s2{background:#eef4ff}
+.rule .fix{margin-left:auto;white-space:nowrap}
+.sc{display:grid;grid-template-columns:28px 1fr;gap:8px;border:2px solid var(--line);border-radius:10px;padding:8px 10px;margin:5px 0;background:#fff;font-size:15px}
+.sc.p{border-color:var(--ok);background:#f2fbf5}.sc.f{border-color:var(--bad);background:#fff4f2}
+.bars .b{display:grid;grid-template-columns:110px 1fr 46px;gap:8px;align-items:center;margin:6px 0;font-weight:700}
+.bars .t{height:20px;background:#eef1f5;border-radius:6px;overflow:hidden}.bars .t i{display:block;height:100%;transition:width .6s}
+.big{font-size:52px;font-weight:900;line-height:1}
+.cmp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:900px){.cmp{grid-template-columns:1fr}}
+.cmp div h4{margin:0 0 4px}
+.modal{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;z-index:20}
+.modal.on{display:flex}
+.mbox{background:#fff;border-radius:16px;padding:18px;max-width:560px;width:92%;font-size:16px}
+.mbox h3{margin:0 0 6px;font-size:22px}
+.counter{position:sticky;top:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;z-index:3;font-size:15px}
+</style>
+</head>
+<body>
+<header><div><h1>🧠 AeroGuard Design Studio</h1><p>Solve a real aviation problem the way a senior AI engineer would: empathise → define → ideate → prototype → test → reflect.</p></div><div class="r"><a href="index.html">🏠 Start</a><a href="1_concept_map.html">🗺️ Concept Map</a></div></header>
+<main>
+ <div class="stages" id="stages"></div>
+ <div id="view"></div>
+</main>
+<div class="modal" id="modal"><div class="mbox" id="mbox"></div></div>
+<script>
+/*__KG__*/
+/*__BRIEFS__*/
+const $=id=>document.getElementById(id);const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const BY=Object.fromEntries(CONCEPTS.map(c=>[c.id,c]));
+const STAGES=[["🎯","Choose","a problem"],["🫶","Empathise","the user"],["📝","Define","the problem"],["💡","Ideate","pick concepts"],["🧩","Prototype","architecture + review"],["🧪","Test","real scenarios"],["🏁","Reflect","vs expert"]];
+const MENTOR=["","A senior engineer starts with the human, not the technology. Who is this person, and what does a bad night look like for them?","A well-defined problem is half solved. Good statements name the user, the outcome, a measurable target and the safety boundary. Avoid naming a technology.","Every concept you add is something to build, test and maintain. Pick what the problem needs, not everything you know. Click ? on any card if you've forgotten what it does.","The design review below is your senior reviewer. 🚩 = must fix, ⚠️ = should fix, 💡 = think about it. Use 'Add' to fix, or go back and rethink.","Designs fail on real scenarios, not on whiteboards. Each failing scenario tells you which concept is missing.","Compare with the expert design. The goal isn't to match it exactly, but to understand every difference."];
+let st={stage:0,brief:null,insight:null,define:null,sel:new Set(),tested:null};
+let best={};try{best=JSON.parse(localStorage.getItem('ag_studio_best')||'{}')}catch(e){}
+function saveBest(){try{localStorage.setItem('ag_studio_best',JSON.stringify(best))}catch(e){}}
+const B=()=>BRIEFS.find(b=>b.id===st.brief);
+function maxStage(){if(!st.brief)return 0;if(st.insight==null)return 1;if(st.define==null)return 2;if(st.sel.size<3)return 3;if(!st.reviewed)return 4;if(!st.tested)return 5;return 6}
+function stages(){$('stages').innerHTML=STAGES.map(([ic,n,s],i)=>`<div class="stg ${i===st.stage?'on':i<st.stage?'done':''} ${i>maxStage()?'lock':''}" data-i="${i}">${ic} ${n}<small>${s}</small></div>`).join('');
+ $('stages').querySelectorAll('.stg').forEach(d=>d.onclick=()=>{const i=+d.dataset.i;if(i<=maxStage())go(i)})}
+function go(i){st.stage=i;stages();[choose,empath,define,ideate,proto,test,reflect][i]();window.scrollTo({top:0,behavior:'smooth'})}
+const mentor=i=>`<div class="mentor">🧓 <b>Senior engineer says:</b> ${MENTOR[i]}</div>`;
+const nextBtn=(i,label,dis)=>`<button class="btn go" id="next" ${dis?'disabled':''}>${label||'Next →'}</button>`;
+function bindNext(i){const n=$('next');if(n)n.onclick=()=>go(i)}
+/* modal refresher */
+function refresher(id){const c=BY[id],d=DAYS[c.day];$('mbox').innerHTML=`<h3>${c.icon} ${esc(c.name)}</h3><span style="color:#fff;background:${d[2]};border-radius:6px;padding:1px 8px;font-size:12px;font-weight:800">${d[0]}</span><p><b>📖</b> ${esc(c.def)}</p><p><b>✈️</b> ${esc(c.av)}</p><p style="background:#f6f3fc;border-radius:8px;padding:8px"><b>🧠</b> ${esc(c.why)}</p><a href="1_concept_map.html#${c.id}" target="_blank">🗺️ See it on the Concept Map</a> · <a href="${c.demo}" target="_blank">▶ Original demo</a><br><button class="btn" id="mclose">Close</button>`;
+ $('modal').classList.add('on');$('mclose').onclick=()=>$('modal').classList.remove('on')}
+$('modal').onclick=e=>{if(e.target.id==='modal')$('modal').classList.remove('on')};
+
+/* 0 CHOOSE */
+function choose(){$('view').innerHTML=`<h2>🎯 Pick a real problem to solve</h2><div class="lead">Each brief is a real kind of aviation pain. You'll design a solution using everything from Days 1–5. Start with 🟢 if this is your first time.</div>
+ <div class="briefs">${BRIEFS.map(b=>`<div class="brief" data-id="${b.id}"><div class="ic">${b.icon}</div><div style="font-size:13px;font-weight:700">${b.level}</div><h3>${esc(b.title)}</h3><div style="color:var(--mut);font-size:15px">👤 ${esc(b.persona.name)} · ${esc(b.persona.role)}</div>${best[b.id]!=null?`<div class="best">🏅 Your best score: ${best[b.id]}/100</div>`:''}</div>`).join('')}</div>`+mentor(1);
+ $('view').querySelectorAll('.brief').forEach(d=>d.onclick=()=>{st={stage:1,brief:d.dataset.id,insight:null,define:null,sel:new Set(),tested:null,reviewed:false};go(1)})}
+/* 1 EMPATHISE */
+function empath(){const b=B(),[q,opts,right,why]=b.insight;
+ $('view').innerHTML=`<h2>🫶 Empathise: meet ${esc(b.persona.name)}</h2><div class="two"><div class="card"><div style="font-size:44px">👤</div><b style="font-size:20px">${esc(b.persona.name)}</b> · ${esc(b.persona.role)}<div class="quote" style="margin-top:8px">"${esc(b.persona.quote)}"</div><h3 style="margin:12px 0 4px">😣 Pain points</h3>${b.pains.map(p=>`<div>• ${esc(p)}</div>`).join('')}</div>
+ <div class="card"><h3 style="margin:0 0 6px">⏱️ A bad night</h3><div class="tl">${b.day.map(d=>`<div>${esc(d)}</div>`).join('')}</div><h3 style="margin:14px 0 4px">🤔 ${esc(q)}</h3>${opts.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o)}</button>`).join('')}<div id="fb"></div></div></div>${mentor(1)}${nextBtn(2,'Define the problem →',st.insight==null)}`;
+ $('view').querySelectorAll('.opt').forEach(o=>o.onclick=()=>{const i=+o.dataset.i;st.insight=i;$('view').querySelectorAll('.opt').forEach((x,k)=>x.className='opt'+(k===right?' r':k===i?' w':''));
+  $('fb').innerHTML=`<div class="fb ${i===right?'ok':'bad'}">${i===right?'✅ Exactly.':'💭 Not quite.'} ${esc(why)}</div>`;$('next').disabled=false;stages()});
+ if(st.insight!=null)$('view').querySelectorAll('.opt')[st.insight].click();bindNext(2)}
+/* 2 DEFINE */
+function define(){const b=B();
+ $('view').innerHTML=`<h2>📝 Define: which problem statement would you sign off?</h2><div class="lead">You can only build one thing. Which statement gives the team a clear target?</div><div class="card">${b.define.map(([s],i)=>`<button class="opt" data-i="${i}">${esc(s)}</button>`).join('')}<div id="fb"></div></div>${mentor(2)}${nextBtn(3,'Ideate →',st.define==null)}`;
+ $('view').querySelectorAll('.opt').forEach(o=>o.onclick=()=>{const i=+o.dataset.i,[s,sc,why]=b.define[i];st.define=i;
+  $('view').querySelectorAll('.opt').forEach((x,k)=>x.className='opt'+(b.define[k][1]===2?' r':k===i?(sc===1?' m':' w'):''));
+  $('fb').innerHTML=`<div class="fb ${sc===2?'ok':sc===1?'mid':'bad'}">${sc===2?'✅':sc===1?'⚖️':'❌'} ${esc(why)}</div>`;$('next').disabled=false;stages()});
+ if(st.define!=null)$('view').querySelectorAll('.opt')[st.define].click();bindNext(3)}
+/* 3 IDEATE */
+function ideate(){const b=B();
+ $('view').innerHTML=`<h2>💡 Ideate: open your 5-day toolbox</h2><div class="lead">Pick the concepts this problem needs. Click <b>?</b> for a 30-second refresher on anything you've forgotten.</div>
+ <div class="counter"><b>Selected: <span id="cnt">0</span></b><span style="color:var(--mut)">Tip: strong designs for this brief use roughly ${b.need.length}–${b.need.length+4} concepts.</span><button class="btn ghost" id="clr" style="margin:0">Clear</button></div>
+ <div class="card">${[1,2,3,4,5].map(d=>`<div class="daycol"><h4 style="color:${DAYS[d][2]}">${DAYS[d][0]} · ${DAYS[d][1]}</h4><div class="cgrid">${CONCEPTS.filter(c=>c.day===d).map(c=>`<span class="cc ${st.sel.has(c.id)?'on':''}" data-id="${c.id}">${c.icon} ${esc(c.name)} <span class="q" data-q="${c.id}">?</span></span>`).join('')}</div></div>`).join('')}</div>${mentor(3)}${nextBtn(4,'Prototype the architecture →',st.sel.size<3)}`;
+ const upd=()=>{$('cnt').textContent=st.sel.size;$('next').disabled=st.sel.size<3;st.reviewed=false;st.tested=null;stages()};
+ $('view').querySelectorAll('.cc').forEach(c=>c.onclick=e=>{if(e.target.dataset.q){refresher(e.target.dataset.q);return}const id=c.dataset.id;st.sel.has(id)?st.sel.delete(id):st.sel.add(id);c.classList.toggle('on');upd()});
+ $('clr').onclick=()=>{st.sel.clear();ideate()};upd();bindNext(4)}
+/* 4 PROTOTYPE */
+function review(){const b=B(),f=b.flags,out=[];RULES.forEach(([sev,t,msg,fix])=>{if(t(st.sel,f))out.push([sev,msg,fix])});return out}
+function proto(){st.reviewed=true;const rs=review();
+ const lanes=Object.entries(LANES).map(([k,[n,c]])=>{const items=[...st.sel].filter(id=>BY[id].lane===k);return `<div class="lane"><div class="ln" style="background:${c}">${n}</div><div class="items">${items.map(id=>`<span class="it">${BY[id].icon} ${esc(BY[id].name)}</span>`).join('')||'<span style="color:#9aa6b8;font-size:13px">empty</span>'}</div></div>`}).join('');
+ const sevCls={"🚩":"s0","⚠️":"s1","💸":"s1","💡":"s2"};
+ $('view').innerHTML=`<h2>🧩 Prototype: your architecture, reviewed live</h2><div class="two"><div class="card"><h3 style="margin:0 0 6px">🏗️ Your design (${st.sel.size} concepts)</h3><div class="lanes">${lanes}</div></div>
+ <div class="card"><h3 style="margin:0 0 6px">🧐 Senior design review: ${rs.filter(r=>r[0]==='🚩').length} 🚩 · ${rs.filter(r=>r[0]!=='🚩'&&r[0]!=='💡').length} ⚠️</h3>${rs.length?rs.map(([s,m,fix],i)=>`<div class="rule ${sevCls[s]}"><span>${s}</span><span>${esc(m)}</span>${fix.length?`<button class="btn ghost fix" data-f="${fix.join(',')}" style="margin:0;padding:5px 9px;font-size:13px">+ Add ${fix.map(x=>BY[x].name.split(' (')[0]).join(' / ')}</button>`:''}</div>`).join(''):'<div class="fb ok">✅ No issues found by the reviewer. Now prove it against real scenarios.</div>'}</div></div>${mentor(4)}<button class="btn ghost" id="back">← Change concepts</button>${nextBtn(5,'Test against real scenarios →')}`;
+ $('view').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{b.dataset.f.split(',').forEach(x=>st.sel.add(x));st.tested=null;proto()});
+ $('back').onclick=()=>go(3);bindNext(5);stages()}
+/* 5 TEST */
+async function test(){const b=B();
+ $('view').innerHTML=`<h2>🧪 Test: run ${b.scenarios.length} real scenarios against your design</h2><div class="lead">Each scenario needs certain concepts. Missing one? You'll see exactly what breaks, and can add it and re-run.</div><div class="card" id="scs"></div>${mentor(5)}<button class="btn ghost" id="back">← Back to prototype</button>${nextBtn(6,'See your results →',true)}`;
+ $('back').onclick=()=>go(4);bindNext(6);
+ let pass=0;const res=[];
+ for(const [name,needs,okT,badT] of b.scenarios){const miss=needs.filter(n=>!st.sel.has(n)),ok=!miss.length;if(ok)pass++;res.push([name,ok,miss]);
+  $('scs').insertAdjacentHTML('beforeend',`<div class="sc ${ok?'p':'f'}"><span style="font-size:20px">${ok?'✅':'❌'}</span><div><b>${esc(name)}</b><br>${esc(ok?okT:badT)}${ok?'':`<br><small>Missing: ${miss.map(m=>`<a href="#" data-q="${m}">${BY[m].icon} ${esc(BY[m].name)}</a>`).join(', ')}</small> <button class="btn ghost" data-add="${miss.join(',')}" style="padding:3px 8px;font-size:12px;margin:0 0 0 6px">+ Add & re-test</button>`}</div></div>`);await sleep(350)}
+ $('scs').insertAdjacentHTML('afterbegin',`<div class="fb ${pass===b.scenarios.length?'ok':pass>=b.scenarios.length/2?'mid':'bad'}" style="font-size:18px;margin:0 0 8px"><b>${pass} / ${b.scenarios.length} scenarios passed</b></div>`);
+ $('scs').querySelectorAll('[data-q]').forEach(a=>a.onclick=e=>{e.preventDefault();refresher(a.dataset.q)});
+ $('scs').querySelectorAll('[data-add]').forEach(x=>x.onclick=()=>{x.dataset.add.split(',').forEach(i=>st.sel.add(i));test()});
+ st.tested={pass,total:b.scenarios.length,res};$('next').disabled=false;stages()}
+/* 6 REFLECT */
+function score(){const b=B(),f=b.flags,rs=review(),t=st.tested||{pass:0,total:1};
+ const safetyIds=["hitl","guardrails","env","governance"];const safetyNeed=b.need.filter(x=>safetyIds.includes(x));
+ const safety=Math.max(0,100-rs.filter(r=>r[0]==='🚩').length*35-safetyNeed.filter(x=>!st.sel.has(x)).length*15);
+ const quality=Math.round(t.pass/t.total*100);
+ const over=b.overkill.filter(x=>st.sel.has(x)).length,extra=[...st.sel].filter(x=>!b.need.includes(x)&&!b.nice.includes(x)).length;
+ const cost=Math.max(0,100-over*15-(f.volume&&!st.sel.has('cost')?30:0)-Math.max(0,st.sel.size-b.need.length-5)*4);
+ const simplicity=Math.max(0,100-over*12-extra*6);
+ const prob=(st.define!=null&&b.define[st.define][1]===2?50:st.define!=null&&b.define[st.define][1]===1?25:0)+(st.insight===b.insight[2]?50:0);
+ const total=Math.round(safety*.3+quality*.35+cost*.1+simplicity*.1+prob*.15);return {safety,quality,cost,simplicity,prob,total,over,extra}}
+function reflect(){const b=B(),s=score();if(best[b.id]==null||s.total>best[b.id]){best[b.id]=s.total;saveBest()}
+ const got=b.need.filter(x=>st.sel.has(x)),missed=b.need.filter(x=>!st.sel.has(x)),overk=b.overkill.filter(x=>st.sel.has(x)),niceGot=b.nice.filter(x=>st.sel.has(x));
+ const grade=s.total>=85?['🏆','Senior-engineer level design','var(--ok)']:s.total>=65?['👍','Solid design, close the gaps below','var(--gold)']:['📚','Good start: revisit the missing concepts','var(--bad)'];
+ const bar=(n,v,c)=>`<div class="b"><span>${n}</span><div class="t"><i style="width:${v}%;background:${c}"></i></div><span>${v}</span></div>`;
+ const link=id=>`<a href="#" data-q="${id}">${BY[id].icon} ${esc(BY[id].name)}</a>`;
+ $('view').innerHTML=`<h2>🏁 Reflect: how did your design do?</h2><div class="two"><div class="card"><div style="display:flex;gap:16px;align-items:center"><div class="big" style="color:${grade[2]}">${s.total}</div><div><div style="font-size:30px">${grade[0]}</div><b>${grade[1]}</b><br><small style="color:var(--mut)">Best for this brief: ${best[b.id]}/100</small></div></div>
+  <div class="bars" style="margin-top:10px">${bar('🛡️ Safety',s.safety,'#1a8a4a')}${bar('🎯 Quality',s.quality,'#1f5fbf')}${bar('💰 Cost',s.cost,'#b7791f')}${bar('🪶 Simplicity',s.simplicity,'#7a3fc4')}${bar('🫶 Problem framing',s.prob,'#d9480f')}</div></div>
+  <div class="card"><h3 style="margin:0 0 6px">🧓 How the expert would build it</h3>${b.expert.map(e=>`<div style="padding:4px 0;border-bottom:1px dashed var(--line)">✔ ${esc(e)}</div>`).join('')}</div></div>
+ <div class="card" style="margin-top:12px"><div class="cmp"><div><h4 style="color:var(--ok)">✅ You got these (${got.length}/${b.need.length})</h4>${got.map(link).join(' · ')||'—'}${niceGot.length?`<div style="margin-top:6px;font-size:14px">⭐ Nice extras: ${niceGot.map(link).join(' · ')}</div>`:''}</div>
+  <div><h4 style="color:var(--bad)">❌ Missed (revisit these)</h4>${missed.map(link).join(' · ')||'🎉 Nothing missed!'}</div>
+  <div><h4 style="color:var(--gold)">⚖️ Probably overkill here</h4>${overk.map(link).join(' · ')||'None: nicely lean.'}</div></div></div>
+ <div class="mentor">🧓 <b>The principles behind every expert design:</b><br>① Start from the user's real need · ② simplest thing that works · ③ ground answers and cite sources · ④ validate everything at the boundaries · ⑤ humans approve every safety-relevant action · ⑥ design for failure · ⑦ measure (trace, evaluate, cost) before you scale.</div>
+ <button class="btn ghost" id="again">↻ Redesign this brief</button><button class="btn go" id="other">🎯 Try another problem</button><a class="btn ghost" href="1_concept_map.html" style="text-decoration:none;display:inline-block">🗺️ Revise on the Concept Map</a>`;
+ $('view').querySelectorAll('[data-q]').forEach(a=>a.onclick=e=>{e.preventDefault();refresher(a.dataset.q)});
+ $('again').onclick=()=>go(3);$('other').onclick=()=>{st={stage:0,brief:null,insight:null,define:null,sel:new Set(),tested:null};go(0)}}
+go(0);
+</script>
+</body>
+</html>

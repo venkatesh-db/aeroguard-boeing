@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Building LLM Apps</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--teal:#0f8a7a;--pur:#7a3fc4;--or:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#0f5a6b);color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:32px}header p{margin:2px 0 0;opacity:.85}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 26px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:10px 16px;font-size:17px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:20px}
+.tab{display:none}.tab.on{display:block}
+h2{font-size:32px;margin:0 0 4px}.sub{color:var(--mut);font-size:20px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:1050px){.two{grid-template-columns:1fr}}
+.btn{background:var(--navy);color:#fff;border:0;padding:11px 16px;border-radius:10px;cursor:pointer;font-size:17px;font-weight:700;margin:6px 6px 0 0}
+.btn.go{background:var(--ok)}.btn.ghost{background:#e3e9f3;color:var(--navy)}.btn.red{background:var(--bad)}
+.btn:disabled{opacity:.45}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.chip{background:#e8eef9;color:var(--navy);border:2px solid transparent;border-radius:24px;padding:8px 14px;font-size:16px;cursor:pointer}
+.chip.on{background:var(--navy);color:#fff}
+.analogy{background:#fff8e6;border:1px solid #f1d38a;border-radius:12px;padding:12px 16px;font-size:19px;margin-bottom:14px}
+.tip{background:#eef4ff;border-left:6px solid var(--blue);border-radius:10px;padding:12px 16px;margin-top:14px;font-size:18px}
+.mono{font:16px/1.55 ui-monospace,Menlo,monospace;white-space:pre-wrap;background:#0f1729;color:#e5ecff;border-radius:12px;padding:12px 14px;min-height:60px}
+.mono.ok{box-shadow:inset 6px 0 var(--ok)}.mono.bad{box-shadow:inset 6px 0 #ff6b4a}
+.k{color:#7fc8ff}.s{color:#a5e88b}.n{color:#ffcb6b}.c{color:#6b7a99}.e{color:#ff8a80}.g{color:#9ff0b5}
+.lbl{display:inline-block;color:#fff;font-weight:700;border-radius:6px;padding:2px 10px;font-size:14px;margin:8px 0 6px}
+@keyframes pop{0%{transform:scale(.85);opacity:0}100%{transform:scale(1);opacity:1}}
+.pipe{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.node{border-radius:12px;padding:10px 14px;color:#fff;font-weight:700;text-align:center;min-width:120px;transition:all .3s;opacity:.45}
+.node.on{opacity:1;transform:scale(1.06);box-shadow:0 6px 16px #0003}
+.node small{display:block;font-weight:400;font-size:13px}
+.arr{font-size:24px;color:var(--mut)}
+.log{font-size:17px;max-height:260px;overflow:auto}
+.log div{padding:6px 10px;border-bottom:1px solid var(--line);animation:pop .3s}
+.chat{background:#f6f8fc;border-radius:12px;padding:12px;height:330px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:80%;padding:9px 13px;border-radius:14px;font-size:18px;animation:pop .3s}
+.msg.u{align-self:flex-end;background:var(--navy);color:#fff}.msg.a{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+.stream{background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px;min-height:200px;font-size:20px;line-height:1.5}
+.cursor{display:inline-block;width:10px;height:22px;background:var(--or);vertical-align:middle;animation:blink .8s infinite}
+@keyframes blink{50%{opacity:0}}
+.timer{font-size:28px;font-weight:800}
+.toggles label{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;cursor:pointer;font-size:17px}
+.toggles input{transform:scale(1.4)}
+.toast{border-radius:12px;padding:12px 14px;font-size:19px;margin-top:10px;animation:pop .3s}
+.toast.ok{background:#e7f6ec;border:1px solid var(--ok)}.toast.bad{background:#fdecea;border:1px solid var(--bad)}.toast.warn{background:#fff4dc;border:1px solid var(--gold)}
+input[type=text]{width:100%;padding:10px;font-size:18px;border:2px solid var(--line);border-radius:10px}
+.next{display:block;text-align:center;margin-top:18px;font-size:20px;font-weight:700;color:var(--blue)}
+</style>
+</head>
+<body>
+<header><h1>🧱 Building Real LLM Apps: The 5 Core Concepts</h1><p>Day 3 · Page 1 of 2 · Simple, everyday examples. Page 2 applies them to aviation.</p></header>
+<nav id="nav">
+  <button data-t="t1" class="on">① Structured outputs</button>
+  <button data-t="t2">② API contracts</button>
+  <button data-t="t3">③ Session memory</button>
+  <button data-t="t4">④ Streaming</button>
+  <button data-t="t5">⑤ Errors & validation</button>
+</nav>
+<main>
+
+<!-- 1 STRUCTURED -->
+<section class="tab on" id="t1">
+  <h2>Structured outputs: make the AI fill in a form</h2>
+  <div class="analogy">📝 <b>Analogy:</b> ask a person "tell me about the order" and you get a story. Hand them a <b>form with boxes</b> and you get answers your computer can use. A <b>JSON schema</b> is that form; <b>validation</b> checks the boxes; a <b>retry</b> sends the form back when it's wrong.</div>
+  <div class="two">
+    <div class="card">
+      <span class="lbl" style="background:var(--pur)">The form (JSON schema)</span>
+      <div class="mono">{
+  <span class="k">"name"</span>:     <span class="s">string</span>   <span class="c">(required)</span>
+  <span class="k">"quantity"</span>: <span class="s">integer</span>  <span class="c">(1–100)</span>
+  <span class="k">"size"</span>:     <span class="s">"S" | "M" | "L"</span>
+  <span class="k">"urgent"</span>:   <span class="s">true | false</span>
+}</div>
+      <div style="margin-top:10px"><b>User says:</b> "Can I get three large coffees, quickly please? Name's Ravi."</div>
+      <div class="chips" id="soMode"><button class="chip on" data-m="free">💬 Ask for free text</button><button class="chip" data-m="json">📋 Ask for JSON + schema</button></div>
+      <button class="btn go" id="soRun">▶ Call the LLM</button>
+      <div class="pipe"><div class="node" id="n1" style="background:var(--blue)">🤖 LLM<small>generates</small></div><div class="arr">→</div><div class="node" id="n2" style="background:var(--gold)">🔍 Validate<small>against schema</small></div><div class="arr">→</div><div class="node" id="n3" style="background:var(--ok)">✅ Use it<small>in your app</small></div></div>
+      <div>Attempt: <b id="soAtt">0</b> / 3</div>
+    </div>
+    <div class="card">
+      <span class="lbl" style="background:var(--blue)">LLM output</span><div class="mono" id="soOut">…</div>
+      <span class="lbl" style="background:var(--gold)">Validator</span><div class="log" id="soLog"></div>
+    </div>
+  </div>
+  <div class="tip">💡 Typical loop: <b>ask for JSON → parse → validate (e.g. with Pydantic) → if invalid, send the error back and retry (max 2–3 times) → if still invalid, return a safe error.</b> Many LLM APIs also offer a built-in "structured output" / JSON mode that makes failures rarer, but you still validate.</div>
+</section>
+
+<!-- 2 CONTRACT -->
+<section class="tab" id="t2">
+  <h2>API contracts: the agreement between screen and server</h2>
+  <div class="analogy">🔌 <b>Analogy:</b> a plug and a socket. As long as both follow the same shape, either side can be rebuilt. Change the shape on one side only, and nothing works. The <b>contract</b> is the agreed shape of every request, response and error.</div>
+  <div class="two">
+    <div class="card">
+      <span class="lbl" style="background:var(--teal)">📱 UI sends (request)</span>
+      <div class="mono"><span class="k">POST</span> /api/v1/chat
+{
+  <span class="k">"session_id"</span>: <span class="s">"abc-123"</span>,
+  <span class="k">"message"</span>:    <span class="s">"Hello!"</span>
+}</div>
+      <span class="lbl" style="background:var(--navy)">🖥️ Backend replies (response)</span>
+      <div class="mono" id="ctResp"></div>
+      <span class="lbl" style="background:var(--bad)">❗ Every error looks the same</span>
+      <div class="mono">{ <span class="k">"error"</span>: { <span class="k">"code"</span>: <span class="s">"INVALID_INPUT"</span>, <span class="k">"message"</span>: <span class="s">"Message is empty"</span> } }</div>
+    </div>
+    <div class="card">
+      <b style="font-size:21px">🧪 Experiment: the backend team renames a field</b>
+      <div class="chips" id="ctPick"><button class="chip on" data-v="ok">✅ Follow the contract</button><button class="chip" data-v="rename">✏️ Rename "reply" → "text"</button><button class="chip" data-v="v2">🆕 Ship it as /api/v2 instead</button></div>
+      <div style="margin-top:8px;font-weight:700">What the user sees:</div>
+      <div class="stream" id="ctUI" style="min-height:120px"></div>
+      <div class="tip" id="ctWhy" style="margin-top:10px"></div>
+    </div>
+  </div>
+  <div class="tip">💡 A good contract: <b>clear names</b> · <b>typed fields</b> (Pydantic models) · <b>one error format</b> · a <b>version</b> in the URL (<code>/v1</code>) · documented automatically (FastAPI's <code>/docs</code>). Breaking changes go into a new version.</div>
+</section>
+
+<!-- 3 SESSION -->
+<section class="tab" id="t3">
+  <h2>Session memory: LLMs forget everything between messages</h2>
+  <div class="analogy">🐠 <b>Analogy:</b> an LLM is like someone with no short-term memory. Every message, you must hand them <b>the notes of the conversation so far</b>. Your backend keeps those notes per <b>session_id</b> and sends them each time.</div>
+  <div class="two">
+    <div class="card">
+      <label style="display:flex;gap:10px;align-items:center;font-size:19px;font-weight:700"><input type="checkbox" id="mem" checked style="transform:scale(1.5)"> 🧠 Backend sends the conversation history</label>
+      <div class="chips" id="sPick"></div>
+      <div class="chat" id="sChat"></div>
+      <button class="btn ghost" id="sReset">↺ New session</button>
+    </div>
+    <div class="card">
+      <span class="lbl" style="background:var(--navy)">What actually gets sent to the LLM this turn</span>
+      <div class="mono" id="sPayload" style="max-height:320px;overflow:auto"></div>
+      <div style="margin-top:8px">Tokens sent this turn: <b id="sTok">0</b> <span style="color:var(--mut);font-size:16px">(grows every turn, and so does the cost)</span></div>
+    </div>
+  </div>
+  <div class="tip">💡 Store history in a database or cache keyed by <code>session_id</code>. When it gets long: <b>keep the last N messages</b>, or <b>summarise older ones</b>, so you stay inside the context window and keep costs down.</div>
+</section>
+
+<!-- 4 STREAMING -->
+<section class="tab" id="t4">
+  <h2>Streaming: show words as they're written</h2>
+  <div class="analogy">📺 <b>Analogy:</b> watching a live match versus waiting for the full recording. Same content, but streaming lets people <b>start reading in under a second</b> instead of staring at a spinner.</div>
+  <div class="two">
+    <div class="card"><b style="font-size:21px">⏳ Without streaming</b><div>Time to first word: <span class="timer" id="w1">–</span></div><div class="stream" id="noS"></div></div>
+    <div class="card"><b style="font-size:21px">⚡ With streaming</b><div>Time to first word: <span class="timer" id="w2">–</span></div><div class="stream" id="yesS"></div></div>
+  </div>
+  <button class="btn go" id="sGo">▶ Ask both: "Explain why the sky is blue"</button><button class="btn red" id="sStop">⏹ Stop generating</button>
+  <div class="two" style="margin-top:14px">
+    <div class="card"><span class="lbl" style="background:var(--navy)">🐍 FastAPI side</span><div class="mono"><span class="k">from</span> fastapi.responses <span class="k">import</span> StreamingResponse
+
+<span class="n">@app.post</span>(<span class="s">"/api/v1/chat/stream"</span>)
+<span class="k">def</span> chat_stream(req: ChatRequest):
+    <span class="k">def</span> events():
+        <span class="k">for</span> token <span class="k">in</span> llm.stream(req.message):
+            <span class="k">yield</span> <span class="s">f"data: {json.dumps({'token': token})}\n\n"</span>
+        <span class="k">yield</span> <span class="s">"data: [DONE]\n\n"</span>
+    <span class="k">return</span> StreamingResponse(events(), media_type=<span class="s">"text/event-stream"</span>)</div></div>
+    <div class="card"><span class="lbl" style="background:var(--teal)">📡 What travels over the wire (Server-Sent Events)</span><div class="mono" id="wire" style="max-height:260px;overflow:auto"></div></div>
+  </div>
+</section>
+
+<!-- 5 ERRORS -->
+<section class="tab" id="t5">
+  <h2>Error handling & input validation: fail politely</h2>
+  <div class="analogy">🛡️ <b>Analogy:</b> airport security has several checkpoints. Each layer catches different problems, and passengers always get a clear instruction, never a crash.</div>
+  <div class="two">
+    <div class="card">
+      <b>Type a question</b><input type="text" id="eIn" value="What's the weather like?">
+      <div class="toggles" style="margin-top:8px">
+        <label><input type="checkbox" id="fTimeout"> ⏱️ LLM is slow (timeout)</label>
+        <label><input type="checkbox" id="fRate"> 🚦 Too many requests (429 rate limit)</label>
+        <label><input type="checkbox" id="fDown"> 💥 LLM provider is down</label>
+      </div>
+      <button class="btn go" id="eGo">📤 Send</button>
+      <div class="chips"><button class="chip" id="eEmpty">Try empty input</button><button class="chip" id="eLong">Try a huge input</button><button class="chip" id="eInject">Try "&lt;script&gt;"</button></div>
+    </div>
+    <div class="card">
+      <div class="pipe" id="ePipe"><div class="node" style="background:var(--teal)">📱 UI check<small>empty? too long?</small></div><div class="arr">→</div><div class="node" style="background:var(--navy)">🖥️ API (Pydantic)<small>422 if bad</small></div><div class="arr">→</div><div class="node" style="background:var(--blue)">🤖 LLM call<small>timeout · retry</small></div><div class="arr">→</div><div class="node" style="background:var(--ok)">✅ Answer</div></div>
+      <span class="lbl" style="background:var(--navy)">Server log (for developers)</span><div class="log mono" id="eLog" style="min-height:120px;font-size:15px"></div>
+      <span class="lbl" style="background:var(--ok)">What the user sees</span><div id="eUser"></div>
+    </div>
+  </div>
+  <div class="tip">💡 Golden rules: <b>validate early</b> (UI and API) · <b>set timeouts</b> on every LLM call · <b>retry</b> temporary errors (429, timeouts) with a growing wait · <b>never show stack traces</b> to users · <b>log details</b> for developers · always give the user a next step.</div>
+  <a class="next" href="2_aviation_assistant.html">➡️ Page 2: see all 5 concepts in an aviation maintenance assistant</a>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===b.dataset.t))});
+function chipGroup(id,cb){[...$(id).children].forEach(b=>b.onclick=()=>{[...$(id).children].forEach(x=>x.classList.toggle('on',x===b));cb(b)})}
+
+/* 1 STRUCTURED */
+let soMode='free';chipGroup('soMode',b=>soMode=b.dataset.m);
+const lit=id=>['n1','n2','n3'].forEach(n=>$(n).classList.toggle('on',n===id));
+function slog(t,c){$('soLog').insertAdjacentHTML('beforeend',`<div style="color:${c||'inherit'}">${t}</div>`)}
+$('soRun').onclick=async()=>{$('soRun').disabled=true;$('soLog').innerHTML='';
+ if(soMode==='free'){$('soAtt').textContent=1;lit('n1');$('soOut').className='mono';$('soOut').textContent='Sure! Ravi would like three large coffees, and he seems to be in a bit of a hurry. ☕☕☕';await sleep(900);lit('n2');
+  slog('❌ Not JSON at all. The app cannot read "name", "quantity", "size" or "urgent" from a sentence.','#c2410c');slog('➡️ Free text is fine for chatting, but useless for code that needs exact fields.');$('soOut').className='mono bad';$('soRun').disabled=false;return}
+ const tries=[['```json\n{"name": "Ravi", "quantity": "three", "size": "large", "urgent": "yes"}\n```',['quantity: expected integer, got "three"','size: must be "S", "M" or "L", got "large"','urgent: expected true/false, got "yes"']],
+  ['{"name": "Ravi", "quantity": 3, "size": "L", "urgent": true',['Invalid JSON: missing closing }']],
+  ['{"name": "Ravi", "quantity": 3, "size": "L", "urgent": true}',[]]];
+ for(let i=0;i<tries.length;i++){$('soAtt').textContent=i+1;lit('n1');$('soOut').className='mono';$('soOut').textContent='⏳ generating…';await sleep(700);$('soOut').textContent=tries[i][0];await sleep(600);lit('n2');
+  const errs=tries[i][1];
+  if(errs.length){$('soOut').className='mono bad';errs.forEach(e=>slog('❌ '+esc(e),'#c2410c'));slog(`🔁 Retry ${i+1}: send the errors back to the LLM: "Fix these problems and return only valid JSON."`,'#b7791f');await sleep(1200)}
+  else{$('soOut').className='mono ok';slog('✅ Valid JSON, and every field matches the schema.','#1a8a4a');await sleep(500);lit('n3');slog('🎉 App reads order.quantity = 3, order.size = "L". It can now create the order automatically.')}}
+ $('soRun').disabled=false};
+
+/* 2 CONTRACT */
+const CT={ok:['{\n  <span class="k">"reply"</span>: <span class="s">"Hi! How can I help?"</span>,\n  <span class="k">"session_id"</span>: <span class="s">"abc-123"</span>\n}','<span style="color:var(--ok)">🤖 Hi! How can I help?</span>','✅ The UI reads <code>response.reply</code>, and the backend sends <code>reply</code>. Both sides match the contract.'],
+ rename:['{\n  <span class="k e">"text"</span>: <span class="s">"Hi! How can I help?"</span>,\n  <span class="k">"session_id"</span>: <span class="s">"abc-123"</span>\n}','<span style="color:var(--bad)">🤖 undefined</span><br><small style="color:var(--mut)">(or a blank bubble, or a crash)</small>','💥 The UI still reads <code>response.reply</code>, which no longer exists. One small rename on one side broke the app for every user.'],
+ v2:['<span class="c">// /api/v1/chat  (unchanged)</span>\n{ <span class="k">"reply"</span>: <span class="s">"Hi! How can I help?"</span> }\n\n<span class="c">// /api/v2/chat  (new shape)</span>\n{ <span class="k">"text"</span>: <span class="s">"Hi!"</span>, <span class="k">"sources"</span>: [] }','<span style="color:var(--ok)">🤖 Hi! How can I help?</span><br><small style="color:var(--mut)">Old app keeps working on v1 while the new app moves to v2.</small>','✅ Breaking changes go in a <b>new version</b>. Nobody breaks, and teams upgrade when ready.']};
+chipGroup('ctPick',b=>ct(b.dataset.v));function ct(v){$('ctResp').innerHTML=CT[v][0];$('ctUI').innerHTML=CT[v][1];$('ctWhy').innerHTML='💡 '+CT[v][2]}ct('ok');
+
+/* 3 SESSION */
+const SQ=[['Hi, my name is Priya.','Nice to meet you, Priya! 👋'],['I\'m planning a trip to Goa.','Goa is lovely! When are you going?'],['In December.','December is peak season, so book early!'],['What\'s my name and where am I going?',null]];
+let hist=[],si=0;
+$('sPick').innerHTML=SQ.map((q,i)=>`<button class="chip" ${i?'disabled':''}>${i+1}. ${esc(q[0])}</button>`).join('');
+function sRender(sent){$('sChat').innerHTML=hist.map(([r,t])=>`<div class="msg ${r==='user'?'u':'a'}">${esc(t)}</div>`).join('');$('sChat').scrollTop=1e6;
+ const p={model:'any-llm',messages:sent.map(([r,t])=>({role:r,content:t}))};$('sPayload').innerHTML=esc(JSON.stringify(p,null,2)).replace(/"(role|content|messages|model)"/g,'<span class="k">"$1"</span>');
+ $('sTok').textContent=sent.reduce((a,[,t])=>a+Math.ceil(t.length/4)+4,0)}
+[...$('sPick').children].forEach((b,i)=>b.onclick=async()=>{if(i!==si)return;b.disabled=true;const q=SQ[i][0];hist.push(['user',q]);
+ const sent=$('mem').checked?[...hist]:[['user',q]];sRender(sent);await sleep(600);
+ let a=SQ[i][1];if(!a)a=$('mem').checked?'Your name is Priya, and you\'re going to Goa in December. 🏖️':'I\'m sorry, I don\'t know your name or travel plans. This is the first message I\'ve seen.';
+ hist.push(['assistant',a]);sRender($('mem').checked?hist:[['user',q]]);si++;if($('sPick').children[si])$('sPick').children[si].disabled=false});
+$('sReset').onclick=()=>{hist=[];si=0;[...$('sPick').children].forEach((b,i)=>b.disabled=i>0);sRender([])};sRender([]);
+
+/* 4 STREAMING */
+const ANS='The sky looks blue because sunlight is made of many colours. When it hits the air, tiny molecules scatter the short blue wavelengths much more than red ones. That scattered blue light reaches your eyes from every direction, so the whole sky glows blue. At sunset the light travels through more air, the blue is scattered away, and you see orange and red instead.';
+let stop=false;
+$('sStop').onclick=()=>stop=true;
+$('sGo').onclick=async()=>{stop=false;$('sGo').disabled=true;const words=ANS.split(' ');$('noS').innerHTML='<span style="color:var(--mut)">⏳ Waiting for the full answer…</span>';$('yesS').innerHTML='<span class="cursor"></span>';$('wire').innerHTML='';$('w1').textContent='…';$('w2').textContent='…';
+ const t0=performance.now();let out='';
+ const wait=new Promise(async r=>{await sleep(6000);if(!stop){$('noS').textContent=ANS;$('w1').textContent=((performance.now()-t0)/1000).toFixed(1)+' s'}else $('noS').innerHTML='<span style="color:var(--bad)">Cancelled before anything appeared.</span>';r()});
+ await sleep(400);$('w2').textContent=((performance.now()-t0)/1000).toFixed(1)+' s';
+ for(const w of words){if(stop){$('wire').insertAdjacentHTML('beforeend','<span class="e">(client closed connection, so the server stops generating and saves cost)</span>\n');break}
+  out+=w+' ';$('yesS').innerHTML=esc(out)+'<span class="cursor"></span>';$('wire').insertAdjacentHTML('beforeend',`<span class="g">data:</span> {"token": "${esc(w)} "}\n`);$('wire').scrollTop=1e6;await sleep(90)}
+ if(!stop){$('wire').insertAdjacentHTML('beforeend','<span class="g">data:</span> [DONE]\n');$('yesS').innerHTML=esc(out)}
+ await wait;$('sGo').disabled=false};
+
+/* 5 ERRORS */
+const nodes=()=>[...$('ePipe').querySelectorAll('.node')];
+function elog(t,c){$('eLog').insertAdjacentHTML('beforeend',`<div style="color:${c||'#e5ecff'}">${t}</div>`);$('eLog').scrollTop=1e6}
+function user(c,t){$('eUser').innerHTML=`<div class="toast ${c}">${t}</div>`}
+async function step(i){nodes().forEach((n,k)=>n.classList.toggle('on',k===i));await sleep(500)}
+$('eGo').onclick=async()=>{$('eLog').innerHTML='';$('eUser').innerHTML='';const v=$('eIn').value;const ts=()=>new Date().toTimeString().slice(0,8);
+ await step(0);if(!v.trim()){elog(`${ts()} UI blocked: empty input (no request sent)`,'#ffcb6b');user('warn','✏️ Please type a question first.');return}
+ if(v.length>500){elog(`${ts()} UI blocked: ${v.length} chars > 500 limit`,'#ffcb6b');user('warn',`✂️ Your message is too long (${v.length.toLocaleString()} characters). Please keep it under 500.`);return}
+ await step(1);elog(`${ts()} POST /api/v1/chat  body validated by Pydantic ✓`);
+ if(/<script/i.test(v)){elog(`${ts()} 422 rejected: message contains HTML/script tags`,'#ff8a80');user('bad','🚫 That message contains characters we can\'t accept. Please use plain text.');return}
+ await step(2);
+ if($('fDown').checked){elog(`${ts()} LLM call failed: 503 Service Unavailable`,'#ff8a80');elog(`${ts()} retry 1/2 after 1s… 503`,'#ffcb6b');await sleep(600);elog(`${ts()} retry 2/2 after 2s… 503. Giving up.`,'#ff8a80');elog(`${ts()} → returned {"error":{"code":"AI_UNAVAILABLE"}}`);user('bad','😓 Our AI assistant is temporarily unavailable. Your message was saved; please try again in a few minutes.');nodes().forEach(n=>n.classList.remove('on'));return}
+ if($('fRate').checked){elog(`${ts()} LLM 429 Too Many Requests`,'#ffcb6b');elog(`${ts()} waiting 2s (exponential backoff)…`,'#ffcb6b');user('warn','⏳ Lots of people are asking right now… retrying for you.');await sleep(1200);elog(`${ts()} retry 1 → 200 OK ✓`,'#9ff0b5')}
+ if($('fTimeout').checked){elog(`${ts()} LLM call exceeded 30s timeout ⏱️`,'#ff8a80');elog(`${ts()} → returned {"error":{"code":"TIMEOUT"}}`);user('bad','⌛ This is taking longer than expected. Please try again, or ask a shorter question.');nodes().forEach(n=>n.classList.remove('on'));return}
+ await step(3);elog(`${ts()} 200 OK in 1.2s`,'#9ff0b5');user('ok','🤖 It\'s sunny and 28 °C in your area today. (example answer)')};
+$('eEmpty').onclick=()=>{$('eIn').value='   ';$('eGo').click()};$('eLong').onclick=()=>{$('eIn').value='Why? '.repeat(300);$('eGo').click()};$('eInject').onclick=()=>{$('eIn').value='<script>alert(1)<\/script>';$('eGo').click()};
+</script>
+</body>
+</html>

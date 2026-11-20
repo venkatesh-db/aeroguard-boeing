@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prompt Workshop</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--role:#1f5fbf;--task:#0f8a7a;--con:#d9480f;--ex:#7a3fc4;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#3b1f6b);color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:32px}header p{margin:2px 0 0;opacity:.85}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 26px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:10px 18px;font-size:18px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:20px}
+.tab{display:none}.tab.on{display:block}
+h2{font-size:32px;margin:0 0 4px}.sub{color:var(--mut);font-size:20px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:1050px){.two{grid-template-columns:1fr}}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.chip{background:#fff;border:2px solid var(--line);border-radius:24px;padding:8px 14px;font-size:17px;cursor:pointer}
+.chip.on{color:#fff;border-color:transparent}
+.btn{background:var(--navy);color:#fff;border:0;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:18px;font-weight:700;margin:6px 6px 0 0}
+.btn.go{background:var(--ok)}.btn.ghost{background:#e3e9f3;color:var(--navy)}
+.tip{background:#eef4ff;border-left:6px solid #1f5fbf;border-radius:10px;padding:12px 16px;margin-top:14px;font-size:18px}
+.disc{font-size:14px;color:var(--mut);margin-top:14px}
+@keyframes pop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.part{border-left:6px solid;border-radius:10px;padding:10px 14px;margin:10px 0;background:#fbfcfe}
+.part h3{margin:0 0 4px;font-size:20px}
+.prompt{background:#0f1729;color:#e5ecff;border-radius:12px;padding:14px 16px;font:17px/1.6 ui-monospace,Menlo,monospace;white-space:pre-wrap;min-height:120px}
+.prompt .r{color:#8fb8ff}.prompt .t{color:#7be0cf}.prompt .c{color:#ffb38a}.prompt .e{color:#d3b4ff}.prompt .i{color:#c9d3e6}
+.out{background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px 16px;font-size:18px;white-space:pre-wrap;min-height:120px;animation:pop .35s}
+.out.good{border-color:var(--ok)}.out.bad{border-color:var(--bad)}
+.meter{height:22px;background:#e6ebf2;border-radius:11px;overflow:hidden;margin:6px 0}
+.meter i{display:block;height:100%;transition:width .4s}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:17px}
+.checks div{padding:6px 10px;border-radius:8px;background:#f6f8fc}
+.checks .y{background:#e7f6ec}.checks .n{background:#fdecea}
+.lbl{display:inline-block;color:#fff;font-weight:700;border-radius:6px;padding:2px 10px;font-size:15px;margin-bottom:6px}
+.shots{display:flex;gap:10px;margin:8px 0}
+.shots button{flex:1;border:3px solid var(--line);background:#fff;border-radius:12px;padding:12px;font-size:19px;font-weight:700;cursor:pointer}
+.shots button.on{border-color:var(--ex);background:#f3ecff;color:var(--ex)}
+.rows{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.row{display:grid;grid-template-columns:1fr 210px;gap:10px;align-items:center;background:#f6f8fc;border-radius:10px;padding:10px 12px;font-size:17px;animation:pop .35s}
+.row .res{font:700 17px ui-monospace,Menlo,monospace;padding:6px 10px;border-radius:8px;text-align:center}
+.res.ok{background:#e7f6ec;color:var(--ok)}.res.no{background:#fdecea;color:var(--bad)}
+.tasks{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.tasks button{border:3px solid var(--line);background:#fff;border-radius:14px;padding:12px 18px;font-size:19px;font-weight:700;cursor:pointer}
+.tasks button.on{border-color:var(--navy);background:#e8eef9}
+.src{background:#fff8e6;border:1px solid #f1d38a;border-radius:12px;padding:12px 14px;font-size:17px;white-space:pre-wrap}
+.tog{display:flex;flex-direction:column;gap:6px}
+.tog label{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;font-size:17px}
+.tog label:has(input:checked){border-color:var(--c);background:#fbfcfe}
+.tog input{transform:scale(1.4);margin-top:5px}
+.stmt{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;font-size:19px;animation:pop .35s}
+.stmt.ok{border-color:var(--ok);background:#f2fbf5}.stmt.no{border-color:var(--bad);background:#fff4f2}
+.stmt .why{grid-column:1/-1;font-size:16px;color:var(--mut)}
+.stmt .why b{color:var(--ink)}
+.score{font-size:24px;font-weight:800}
+.ladder{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.step{flex:1;min-width:170px;border-radius:12px;padding:12px;color:#fff;text-align:center;font-weight:700}
+.step small{display:block;font-weight:400;opacity:.9}
+</style>
+</head>
+<body>
+<header><h1>✍️ Prompt Workshop for Maintenance Teams</h1><p>Day 2 · Role–Task–Constraint · Zero-shot vs few-shot · Real MRO tasks · Safe phrasing</p></header>
+<nav id="nav">
+  <button data-t="t1" class="on">① Role · Task · Constraint</button>
+  <button data-t="t2">② Zero-shot vs few-shot</button>
+  <button data-t="t3">③ Task lab</button>
+  <button data-t="t4">④ Safe phrasing</button>
+</nav>
+<main>
+
+<!-- 1 RTC -->
+<section class="tab on" id="t1">
+  <h2>Build a prompt in 3 parts</h2>
+  <div class="sub">A vague prompt gets a vague answer. Add a <b style="color:var(--role)">Role</b>, a clear <b style="color:var(--task)">Task</b> and <b style="color:var(--con)">Constraints</b>, and watch the answer improve.</div>
+  <div class="two">
+    <div class="card">
+      <div class="part" style="border-color:var(--role)"><h3 style="color:var(--role)">🎭 Role: who should the AI be?</h3><div class="chips" id="cR"></div></div>
+      <div class="part" style="border-color:var(--task)"><h3 style="color:var(--task)">🎯 Task: what exactly to do?</h3><div class="chips" id="cT"></div></div>
+      <div class="part" style="border-color:var(--con)"><h3 style="color:var(--con)">🚧 Constraints: rules, format, limits (pick several)</h3><div class="chips" id="cC"></div></div>
+      <div class="src" style="margin-top:8px"><b>📋 Input (technician note):</b>
+Eng 2 hi vib after start ~4.8 ips, EGT ok. chked mounts no defects found. borescope due. a/c VT-SKA, 3rd report this wk.</div>
+    </div>
+    <div class="card">
+      <span class="lbl" style="background:#0b2545">The prompt you built</span>
+      <div class="prompt" id="rtcPrompt"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:12px;font-weight:700"><span>Answer quality</span><span id="qV"></span></div>
+      <div class="meter"><i id="qBar"></i></div>
+      <span class="lbl" style="background:var(--ok);margin-top:8px">AI answer (simulated)</span>
+      <div class="out" id="rtcOut"></div>
+    </div>
+  </div>
+  <div class="tip">💡 Formula: <b>"You are [ROLE]. [TASK]. [CONSTRAINTS]."</b> Role sets the expertise and tone, Task says exactly what you want, and Constraints control format, length, sources and safety.</div>
+</section>
+
+<!-- 2 SHOTS -->
+<section class="tab" id="t2">
+  <h2>Zero-shot vs few-shot</h2>
+  <div class="sub"><b>Zero-shot</b> = just ask. <b>Few-shot</b> = show a few solved examples first, so the model copies the pattern and format.</div>
+  <div class="two">
+    <div class="card">
+      <div style="font-weight:700">How many examples in the prompt?</div>
+      <div class="shots" id="shots"><button data-n="0" class="on">0 · zero-shot</button><button data-n="1">1 · one-shot</button><button data-n="3">3 · few-shot</button></div>
+      <div class="prompt" id="shotPrompt"></div>
+      <button class="btn go" id="shotRun">▶ Run on 5 new defects</button>
+    </div>
+    <div class="card">
+      <span class="lbl" style="background:var(--ex)">Model output (simulated)</span>
+      <div class="rows" id="shotRows"></div>
+      <div style="margin-top:12px"><div style="display:flex;justify-content:space-between;font-weight:700"><span>Correct format & chapter</span><span id="shotScore"></span></div><div class="meter"><i id="shotBar" style="background:var(--ex)"></i></div></div>
+      <div class="tip" id="shotTip" style="margin-top:10px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 TASK LAB -->
+<section class="tab" id="t3">
+  <h2>Task lab: three real maintenance jobs</h2>
+  <div class="sub">Turn prompt ingredients on and off and press <b>Run</b>. The checklist shows what a good answer needs.</div>
+  <div class="tasks" id="taskBtns"></div>
+  <div class="two">
+    <div class="card">
+      <span class="lbl" style="background:var(--gold)">Source text</span>
+      <div class="src" id="labSrc"></div>
+      <div style="font-weight:700;margin-top:12px">Prompt ingredients</div>
+      <div class="tog" id="labTog"></div>
+      <button class="btn go" id="labRun">▶ Run prompt</button>
+    </div>
+    <div class="card">
+      <span class="lbl" style="background:#0b2545">Prompt</span>
+      <div class="prompt" id="labPrompt" style="min-height:90px"></div>
+      <span class="lbl" style="background:var(--ok);margin-top:10px">Answer (simulated)</span>
+      <div class="out" id="labOut">Press ▶ Run prompt.</div>
+      <div class="checks" id="labChecks"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 SAFE -->
+<section class="tab" id="t4">
+  <h2>Safe phrasing: the assistant advises, it never certifies</h2>
+  <div class="sub">Only authorised, licensed personnel can certify an aircraft as airworthy and sign the release. An AI assistant may <b>suggest, summarise and point to the approved manual</b>, and nothing more. Judge each AI sentence.</div>
+  <div class="ladder">
+    <div class="step" style="background:var(--ok)">✅ Advise<small>"Possible causes include…"</small></div>
+    <div class="step" style="background:var(--ok)">✅ Reference<small>"See the approved AMM task…"</small></div>
+    <div class="step" style="background:var(--ok)">✅ Escalate<small>"Confirm with a licensed engineer"</small></div>
+    <div class="step" style="background:var(--bad)">❌ Decide / certify<small>"Aircraft is airworthy" · "Safe to fly"</small></div>
+  </div>
+  <div class="two" style="margin-top:14px">
+    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:21px">🕵️ Safe or unsafe?</b><span class="score" id="safeScore">0 / 0</span></div><div id="stmts"></div></div>
+    <div class="card"><b style="font-size:21px">🛡️ Guardrail you can paste into every prompt</b>
+      <div class="prompt" style="margin-top:8px"><span class="c">You are an advisory assistant for maintenance staff.
+- You do NOT certify airworthiness, approve return to service, or sign off any task.
+- Never say an aircraft is "airworthy", "safe to fly" or "cleared".
+- Base answers only on the documents provided; cite the AMM / ATA reference.
+- If information is missing or uncertain, say so and recommend checking with a licensed engineer.
+- End every answer with: "Advisory only. Final decision rests with authorised personnel."</span></div>
+      <button class="btn ghost" id="copyG">📋 Copy guardrail</button>
+      <div style="margin-top:14px;font-weight:700">Try it: same question, with and without the guardrail</div>
+      <div class="chips"><button class="chip" id="gOff">Without guardrail</button><button class="chip" id="gOn">With guardrail</button></div>
+      <div class="out" id="gOut">Q: "Brake wear is 62%. Can VT-SKC fly today?"</div>
+    </div>
+  </div>
+  <div class="disc">Teaching examples only. Follow your organisation's approved procedures, regulatory requirements and AI-use policy. ATA chapter mappings shown are common examples and must be confirmed against the applicable manuals.</div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===b.dataset.t))});
+
+/* ===== 1 RTC ===== */
+const R=[['(none)',''],['Maintenance planner','You are an experienced aircraft maintenance planner.'],['Shift lead','You are a line-maintenance shift lead writing for your team.'],['Pirate 🏴‍☠️','You are a pirate.']];
+const T=[['(vague) "Look at this"','Look at this.'],['Summarise','Summarise this technician note.'],['Summarise + next steps','Summarise this technician note and list recommended next steps.']];
+const CN=[['≤ 3 bullets','Use at most 3 bullet points.'],['Plain English, expand abbreviations','Expand all abbreviations into plain English.'],['Cite the AMM / ATA reference','Mention the relevant ATA chapter.'],['Advisory only, no certification','Do not certify airworthiness; recommend confirmation by a licensed engineer.'],['Flag repeat defects','Highlight if this is a repeat defect.']];
+let r=0,t=0;const c=new Set();
+function chips(id,arr,col,isMulti){$(id).innerHTML=arr.map((x,i)=>`<button class="chip" data-i="${i}">${x[0]}</button>`).join('');
+ [...$(id).children].forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(isMulti){c.has(i)?c.delete(i):c.add(i)}else if(id==='cR')r=i;else t=i;rtc()});}
+chips('cR',R,'--role');chips('cT',T,'--task');chips('cC',CN,'--con',true);
+function paint(id,sel,col){[...$(id).children].forEach((b,i)=>{const on=sel(i);b.classList.toggle('on',on);b.style.background=on?col:''})}
+function rtc(){paint('cR',i=>i===r,'var(--role)');paint('cT',i=>i===t,'var(--task)');paint('cC',i=>c.has(i),'var(--con)');
+ $('rtcPrompt').innerHTML=[R[r][1]&&`<span class="r">${esc(R[r][1])}</span>`,`<span class="t">${esc(T[t][1])}</span>`,[...c].sort().map(i=>`<span class="c">${esc(CN[i][1])}</span>`).join(' '),'<span class="i">\n\nNote: "Eng 2 hi vib after start…"</span>'].filter(Boolean).join(' ');
+ let q=10+(r===1||r===2?20:0)+t*20+c.size*8;if(r===3)q=15;q=Math.min(100,q);
+ $('qV').textContent=q+'%';$('qBar').style.width=q+'%';$('qBar').style.background=q>75?'var(--ok)':q>45?'var(--gold)':'var(--bad)';
+ let out;
+ if(r===3)out='Arrr! Yer engine be shakin\' like a ship in a storm, matey! 🏴‍☠️\n\n(The role changes tone and expertise, so choose it wisely.)';
+ else if(t===0)out='This appears to be a note about an engine. Engines can vibrate for many reasons. Let me know if you need anything else.';
+ else{const bul=c.has(0),plain=c.has(1),ata=c.has(2),safe=c.has(3),rep=c.has(4);const L=[];
+  L.push(plain?'Engine 2 showed high vibration (about 4.8 ips) after start-up on VT-SKA; exhaust gas temperature was normal.':'Eng 2 hi vib (~4.8 ips) after start, EGT ok, VT-SKA.');
+  L.push(plain?'Engine mounts were checked and no defects were found.':'Mounts chked, nil defects.');
+  if(rep)L.push('⚠️ Repeat defect: 3rd report this week, so escalate for trend review.');
+  if(t===2)L.push('Recommended next steps: perform the scheduled borescope inspection'+(ata?' (ATA 72 – Engine)':'')+' and review vibration trend data.');
+  else if(ata)L.push('Relevant chapter: ATA 72 – Engine.');
+  const B=L.length>3?L.filter((_,i)=>i!==1):L; // keep the most important 3
+  let txt=(bul?B.slice(0,3).map(x=>'• '+x).join('\n'):L.join(' '));
+  if(!bul&&!plain)txt+=' Also, vibration in general can be caused by imbalance, bearing wear, FOD, sensor faults, and many other factors that may or may not apply here…';
+  if(safe)txt+='\n\nAdvisory only. Confirm findings with a licensed engineer before any release decision.';
+  out=txt}
+ $('rtcOut').textContent=out;$('rtcOut').className='out '+(q>75?'good':q<40?'bad':'')}
+rtc();
+
+/* ===== 2 SHOTS ===== */
+const EXS=[['Cabin air pack 1 overheat light on climb','ATA 21 – Air Conditioning'],['Main gear tyre worn to limit','ATA 32 – Landing Gear'],['Hydraulic system B pressure low','ATA 29 – Hydraulic Power']];
+const NEW=[['Fuel quantity indication erratic, left wing tank','ATA 28 – Fuel'],['APU fails to start on ground','ATA 49 – Airborne Auxiliary Power'],['Aileron trim stiff during check','ATA 27 – Flight Controls'],['Engine oil consumption higher than normal','ATA 79 – Oil'],['Forward cargo door warning light stays on','ATA 52 – Doors']];
+const ZERO=['This looks like a fuel system issue. It could be a faulty sensor or wiring; you may want to check…','Possibly ATA 80 (starting) or APU related','ATA 27','Engine — check oil','Chapter 52, doors I think'];
+const ONE=['ATA 28 – Fuel','ATA 49 – APU','ATA 27 – Flight Controls','ATA 72 – Engine','ATA 52 – Doors'];
+let shots=0;
+function shotP(){const ex=EXS.slice(0,shots);
+ $('shotPrompt').innerHTML=`<span class="t">Map each maintenance defect to its ATA chapter. Answer in the format "ATA NN – Name".</span>\n`+ex.map(([d,a])=>`<span class="e">\nDefect: ${esc(d)}\nATA: ${esc(a)}</span>`).join('')+`<span class="i">\n\nDefect: {new defect}\nATA:</span>`;$('shotRows').innerHTML='';$('shotScore').textContent='';$('shotBar').style.width='0';
+ $('shotTip').innerHTML=shots?`📌 The ${shots} worked example${shots>1?'s':''} show the model the exact <b>format</b> and level of detail.`:'📌 With no examples, the model guesses the format and often rambles.'}
+document.querySelectorAll('#shots button').forEach(b=>b.onclick=()=>{shots=+b.dataset.n;document.querySelectorAll('#shots button').forEach(x=>x.classList.toggle('on',x===b));shotP()});
+$('shotRun').onclick=()=>{$('shotRows').innerHTML='';let ok=0;NEW.forEach(([d,a],i)=>setTimeout(()=>{const ans=shots===0?ZERO[i]:shots===1?ONE[i]:a;const good=ans===a;if(good)ok++;
+ const row=document.createElement('div');row.className='row';row.innerHTML=`<span>${esc(d)}</span><span class="res ${good?'ok':'no'}">${esc(ans.length>40?ans.slice(0,40)+'…':ans)}</span>`;$('shotRows').appendChild(row);
+ $('shotScore').textContent=`${ok} / ${i+1}`;$('shotBar').style.width=ok/NEW.length*100+'%';
+ if(i===4)$('shotTip').innerHTML=shots===0?'❌ Zero-shot: inconsistent formats, one long ramble and a vague answer. Hard to feed into a system.':shots===1?'🟡 One-shot: the format is fixed, but it slipped on oil (ATA 79, not 72) and shortened "Airborne Auxiliary Power". More examples help.':'✅ Few-shot: consistent format and correct chapters. Good for automation. Always verify against the manual.'},i*400))};
+shotP();
+
+/* ===== 3 TASK LAB ===== */
+const ING=[['role','🎭 Role','var(--role)'],['task','🎯 Clear task','var(--task)'],['fmt','📐 Format rule','var(--con)'],['ex','📚 Example (few-shot)','var(--ex)'],['safe','🛡️ Advisory-only guardrail','var(--ok)']];
+const LAB={
+ sum:{name:'📝 Summarise a technician write-up',src:`Arrived 0540, a/c VT-SKD on stand 12. Crew rep: bleed air valve fault msg on eng 1 during climb yesterday, reset in flight, no recurrence. Carried out BITE test, failed once, passed twice. Checked connector P/N 3301 - minor corrosion, cleaned and reconnected. Ops check ok. Recommend monitor next 3 sectors. Part on order as precaution, ETA Thursday.`,
+  p:{role:'You are a maintenance planner writing for engineering managers.',task:'Summarise this technician write-up.',fmt:'Use 4 bullets: Issue, Action taken, Status, Follow-up.',ex:'Example → • Issue: … • Action: … • Status: … • Follow-up: …',safe:'Advisory only; do not state the aircraft is airworthy.'},
+  check:[['Uses the requested structure',k=>k.fmt],['Plain language for managers',k=>k.role],['Captures the follow-up and part ETA',k=>k.task],['No airworthiness claim',k=>k.safe]],
+  out:k=>{if(!k.task)return 'The technician arrived early and worked on an aircraft. Some things were checked and it seems fine now. The aircraft is good to go. ✈️';
+   let s=k.fmt?`• Issue: Engine 1 bleed-air valve fault message during climb (VT-SKD); reset in flight, no recurrence.\n• Action taken: BITE test (1 fail, 2 passes); connector P/N 3301 had minor corrosion, cleaned and reconnected; ops check OK.\n• Status: Fault not reproduced after cleaning.\n• Follow-up: Monitor the next 3 sectors; replacement part on order, ETA Thursday.`
+   :'Bleed valve fault msg on eng 1, BITE failed once then passed, connector cleaned, ops ok, monitor 3 sectors, part ETA Thu.';
+   if(!k.role&&k.fmt)s=s.replace('Engine 1 bleed-air valve','Eng 1 BAV');
+   return s+(k.safe?'\n\nAdvisory only. Release decision rests with authorised personnel.':'\n\nThe aircraft is fully serviceable.')}},
+ ata:{name:'🗂️ Map a defect to its ATA chapter',src:`Defects reported today:
+1. Landing light left wing inop
+2. Smoke detector in aft lavatory fails test
+3. Windshield heat inoperative, captain side
+4. Pitot probe 2 heat fault`,
+  p:{role:'You are a technical records specialist.',task:'Map each defect to its ATA chapter.',fmt:'Return a table: Defect | ATA chapter | Confidence.',ex:'Example: "Tyre worn to limit" → ATA 32 – Landing Gear | High',safe:'If unsure, say "Needs engineer review" instead of guessing.'},
+  check:[['Every defect mapped',k=>k.task],['Consistent table format',k=>k.fmt&&k.ex],['Correct chapters',k=>k.ex||k.role],['Flags uncertainty instead of guessing',k=>k.safe]],
+  out:k=>{if(!k.task)return 'These are some defects on the aircraft. Lights, smoke detector, heating. You should fix them.';
+   const good=k.ex||k.role;const rows=[['Landing light left wing inop','ATA 33 – Lights','High'],['Aft lav smoke detector fails test','ATA 26 – Fire Protection','High'],['Windshield heat inop (Capt)',good?'ATA 30 – Ice & Rain Protection':'ATA 56 – Windows','Medium'],['Pitot probe 2 heat fault',good?'ATA 30 – Ice & Rain Protection':'ATA 34 – Navigation',k.safe?'Needs engineer review (also ATA 34)':'High']];
+   return k.fmt?'Defect | ATA chapter | Confidence\n'+rows.map(r=>r.join(' | ')).join('\n'):rows.map(r=>`${r[0]}: ${r[1]}`).join('; ')}},
+ hand:{name:'🔄 Draft a shift-handover note',src:`Night shift notes (rough):
+- VT-SKA eng2 vib - borescope 60% done, stopped at stage 3 HPC, tools still on a/c!!
+- VT-SKB tyre change done, paperwork signed
+- VT-SKC hyd seepage line B-14 - monitored, within limits
+- Waiting for part 4412 for VT-SKE, ETA 1400
+- Hangar door 2 sticking`,
+  p:{role:'You are a shift lead handing over to the incoming day shift.',task:'Draft a shift-handover note from these notes.',fmt:'Sections: 🔴 Open / unsafe items first, 🟡 In progress, 🟢 Completed, 📦 Parts.',ex:'Example → 🔴 VT-XXX: task open, tools on aircraft, do not tow.',safe:'Do not mark anything as certified or released; state what still needs sign-off.'},
+  check:[['Open / unsafe items listed first',k=>k.fmt],['Tools left on aircraft clearly flagged',k=>k.fmt||k.ex],['Parts and ETA included',k=>k.task],['No sign-off implied',k=>k.safe]],
+  out:k=>{if(!k.task)return 'Night shift went well. Several aircraft were worked on. Good luck to the day shift!';
+   if(!k.fmt)return 'VT-SKA borescope 60% done. VT-SKB tyre change done. VT-SKC seepage monitored. Part 4412 for VT-SKE ETA 1400. Hangar door 2 sticking.'+(k.safe?'':' All aircraft are ready.');
+   return `🔴 OPEN / UNSAFE\n• VT-SKA: Engine 2 borescope 60% complete (stopped at HPC stage 3). ⚠️ TOOLS STILL ON AIRCRAFT. Do not tow or start the engine.\n• Hangar door 2 sticking: report to facilities.\n🟡 IN PROGRESS\n• VT-SKC: Hydraulic seepage line B-14, within limits; continue monitoring.\n• VT-SKE: Waiting for part 4412, ETA 14:00.\n🟢 COMPLETED\n• VT-SKB: Tyre change done, paperwork signed.`+(k.safe?'\n\nItems above still require completion and sign-off by authorised staff.':'')}}};
+let lt='sum';const lk={role:false,task:true,fmt:false,ex:false,safe:false};
+$('taskBtns').innerHTML=Object.entries(LAB).map(([k,v],i)=>`<button data-k="${k}" class="${i?'':'on'}">${v.name}</button>`).join('');
+[...$('taskBtns').children].forEach(b=>b.onclick=()=>{lt=b.dataset.k;[...$('taskBtns').children].forEach(x=>x.classList.toggle('on',x===b));labUI()});
+function labUI(){const L=LAB[lt];$('labSrc').textContent=L.src;
+ $('labTog').innerHTML=ING.map(([k,n,col])=>`<label style="--c:${col}"><input type="checkbox" data-k="${k}" ${lk[k]?'checked':''}><span><b style="color:${col}">${n}</b><br><small>${esc(L.p[k])}</small></span></label>`).join('');
+ $('labTog').querySelectorAll('input').forEach(i=>i.onchange=()=>{lk[i.dataset.k]=i.checked;labP()});labP();$('labOut').textContent='Press ▶ Run prompt.';$('labOut').className='out';$('labChecks').innerHTML=''}
+const CLS={role:'r',task:'t',fmt:'c',ex:'e',safe:'c'};
+function labP(){const L=LAB[lt];$('labPrompt').innerHTML=ING.filter(([k])=>lk[k]).map(([k])=>`<span class="${CLS[k]}">${esc(L.p[k])}</span>`).join('\n')+'<span class="i">\n\n"""{source text}"""</span>'}
+$('labRun').onclick=()=>{const L=LAB[lt];$('labOut').textContent='…';setTimeout(()=>{$('labOut').textContent=L.out(lk);const res=L.check.map(([n,f])=>[n,!!f(lk)]);const all=res.every(x=>x[1]);$('labOut').className='out '+(all?'good':'bad');
+ $('labChecks').innerHTML=res.map(([n,ok])=>`<div class="${ok?'y':'n'}">${ok?'✅':'❌'} ${n}</div>`).join('')},400)};
+labUI();
+
+/* ===== 4 SAFE ===== */
+const ST=[['Possible causes of the vibration include fan imbalance or bearing wear. See AMM 72-00-00 for the troubleshooting procedure.',1,'It advises and points to the approved manual.'],
+ ['The aircraft is airworthy and can be released for the next flight.',0,'Certifying airworthiness is a legal act by authorised, licensed personnel, never by an AI.'],
+ ['Brake wear of 62% appears within the typical limit range; confirm against the AMM limits and with the certifying engineer.',1,'It gives context, then escalates the decision to a human.'],
+ ['No need to do the borescope; the data looks fine.',0,'It tells staff to skip a required task. An AI must never waive maintenance.'],
+ ['I am not certain which ATA chapter applies. This needs engineer review.',1,'Admitting uncertainty is safe and honest.'],
+ ['This defect can be deferred under the MEL, so I have deferred it for you.',0,'Deferral is an authorised human decision. An AI may only say "an MEL item may apply; check with the authorised engineer".'],
+ ['Summary prepared for your review. Advisory only; final decision rests with authorised personnel.',1,'This is the standard advisory disclaimer.'],
+ ['VT-SKC is safe to fly today.',0,'"Safe to fly" is an airworthiness judgement. Unsafe phrasing.']];
+let answered=0,correct=0;
+$('stmts').innerHTML=ST.map((s,i)=>`<div class="stmt" id="s${i}"><span>"${esc(s[0])}"</span><span><button class="btn" style="background:var(--ok);margin:0 4px 0 0;padding:8px 12px" data-i="${i}" data-a="1">✅ Safe</button><button class="btn" style="background:var(--bad);margin:0;padding:8px 12px" data-i="${i}" data-a="0">❌ Unsafe</button></span></div>`).join('');
+$('stmts').querySelectorAll('button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,a=+b.dataset.a,s=ST[i],box=$('s'+i);if(box.dataset.done)return;box.dataset.done=1;answered++;const right=a===s[1];if(right)correct++;
+ box.className='stmt '+(s[1]?'ok':'no');box.lastChild.innerHTML=`<b style="font-size:20px">${right?'🎉 Correct':'🤔 Not quite'}</b>`;
+ const w=document.createElement('div');w.className='why';w.innerHTML=`<b>${s[1]?'SAFE':'UNSAFE'}:</b> ${esc(s[2])}`;box.appendChild(w);$('safeScore').textContent=`${correct} / ${answered}`});
+$('gOff').onclick=()=>{$('gOut').className='out bad';$('gOut').textContent='Q: "Brake wear is 62%. Can VT-SKC fly today?"\n\n🤖 "Yes, 62% wear is fine. VT-SKC is safe to fly today. ✈️"\n\n❌ The AI made an airworthiness decision it has no authority to make.'};
+$('gOn').onclick=()=>{$('gOut').className='out good';$('gOut').textContent='Q: "Brake wear is 62%. Can VT-SKC fly today?"\n\n🤖 "I can\'t make that decision. Brake wear limits are given in the applicable AMM (ATA 32 – Landing Gear). Please compare 62% with the AMM limit and confirm with the certifying engineer before release.\n\nAdvisory only. Final decision rests with authorised personnel."\n\n✅ Helpful, points to the source, escalates.'};
+$('copyG').onclick=()=>{try{navigator.clipboard.writeText($('copyG').previousElementSibling.textContent);$('copyG').textContent='✅ Copied'}catch(e){$('copyG').textContent='Select the text to copy'}};
+</script>
+</body>
+</html>

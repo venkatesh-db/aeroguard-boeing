@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LLM Control Panel</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--mut:#5d6778;--line:#dde2ea;--navy:#0b2545;--blue:#1f5fbf;--teal:#0f8a7a;--purple:#7a3fc4;--orange:#d9480f;--ok:#1a8a4a;--bad:#c2410c;--gold:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(90deg,#0b2545,#3b1f6b);color:#fff;padding:16px 26px}
+header h1{margin:0;font-size:32px}header p{margin:2px 0 0;opacity:.85}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 26px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{border:2px solid var(--line);background:#fff;border-radius:30px;padding:10px 18px;font-size:18px;cursor:pointer}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+main{max-width:1600px;margin:0 auto;padding:20px}
+.tab{display:none}.tab.on{display:block}
+h2{font-size:32px;margin:0 0 4px}.sub{color:var(--mut);font-size:20px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.grid{display:grid;grid-template-columns:380px 1fr;gap:18px}
+@media(max-width:1050px){.grid{grid-template-columns:1fr}}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.chip{background:#e8eef9;color:var(--navy);border:2px solid transparent;border-radius:24px;padding:9px 16px;font-size:17px;cursor:pointer}
+.chip.on{background:var(--navy);color:#fff}
+.btn{background:var(--navy);color:#fff;border:0;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:17px;font-weight:700;margin:6px 6px 0 0}
+.btn.ghost{background:#e3e9f3;color:var(--navy)}.btn.or{background:var(--orange)}
+label{display:block;font-weight:700;margin:14px 0 4px}
+label span{float:right;color:var(--orange);font-size:22px}
+input[type=range]{width:100%;accent-color:var(--orange)}
+.tip{background:#eef4ff;border-left:6px solid var(--blue);border-radius:10px;padding:12px 16px;margin-top:14px;font-size:18px}
+.disc{font-size:14px;color:var(--mut);margin-top:14px}
+.alert{border-radius:10px;padding:12px 14px;margin-top:10px;font-size:18px}
+.alert.ok{background:#e7f6ec;border:1px solid var(--ok)}.alert.bad{background:#fdecea;border:1px solid var(--bad)}.alert.warn{background:#fff4dc;border:1px solid var(--gold)}
+@keyframes pop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+/* context */
+.meter{height:46px;border-radius:12px;background:#e6ebf2;position:relative;overflow:hidden;margin:10px 0 4px}
+.meter i{position:absolute;top:0;bottom:0;left:0;background:linear-gradient(90deg,#1f5fbf,#7a3fc4);transition:width .4s}
+.meter i.full{background:linear-gradient(90deg,#d9480f,#c2410c)}
+.meter b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:19px;text-shadow:0 1px 2px #0006}
+.desk{display:flex;flex-direction:column;gap:6px;max-height:440px;overflow:auto;padding:4px}
+.msg{border-radius:10px;padding:9px 12px;font-size:17px;display:flex;justify-content:space-between;gap:10px;animation:pop .35s;border:2px solid transparent}
+.msg.u{background:#e8eef9}.msg.a{background:#f3ecff}.msg.d{background:#fff4dc}.msg.sys{background:#e7f6ec}
+.msg.gone{opacity:.35;text-decoration:line-through;background:#eee;border-style:dashed;border-color:#bbb}
+.msg.key{border-color:var(--orange)}
+.msg small{color:var(--mut);white-space:nowrap}
+.sizes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+@media(max-width:800px){.sizes{grid-template-columns:1fr 1fr}}
+.sz{background:#f6f8fc;border-radius:12px;padding:12px;text-align:center}
+.sz b{display:block;font-size:26px;color:var(--purple)}
+.sz div{font-size:30px}
+/* temperature */
+.bars{margin-top:8px}
+.bar{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;margin:6px 0}
+.bar .t{font:700 20px ui-monospace,Menlo,monospace;text-align:right}
+.bar .g{height:30px;border-radius:6px;background:var(--purple);transition:width .35s,background .35s}
+.bar.cut .g{background:#cfd5df}.bar.cut .t,.bar.cut .p{color:#aab3c2;text-decoration:line-through}
+.prompt{font-size:24px;font-weight:600;background:#f6f8fc;border-radius:12px;padding:12px 16px}
+.samples{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.sample{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:18px;animation:pop .35s}
+.sample b{color:var(--orange)}
+.dial{display:flex;justify-content:space-between;font-size:14px;color:var(--mut)}
+/* models */
+.models{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:1000px){.models{grid-template-columns:1fr}}
+.model{border:3px solid var(--line);border-radius:16px;padding:16px;background:#fff;transition:all .3s;position:relative}
+.model.best{border-color:var(--ok);box-shadow:0 8px 24px #1a8a4a33;transform:translateY(-4px)}
+.model.best:after{content:"⭐ Best fit";position:absolute;top:-14px;right:14px;background:var(--ok);color:#fff;border-radius:20px;padding:3px 12px;font-size:15px;font-weight:700}
+.model.fail{opacity:.55}
+.model h3{margin:0;font-size:24px}
+.model .ex{font-size:14px;color:var(--mut);margin-bottom:8px}
+.m{display:grid;grid-template-columns:110px 1fr 90px;gap:8px;align-items:center;margin:8px 0;font-size:16px}
+.m .trk{height:16px;background:#e6ebf2;border-radius:8px;overflow:hidden}
+.m .trk i{display:block;height:100%;border-radius:8px;transition:width .4s}
+.m .v{font-weight:700;text-align:right}
+.verdict{margin-top:10px;font-weight:700;font-size:18px}
+.task{border:2px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;margin:6px 0;background:#fff;font-size:17px}
+.task.on{border-color:var(--navy);background:#e8eef9}
+.task small{display:block;color:var(--mut)}
+.race{margin-top:14px}
+.lane{display:grid;grid-template-columns:110px 1fr;gap:8px;align-items:center;margin:6px 0}
+.track{height:36px;background:#f0f3f8;border-radius:18px;position:relative}
+.runner{position:absolute;left:0;top:2px;font-size:26px;transition:left linear}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.kpi{background:#f6f8fc;border-radius:12px;padding:12px;text-align:center}
+.kpi b{display:block;font-size:30px}
+</style>
+</head>
+<body>
+<header><h1>🎛️ The LLM Control Panel</h1><p>Day 2 · Context windows · Temperature & top-p · Choosing the right model size</p></header>
+<nav id="nav">
+  <button data-t="t1" class="on">① Context window</button>
+  <button data-t="t2">② Temperature & top-p</button>
+  <button data-t="t3">③ Pick the right model</button>
+  <button data-t="t4">④ Smart routing</button>
+  <button data-t="t5">⑤ Tokenizer & cost lab</button>
+</nav>
+<main>
+
+<!-- 1 CONTEXT -->
+<section class="tab on" id="t1">
+  <h2>The context window: the model's working memory</h2>
+  <div class="sub">An LLM can only "see" a limited number of tokens at once: your instructions, the chat so far, and any documents. When it's full, the <b>oldest content falls out</b>.</div>
+  <div class="grid">
+    <div class="card">
+      <label>Model's context window</label>
+      <div class="chips" id="ctxSize"></div>
+      <div style="font-size:15px;color:var(--mut)">Small demo numbers, so it fills up fast</div>
+      <div style="margin-top:12px;font-weight:700">Add to the conversation:</div>
+      <button class="btn" id="addQ">💬 Ask a question</button>
+      <button class="btn" id="addDoc">📄 Paste a manual chapter</button>
+      <button class="btn" id="addBig">📚 Paste a whole manual</button>
+      <button class="btn or" id="ask">❓ "What tail number did I mention first?"</button>
+      <button class="btn ghost" id="ctxReset">↺ Reset</button>
+      <div id="ctxOut"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;font-weight:700"><span>🧠 Memory used</span><span id="ctxNum"></span></div>
+      <div class="meter"><i id="ctxBar"></i><b id="ctxPct"></b></div>
+      <div class="desk" id="desk"></div>
+    </div>
+  </div>
+  <div class="sizes">
+    <div class="sz"><div>📝</div><b>4K tokens</b>about 6 pages · early ChatGPT (2022)</div>
+    <div class="sz"><div>📘</div><b>128K tokens</b>about a 250-page book</div>
+    <div class="sz"><div>📚</div><b>200K tokens</b>about 400 pages · a long maintenance manual</div>
+    <div class="sz"><div>🏛️</div><b>1M+ tokens</b>several books · a whole codebase</div>
+  </div>
+  <div class="tip">💡 Bigger windows let you paste whole manuals, but they <b>cost more</b> (you pay for every token sent, every time) and are <b>slower</b>. Models can also miss details buried in the middle of very long inputs. That is why techniques like RAG send only the relevant pages.</div>
+  <div class="disc">Page counts are rough (≈ 500 tokens per page). Exact limits vary by model and change often.</div>
+</section>
+
+<!-- 2 TEMPERATURE -->
+<section class="tab" id="t2">
+  <h2>Temperature & top-p: the creativity dials</h2>
+  <div class="sub">The model scores every possible next word. These two dials decide <b>how it picks</b> from that list.</div>
+  <div class="grid">
+    <div class="card">
+      <div style="font-weight:700">Presets</div>
+      <div class="chips" id="presets"></div>
+      <label>🌡 Temperature <span id="tV"></span></label>
+      <input type="range" id="temp" min="0" max="2" step="0.1" value="0.7">
+      <div class="dial"><span>0 · focused, same every time</span><span>2 · wild</span></div>
+      <label>🎯 Top-p <span id="pV"></span></label>
+      <input type="range" id="topp" min="0.1" max="1" step="0.05" value="1">
+      <div class="dial"><span>0.1 · only the top words</span><span>1 · all words allowed</span></div>
+      <div class="chips" id="prompts" style="margin-top:14px"></div>
+      <button class="btn or" id="gen">🎲 Generate 5 answers</button>
+      <div id="tempNote" class="alert warn"></div>
+    </div>
+    <div class="card">
+      <div class="prompt" id="tPrompt"></div>
+      <div style="font-weight:700;margin-top:10px">Chance of each next word:</div>
+      <div class="bars" id="tBars"></div>
+      <div style="font-weight:700;margin-top:10px">5 answers to the same prompt:</div>
+      <div class="samples" id="samples"></div>
+    </div>
+  </div>
+  <div class="tip">💡 <b>Temperature</b> reshapes the bars: low makes the top word dominate, high flattens them. <b>Top-p</b> cuts off the long tail: at 0.5, only the smallest set of words covering 50% of the probability can be picked (greyed-out words are banned). Usually you adjust <b>one</b> of them, not both.</div>
+  <div class="disc">Probabilities are illustrative.</div>
+</section>
+
+<!-- 3 MODEL SELECTION -->
+<section class="tab" id="t3">
+  <h2>Big, medium or mini: which model for the job?</h2>
+  <div class="sub">Bigger models are smarter but slower and pricier. Pick a task and a daily volume, and see which model fits best.</div>
+  <div class="grid">
+    <div class="card">
+      <div style="font-weight:700">1. Pick a task</div>
+      <div id="taskList"></div>
+      <label>2. Requests per day <span id="volV"></span></label>
+      <input type="range" id="vol" min="0" max="6" step="1" value="3">
+      <label>3. Users need an answer within</label>
+      <div class="chips" id="lat"></div>
+    </div>
+    <div>
+      <div class="models" id="models"></div>
+      <div class="card race"><div style="font-weight:700">⏱ Response-time race <button class="btn ghost" id="raceGo" style="padding:6px 12px;font-size:15px">▶ Run</button></div><div id="race"></div></div>
+    </div>
+  </div>
+  <div class="tip">💡 Rule of thumb: <b>start with the smallest model that passes your quality test</b>, and move up only for tasks that need deeper reasoning. A mini model can be roughly <b>10–20× cheaper</b> than the largest tier, which adds up fast at high volume.</div>
+  <div class="disc">Costs, speeds and quality scores are illustrative relative values, not real price lists. Example names show typical tiers; check each provider's current pricing.</div>
+</section>
+
+<!-- 4 ROUTING -->
+<section class="tab" id="t4">
+  <h2>Smart routing: use the right model for each request</h2>
+  <div class="sub">Real systems don't use one model for everything. A quick check sends <b>easy</b> requests to a mini model and <b>hard</b> ones to a large model.</div>
+  <div class="grid">
+    <div class="card">
+      <label>Share of hard requests <span id="hardV"></span></label>
+      <input type="range" id="hard" min="0" max="100" step="5" value="20">
+      <label>Requests per day <span id="rvolV"></span></label>
+      <input type="range" id="rvol" min="1000" max="200000" step="1000" value="50000">
+      <button class="btn or" id="route">🚦 Stream 20 requests</button>
+      <div class="kpis"><div class="kpi"><b id="kAll">–</b>All-large cost / day</div><div class="kpi"><b id="kMix">–</b>Routed cost / day</div><div class="kpi"><b id="kSave" style="color:var(--ok)">–</b>Saved</div></div>
+    </div>
+    <div class="card"><svg id="rSvg" viewBox="0 0 760 420"></svg><div id="rLog" style="font-size:16px;color:var(--mut)"></div></div>
+  </div>
+  <div class="disc">Illustrative cost units.</div>
+</section>
+
+<!-- 5 TOKEN + COST LAB -->
+<section class="tab" id="t5">
+  <h2>🧪 Tokenizer & cost-estimation lab</h2>
+  <div class="sub">Paste a real prompt, see its tokens, then estimate what it would cost to run at your company's scale.</div>
+  <div class="grid">
+    <div class="card">
+      <div style="font-weight:700">Sample prompts</div>
+      <div class="chips" id="labEx"></div>
+      <label>System + user prompt (input)</label>
+      <textarea id="labIn" rows="7" style="width:100%;padding:10px;font-size:17px;border:2px solid var(--line);border-radius:10px;font-family:inherit"></textarea>
+      <label>Expected answer length <span id="outV"></span></label>
+      <input type="range" id="outT" min="20" max="2000" step="20" value="300">
+      <label>Requests per day <span id="lvV"></span></label>
+      <input type="range" id="lv" min="0" max="6" step="1" value="3">
+      <label style="font-weight:600"><input type="checkbox" id="cache"> 💾 Reuse (cache) the system prompt, assuming about 90% off repeated input</label>
+    </div>
+    <div>
+      <div class="card">
+        <div style="display:flex;gap:10px;flex-wrap:wrap" id="labStats"></div>
+        <div style="font-weight:700;margin-top:10px">How the model sees it <span style="font-weight:400;color:var(--mut);font-size:15px">(each colour = one token)</span></div>
+        <div id="labToks" style="display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;max-height:200px;overflow:auto"></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div style="font-weight:700;font-size:21px">💰 Cost estimate by model size</div>
+        <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:18px" id="costT"></table>
+        <div id="costNote" class="alert warn"></div>
+      </div>
+    </div>
+  </div>
+  <div class="tip">💡 <b>Output tokens usually cost 3–5× more than input tokens.</b> To save money: trim long instructions, ask for short answers ("in 3 bullets"), cache repeated instructions, and use a smaller model where it's good enough. Non-English text such as Hindi often needs 2–3× more tokens for the same meaning.</div>
+  <div class="disc">Token counts use a simplified estimator (≈ 4 characters per English token; more for other scripts). Prices are illustrative per-million-token rates for typical tiers. Always check the provider's current price list and use its official tokenizer for exact numbers.</div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);const NS='http://www.w3.org/2000/svg';
+function el(t,a,p,txt){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p.appendChild(e);return e}
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===b.dataset.t))});
+
+/* ===== 1 CONTEXT ===== */
+const SIZES=[['Small · 1,000',1000],['Medium · 3,000',3000],['Large · 10,000',10000]];let cap=1000,items=[];
+const Q=['What is the torque spec for this bolt?','Summarise the last inspection.','Which parts are due next week?','Explain error code E-204.','Draft an email to the hangar team.'];let qi=0;
+$('ctxSize').innerHTML=SIZES.map((s,i)=>`<button class="chip ${i?'':'on'}">${s[0]}</button>`).join('');
+[...$('ctxSize').children].forEach((b,i)=>b.onclick=()=>{cap=SIZES[i][1];[...$('ctxSize').children].forEach(x=>x.classList.toggle('on',x===b));ctx()});
+function seed(){items=[{c:'sys',t:'⚙️ System: "You are a helpful maintenance assistant."',n:40,pin:1},{c:'u key',t:'👤 "I\'m working on aircraft VT-SKA today."',n:30},{c:'a',t:'🤖 "Got it: VT-SKA. How can I help?"',n:25}];$('ctxOut').innerHTML=''}
+function add(c,t,n){items.push({c,t,n});ctx()}
+function ctx(){let used=0;const live=new Array(items.length).fill(true);
+ // system prompt always kept; drop oldest others until fits
+ let total=items.reduce((a,b)=>a+b.n,0);const part=new Set();
+ for(let i=0;i<items.length&&total>cap;i++){if(items[i].pin)continue;
+  if(items[i].n>cap*0.5&&total-items[i].n<cap){part.add(i);total=cap;break} // big doc: keep only its tail end
+  live[i]=false;total-=items[i].n}
+ used=Math.min(cap,total);const pct=Math.round(used/cap*100);
+ $('ctxBar').style.width=pct+'%';$('ctxBar').className=pct>=90?'full':'';$('ctxPct').textContent=pct+'% full';$('ctxNum').textContent=`${used.toLocaleString()} / ${cap.toLocaleString()} tokens`;
+ $('desk').innerHTML=items.map((m,i)=>`<div class="msg ${m.c} ${live[i]?'':'gone'}"><span>${esc(m.t)}${live[i]?(part.has(i)?' ⚠️ too big: only part of it fits, the start is cut off':''):' (forgotten)'}</span><small>${m.n} tok</small></div>`).join('');$('desk').scrollTop=1e6;
+ return live}
+$('addQ').onclick=()=>{add('u','👤 "'+Q[qi%Q.length]+'"',25);add('a','🤖 (answer about '+(40+qi*7%50)+' words)',90);qi++};
+$('addDoc').onclick=()=>add('d','📄 Manual chapter 12: Hydraulic systems (8 pages)',700);
+$('addBig').onclick=()=>add('d','📚 Entire maintenance manual (40 pages)',3500);
+$('ask').onclick=()=>{const live=ctx();const ok=live[1];add('u','👤 "What tail number did I mention first?"',20);
+ if(ok){add('a','🤖 "You mentioned VT-SKA."',15);$('ctxOut').innerHTML='<div class="alert ok">✅ The first message is still inside the window, so the model remembers it.</div>'}
+ else{add('a','🤖 "I\'m not sure. Could you tell me the tail number again?"',20);$('ctxOut').innerHTML='<div class="alert bad">❌ The message with <b>VT-SKA</b> fell out of the window, so the model simply can\'t see it any more. Try a larger window.</div>'}};
+$('ctxReset').onclick=()=>{seed();ctx()};seed();ctx();
+
+/* ===== 2 TEMPERATURE ===== */
+const TP={
+ 'The engine inspection result is':[['normal',.42],['satisfactory',.2],['pending',.13],['acceptable',.09],['concerning',.06],['excellent',.04],['mysterious',.03],['delicious',.02],['purple',.01]],
+ 'Write a slogan: Fly with us and':[['relax',.24],['explore',.2],['arrive',.15],['smile',.12],['discover',.1],['soar',.08],['dream',.06],['float',.03],['dance',.02]],
+ 'Next maintenance step: torque the bolt to':[['25',.55],['30',.2],['the',.12],['specification',.08],['maximum',.03],['infinity',.02]]};
+const ENDS={normal:', no further action needed.',satisfactory:' after the borescope check.',pending:' until the lab report arrives.',acceptable:' within limits.',concerning:'. Schedule a follow-up.',excellent:'. Great job, team!',mysterious:'… nobody knows why.',delicious:'?! (nonsense)',purple:' (nonsense)',
+ relax:' all the way.',explore:' the world.',arrive:' refreshed.',smile:' at 35,000 feet.',discover:' something new.',soar:' above the clouds.',dream:' bigger.',float:' on clouds of comfort.',dance:' through the sky!',
+ '25':' Nm as per manual.','30':' Nm.',the:' value in the manual.',specification:' in chapter 4.',maximum:'! (risky)',infinity:' (nonsense!)'};
+let tp=Object.keys(TP)[0];
+$('prompts').innerHTML=Object.keys(TP).map((k,i)=>`<button class="chip ${i?'':'on'}">${k.split(':')[0].slice(0,26)}…</button>`).join('');
+[...$('prompts').children].forEach((b,i)=>b.onclick=()=>{tp=Object.keys(TP)[i];[...$('prompts').children].forEach(x=>x.classList.toggle('on',x===b));$('samples').innerHTML='';temp()});
+const PRE=[['🔧 Safety checklist',0,1],['📋 Report summary',0.3,0.9],['💬 Chat assistant',0.7,1],['🎨 Marketing slogans',1.2,0.95]];
+$('presets').innerHTML=PRE.map(p=>`<button class="chip">${p[0]}</button>`).join('');
+[...$('presets').children].forEach((b,i)=>b.onclick=()=>{$('temp').value=PRE[i][1];$('topp').value=PRE[i][2];[...$('presets').children].forEach(x=>x.classList.toggle('on',x===b));$('samples').innerHTML='';temp()});
+function dist(){const T=+$('temp').value,P=+$('topp').value,d=TP[tp];
+ let w=T===0?d.map((x,i)=>i===0?1:0):d.map(([,p])=>Math.pow(p,1/T));const z=w.reduce((a,b)=>a+b,0);w=w.map(x=>x/z);
+ const order=w.map((p,i)=>[p,i]).sort((a,b)=>b[0]-a[0]);let cum=0;const keep=new Set();for(const [p,i] of order){keep.add(i);cum+=p;if(cum>=P-1e-9)break}
+ const kz=[...keep].reduce((a,i)=>a+w[i],0);return d.map(([t],i)=>({t,p:w[i],keep:keep.has(i),f:keep.has(i)?w[i]/kz:0}))}
+function temp(){const T=+$('temp').value,P=+$('topp').value;$('tV').textContent=T.toFixed(1);$('pV').textContent=P.toFixed(2);
+ $('tPrompt').innerHTML=esc(tp)+' <span style="color:var(--orange)">___</span>';const d=dist();const mx=Math.max(...d.map(x=>x.p));
+ $('tBars').innerHTML=d.map(x=>`<div class="bar ${x.keep?'':'cut'}"><div class="t">${x.t}</div><div><div class="g" style="width:${Math.max(1,x.p/mx*100)}%"></div></div><div class="p">${Math.round(x.p*100)}%</div></div>`).join('');
+ const n=d.filter(x=>x.keep).length;
+ $('tempNote').className='alert '+(T===0?'ok':T>1.2?'bad':'warn');
+ $('tempNote').innerHTML=T===0?'🔒 <b>Deterministic:</b> always picks the top word. Best for facts, checklists and code.':T>1.2?'🎢 <b>Very random:</b> nonsense words become likely. Rarely useful in real work.':`🎲 ${n} of ${d.length} words can be picked. Each answer may differ.`}
+$('gen').onclick=()=>{$('samples').innerHTML='';const d=dist();for(let k=0;k<5;k++){let r=Math.random(),pick=d.find(x=>x.keep).t;for(const x of d){if(!x.keep)continue;if((r-=x.f)<=0){pick=x.t;break}}
+ setTimeout(()=>{const s=document.createElement('div');s.className='sample';s.innerHTML=`${k+1}. ${esc(tp)} <b>${esc(pick)}</b>${esc(ENDS[pick]||'.')}`;$('samples').appendChild(s)},k*250)}};
+['temp','topp'].forEach(id=>$(id).oninput=()=>{[...$('presets').children].forEach(x=>x.classList.remove('on'));temp()});temp();
+
+/* ===== 3 MODEL SELECTION ===== */
+const MODELS=[{n:'🐘 Large',ex:'e.g. Claude Opus, GPT-5-class flagship',q:95,cost:15,lat:6,col:'#7a3fc4'},
+ {n:'🐎 Medium',ex:'e.g. Claude Sonnet, mid-tier models',q:88,cost:3,lat:2.5,col:'#1f5fbf'},
+ {n:'🐇 Small / mini',ex:'e.g. Claude Haiku, "mini" / "flash" models',q:74,cost:0.8,lat:0.8,col:'#0f8a7a'}];
+const TASKS=[['🏷️ Classify a maintenance log into a category','Simple · short in, short out',60,0.6],['📝 Summarise an inspection report','Moderate · read and condense',78,2],['🌐 Translate a safety notice to Hindi','Moderate',75,1],['💬 Chat assistant answering technicians','Moderate · needs to be fast',82,1.5],
+ ['🧩 Diagnose a complex multi-system fault','Hard · multi-step reasoning',92,4],['👩‍💻 Write and debug analysis code','Hard · precise reasoning',90,4]];
+const VOL=[10,100,1000,10000,50000,100000,500000];
+let task=0,latLimit=99;
+$('taskList').innerHTML=TASKS.map((t,i)=>`<div class="task ${i?'':'on'}" data-i="${i}">${t[0]}<small>${t[1]} · needs quality ≥ ${t[2]}</small></div>`).join('');
+[...$('taskList').children].forEach(d=>d.onclick=()=>{task=+d.dataset.i;[...$('taskList').children].forEach(x=>x.classList.toggle('on',x===d));pick()});
+const LATS=[['1 sec (live chat)',1],['5 sec',5],['No rush (overnight batch)',99]];
+$('lat').innerHTML=LATS.map((l,i)=>`<button class="chip ${i===2?'on':''}">${l[0]}</button>`).join('');
+[...$('lat').children].forEach((b,i)=>b.onclick=()=>{latLimit=LATS[i][1];[...$('lat').children].forEach(x=>x.classList.toggle('on',x===b));pick()});
+function pick(){const [tn,,need,size]=TASKS[task];const vol=VOL[+$('vol').value];$('volV').textContent=vol.toLocaleString();
+ const res=MODELS.map(m=>{const lat=m.lat*(0.5+size/4),cost=m.cost*size*vol/1000,qOK=m.q>=need,lOK=lat<=latLimit;return{...m,lat,cost,qOK,lOK,ok:qOK&&lOK}});
+ const cands=res.filter(r=>r.ok);const best=cands.length?cands.reduce((a,b)=>a.cost<b.cost?a:b):null;
+ const maxC=Math.max(...res.map(r=>r.cost));
+ $('models').innerHTML=res.map(r=>`<div class="model ${r===best?'best':''} ${r.ok?'':'fail'}"><h3>${r.n}</h3><div class="ex">${r.ex}</div>
+  <div class="m"><span>🧠 Quality</span><div class="trk"><i style="width:${r.q}%;background:${r.qOK?r.col:'#c2410c'}"></i></div><span class="v">${r.q}</span></div>
+  <div class="m"><span>⏱ Speed</span><div class="trk"><i style="width:${Math.min(100,r.lat/10*100)}%;background:${r.lOK?'#b7791f':'#c2410c'}"></i></div><span class="v">${r.lat.toFixed(1)} s</span></div>
+  <div class="m"><span>💰 Cost/day</span><div class="trk"><i style="width:${Math.max(2,r.cost/maxC*100)}%;background:#d9480f"></i></div><span class="v">${r.cost<1?r.cost.toFixed(2):Math.round(r.cost).toLocaleString()}</span></div>
+  <div class="verdict" style="color:${r.ok?(r===best?'var(--ok)':'var(--ink)'):'var(--bad)'}">${!r.qOK?'❌ Not smart enough for this task':!r.lOK?'❌ Too slow for this need':r===best?'✅ Cheapest model that does the job':'✅ Works, but you pay more than needed'}</div></div>`).join('');
+ race(false)}
+function race(go){const [, , ,size]=TASKS[task];$('race').innerHTML=MODELS.map((m,i)=>`<div class="lane"><b>${m.n}</b><div class="track"><span class="runner" id="rn${i}">${m.n.split(' ')[0]}</span></div></div>`).join('');
+ if(go)requestAnimationFrame(()=>MODELS.forEach((m,i)=>{const t=m.lat*(0.5+size/4);const r=$('rn'+i);r.style.transitionDuration=t+'s';r.style.left='calc(100% - 40px)';setTimeout(()=>r.textContent+=' '+t.toFixed(1)+'s',t*1000)}))}
+$('raceGo').onclick=()=>{race(false);setTimeout(()=>race(true),50)};
+$('vol').oninput=pick;pick();
+
+/* ===== 4 ROUTING ===== */
+const CL=15,CS=0.8;
+const EASY=['Classify log entry','Translate a notice','Extract part number','Yes/no: is this urgent?','Short summary'],HARD=['Diagnose a multi-system fault','Plan a maintenance schedule','Debug analysis code','Compare 3 engineering reports'];
+function rcost(){const h=+$('hard').value/100,v=+$('rvol').value;$('hardV').textContent=Math.round(h*100)+'%';$('rvolV').textContent=v.toLocaleString();
+ const all=v*CL/1000,mix=v*(h*CL+(1-h)*CS)/1000+v*0.1/1000;$('kAll').textContent=Math.round(all).toLocaleString();$('kMix').textContent=Math.round(mix).toLocaleString();$('kSave').textContent=Math.round((1-mix/all)*100)+'%'}
+function drawR(){const s=$('rSvg');s.innerHTML='';
+ el('rect',{x:20,y:170,width:150,height:80,rx:14,fill:'#0b2545'},s);el('text',{x:95,y:205,'text-anchor':'middle',fill:'#fff','font-size':20,'font-weight':700},s,'📥 Requests');el('text',{x:95,y:232,'text-anchor':'middle',fill:'#cfe0ff','font-size':14},s,'from users');
+ el('rect',{x:280,y:165,width:170,height:90,rx:45,fill:'#b7791f'},s);el('text',{x:365,y:205,'text-anchor':'middle',fill:'#fff','font-size':20,'font-weight':700},s,'🚦 Router');el('text',{x:365,y:230,'text-anchor':'middle',fill:'#fff','font-size':14},s,'"easy or hard?"');
+ el('rect',{x:560,y:40,width:180,height:100,rx:14,fill:'#0f8a7a'},s);el('text',{x:650,y:85,'text-anchor':'middle',fill:'#fff','font-size':22,'font-weight':700},s,'🐇 Mini');el('text',{x:650,y:112,'text-anchor':'middle',fill:'#fff','font-size':14},s,'fast · cheap');
+ el('rect',{x:560,y:280,width:180,height:100,rx:14,fill:'#7a3fc4'},s);el('text',{x:650,y:325,'text-anchor':'middle',fill:'#fff','font-size':22,'font-weight':700},s,'🐘 Large');el('text',{x:650,y:352,'text-anchor':'middle',fill:'#fff','font-size':14},s,'smart · pricier');
+ [['M170 210 L280 210','#0b2545'],['M450 195 Q510 90 560 90','#0f8a7a'],['M450 225 Q510 330 560 330','#7a3fc4']].forEach(([d,c])=>el('path',{d,stroke:c,'stroke-width':5,fill:'none','stroke-dasharray':'8 6'},s));
+ el('text',{x:650,y:30,'text-anchor':'middle','font-size':16,'font-weight':700,fill:'#0f8a7a',id:'cE'},s,'0 handled');el('text',{x:650,y:404,'text-anchor':'middle','font-size':16,'font-weight':700,fill:'#7a3fc4',id:'cH'},s,'0 handled')}
+$('route').onclick=()=>{drawR();const s=$('rSvg');const h=+$('hard').value/100;let k=0,e=0,hh=0;$('rLog').innerHTML='';
+ const iv=setInterval(()=>{if(k++>=20)return clearInterval(iv);const hard=Math.random()<h;const lbl=(hard?HARD:EASY)[Math.floor(Math.random()*(hard?HARD:EASY).length)];
+  const dot=el('text',{x:95,y:215,'font-size':24,'text-anchor':'middle'},s,'✉️');const path=[[95,215],[365,210],hard?[650,330]:[650,90]];let t=0;
+  const an=setInterval(()=>{t+=0.05;const seg=t<0.5?0:1,u=seg?((t-.5)/.5):(t/.5);const [a,b]=[path[seg],path[seg+1]];dot.setAttribute('x',a[0]+(b[0]-a[0])*u);dot.setAttribute('y',a[1]+(b[1]-a[1])*u);
+   if(t>=1){clearInterval(an);dot.remove();if(hard)hh++;else e++;s.querySelector('#cE').textContent=e+' handled';s.querySelector('#cH').textContent=hh+' handled'}},25);
+  $('rLog').innerHTML=`→ "${lbl}" routed to <b style="color:${hard?'#7a3fc4':'#0f8a7a'}">${hard?'🐘 Large':'🐇 Mini'}</b>`},350)};
+['hard','rvol'].forEach(id=>$(id).oninput=rcost);rcost();drawR();
+
+/* ===== 5 TOKEN + COST LAB ===== */
+const LEX=[['🔧 Fault triage',`You are an aircraft maintenance assistant. Answer only from the manual excerpts provided. If unsure, say so.
+
+Technician note: Engine #2 shows high vibration (4.8 ips) after start-up on VT-SKA. EGT normal. Last borescope 320 flight hours ago. What are the likely causes and the next inspection steps?`],
+ ['📄 Report summary',`Summarise the following inspection report in 3 bullet points for a manager. Highlight safety risks first.
+
+[Report] Brake assembly wear measured at 62% on main gear left. Hydraulic line B-14 shows minor seepage, within limits, monitor next check. Cabin pressure controller software updated to v2.3. Two passenger seats (14C, 22F) recline mechanism repaired. No structural findings.`],
+ ['🇮🇳 Hindi notice',`कृपया ध्यान दें: ड्रिल का उपयोग करने से पहले सुरक्षा चश्मा पहनें। सभी उपकरणों की जाँच शिफ्ट शुरू होने से पहले करें और किसी भी खराबी की सूचना तुरंत सुपरवाइज़र को दें।`],
+ ['💬 One-liner','What is the torque spec for bolt P/N 4412?']];
+const TIERS=[['🐘 Large',15,75,'#7a3fc4'],['🐎 Medium',3,15,'#1f5fbf'],['🐇 Small / mini',0.8,4,'#0f8a7a']]; // $ per 1M input, output (illustrative)
+const LVOL=[100,1000,5000,10000,50000,100000,1000000];
+$('labEx').innerHTML=LEX.map((e,i)=>`<button class="chip ${i?'':'on'}">${e[0]}</button>`).join('');
+[...$('labEx').children].forEach((b,i)=>b.onclick=()=>{$('labIn').value=LEX[i][1];[...$('labEx').children].forEach(x=>x.classList.toggle('on',x===b));lab()});
+function labTok(s){const out=[];(s.match(/\s*[A-Za-z]+|\s*\d{1,3}|\s*[ऀ-ॿ]|\s*[^\sA-Za-z\dऀ-ॿ]|\s+/g)||[]).forEach(p=>{
+  const w=p.trim();if(/^[A-Za-z]+$/.test(w)&&w.length>7){let r=p;while(r.length>0){const n=r.startsWith(' ')?6:5;out.push(r.slice(0,n));r=r.slice(n)}}else out.push(p)});return out}
+const money=v=>v<0.01?'$'+v.toFixed(4):v<100?'$'+v.toFixed(2):'$'+Math.round(v).toLocaleString();
+function lab(){const s=$('labIn').value,t=labTok(s),inT=t.length,outT=+$('outT').value,vol=LVOL[+$('lv').value],cache=$('cache').checked;
+ $('outV').textContent=outT+' tokens (~'+Math.round(outT*.75)+' words)';$('lvV').textContent=vol.toLocaleString();
+ const words=(s.match(/\S+/g)||[]).length;
+ $('labStats').innerHTML=[['Characters',s.length],['Words',words],['Input tokens',inT],['Output tokens',outT],['Tokens per word',(inT/Math.max(1,words)).toFixed(2)]].map(([k,v])=>`<div class="kpi" style="flex:1;min-width:120px"><b>${v}</b>${k}</div>`).join('');
+ $('labToks').innerHTML=t.slice(0,400).map((x,i)=>`<span style="background:${['#ffd6a5','#caffbf','#9bf6ff','#bdb2ff','#ffc6ff','#fdffb6'][i%6]};border-radius:4px;padding:2px 3px;font:15px ui-monospace,Menlo,monospace;white-space:pre">${esc(x)}</span>`).join('')+(t.length>400?' …':'');
+ const effIn=cache?inT*0.4+inT*0.6*0.1:inT; // assume ~60% of input is the reusable system prompt
+ const rows=TIERS.map(([n,pi,po,c])=>{const per=effIn/1e6*pi+outT/1e6*po;return{n,c,per,day:per*vol,month:per*vol*30,inC:effIn/1e6*pi*vol*30,outC:outT/1e6*po*vol*30}});
+ $('costT').innerHTML=`<tr style="background:#f6f8fc"><th style="text-align:left;padding:8px">Model</th><th>Per request</th><th>Per day</th><th>Per month</th><th style="min-width:160px">Input vs output</th></tr>`+
+  rows.map(r=>`<tr style="border-top:1px solid var(--line)"><td style="padding:8px;font-weight:700;color:${r.c}">${r.n}</td><td style="text-align:center">${money(r.per)}</td><td style="text-align:center">${money(r.day)}</td><td style="text-align:center;font-weight:800;font-size:22px">${money(r.month)}</td>
+   <td><div style="display:flex;height:16px;border-radius:8px;overflow:hidden"><i style="width:${r.inC/(r.inC+r.outC)*100}%;background:#9bb7e6"></i><i style="flex:1;background:#d9480f"></i></div><small style="color:var(--mut)">blue = input · orange = output</small></td></tr>`).join('');
+ const save=rows[0].month-rows[2].month;
+ $('costNote').innerHTML=`📊 At <b>${vol.toLocaleString()}</b> requests/day, choosing mini instead of large saves about <b>${money(save)}/month</b>. ${outT>inT?'Output is the bigger cost here, so asking for shorter answers helps most.':'Input is the bigger cost here, so trim the prompt or turn on caching.'}`}
+['labIn','outT','lv','cache'].forEach(id=>$(id).oninput=lab);$('cache').onchange=lab;
+$('labIn').value=LEX[0][1];lab();
+</script>
+</body>
+</html>
